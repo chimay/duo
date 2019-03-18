@@ -60,7 +60,8 @@ OBJECT must be a cons or a list."
 
 (defun torus--member (elem list &optional predicate)
   "Return cons of ELEM in LIST or nil if ELEM is not in list.
-PREDICATE takes two arguments and return t if they are considered equals."
+PREDICATE takes two arguments and return t if they are considered equals.
+PREDICATE defaults do `equal'."
   (let ((duo list)
         (predicate (if predicate
                        predicate
@@ -111,7 +112,8 @@ Circular : if in end of list, go to the beginning."
 (defun torus--before (elem list &optional predicate)
   "Return cons before ELEM in LIST.
 Circular : if in beginning of list, go to the end.
-PREDICATE takes two arguments and return t if they are considered equals."
+PREDICATE takes two arguments and return t if they are considered equals.
+PREDICATE defaults do `equal'."
   (let ((duo list)
         (predicate (if predicate
                        predicate
@@ -126,10 +128,11 @@ PREDICATE takes two arguments and return t if they are considered equals."
 (defun torus--after (elem list &optional predicate)
   "Return cons after ELEM in LIST.
 Circular : if in end of list, go to the beginning.
-PREDICATE takes two arguments and return t if they are considered equals."
+PREDICATE takes two arguments and return t if they are considered equals.
+PREDICATE defaults do `equal'."
   (torus--next (torus--member elem list predicate) list))
 
-;;; Add / Remove
+;;; Add / Change / Remove
 ;;; ------------------------------
 
 ;;; Beginning / End
@@ -202,15 +205,15 @@ Return LIST."
       (setcar list nil))
     next))
 
+;;; Anywhere
+;;; ---------------
+
 (defun torus--update (old new list)
   "Replace OLD by NEW in LIST. Return cons of NEW."
   (let ((duo (torus--member old list)))
     (when duo
       (setcar duo new))
     duo))
-
-;;; Anywhere
-;;; ---------------
 
 (defun torus--remove (cons list)
   "Delete CONS from LIST. Return cons of removed element."
@@ -225,7 +228,8 @@ Return LIST."
 
 (defun torus--delete (elem list &optional predicate)
   "Delete ELEM from LIST. Return cons of removed element.
-PREDICATE takes two arguments and return t if they are considered equals."
+PREDICATE takes two arguments and return t if they are considered equals.
+PREDICATE defaults do `equal'."
   (let ((predicate (if predicate
                        predicate
                      #'equal)))
@@ -240,7 +244,8 @@ PREDICATE takes two arguments and return t if they are considered equals."
 
 (defun torus--insert-after (elem new list &optional predicate)
   "Insert NEW after ELEM in LIST. Return cons of NEW.
-PREDICATE takes two arguments and return t if they are considered equals."
+PREDICATE takes two arguments and return t if they are considered equals.
+PREDICATE defaults do `equal'."
   (let* ((member (torus--member elem list predicate))
          (duo))
     (if member
@@ -252,7 +257,8 @@ PREDICATE takes two arguments and return t if they are considered equals."
 
 (defun torus--insert-before (elem new list &optional predicate)
   "Insert NEW before ELEM in LIST. Return cons of ELEM.
-PREDICATE takes two arguments and return t if they are considered equals."
+PREDICATE takes two arguments and return t if they are considered equals.
+PREDICATE defaults do `equal'."
   (let ((predicate (if predicate
                        predicate
                      #'equal)))
@@ -269,7 +275,8 @@ PREDICATE takes two arguments and return t if they are considered equals."
 
 (defun torus--move-after (elem moved list &optional predicate)
   "Move MOVED after ELEM in LIST. Return cons of MOVED.
-PREDICATE takes two arguments and return t if they are considered equals."
+PREDICATE takes two arguments and return t if they are considered equals.
+PREDICATE defaults do `equal'."
   (let ((predicate (if predicate
                        predicate
                      #'equal)))
@@ -279,13 +286,26 @@ PREDICATE takes two arguments and return t if they are considered equals."
 
 (defun torus--move-before (elem moved list &optional predicate)
   "Move MOVED before ELEM in LIST. Return cons of MOVED.
-PREDICATE takes two arguments and return t if they are considered equals."
+PREDICATE takes two arguments and return t if they are considered equals.
+PREDICATE defaults do `equal'."
   (let ((predicate (if predicate
                        predicate
                      #'equal)))
     (unless (funcall predicate moved elem)
       (when (torus--delete moved list predicate)
         (torus--insert-before elem moved list predicate)))))
+
+(defun torus--insert-at-group-beg (new list &optional predicate)
+  "Insert NEW in list, at the beginning of a group determined by PREDICATE.
+PREDICATE takes two arguments and returns t if they belongs to the same group.
+PREDICATE defaults do `equal'."
+  (torus--insert-before new new list predicate))
+
+(defun torus--insert-at-group-end (new list &optional predicate)
+  "Insert NEW in list, at the end of a group determined by PREDICATE.
+PREDICATE takes two arguments and returns t if they belongs to the same group.
+PREDICATE defaults do `equal'."
+  )
 
 ;;; Rotate <- ->
 ;;; ------------------------------
