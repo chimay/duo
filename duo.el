@@ -285,26 +285,26 @@ PREDICATE defaults do `equal'."
   (let ((duo)
         (next)
         (removed)
-        (last-removed)
+        (last)
         (removed-list)
         (predicate (if predicate
                        predicate
                      #'equal)))
     (while (funcall predicate (car list) elem)
       ;; Pop case
-      (setq last-removed removed)
       (setq removed (torus--remove list list))
       (if removed-list
-          (torus--store-end removed removed-list last-removed)
+          (setq last (torus--store-end removed removed-list last))
+        (setq last removed)
         (setq removed-list removed)))
     (setq duo list)
     (while duo
       (setq next (cdr duo))
       (when (funcall predicate (car duo) elem)
-        (setq last-removed removed)
         (setq removed (torus--remove duo list))
         (if removed-list
-            (torus--store-end removed removed-list last-removed)
+            (setq last (torus--store-end removed removed-list last))
+          (setq last removed)
           (setq removed-list removed)))
       (setq duo next))
     removed-list))
@@ -406,10 +406,23 @@ PREDICATE defaults do `equal'."
 ;;; Filter
 ;;; ------------------------------
 
-(defun torus--filter (list predicate)
+(defun torus--filter (predicate list)
   "Return list of references to elements of LIST matching PREDICATE.
 PREDICATE takes one argument and return t if it must belong
-to the list of references.")
+to the list of references."
+  (let ((duo list)
+        (new)
+        (last)
+        (filtered))
+    (while duo
+      (when (funcall predicate (car duo))
+        (setq new (cons (car duo) nil))
+        (if filtered
+            (setcdr last new)
+          (setq filtered new))
+        (setq last new))
+      (setq duo (cdr duo)))
+    filtered))
 
 ;;; Assoc
 ;;; ------------------------------------------------------------
