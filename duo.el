@@ -374,14 +374,18 @@ TEST-EQUAL defaults do `equal'."
 (defun torus--rotate-left (list)
   "Rotate LIST to the left.
 Equivalent to pop first element and add it to the end."
-  (let ((duo (torus--pop list)))
-    (torus--add (car duo) list)))
+  ;; Length list > 1
+  (when (cdr list)
+    (let ((duo (torus--pop list)))
+      (torus--add (car duo) list))))
 
 (defun torus--rotate-right (list)
   "Rotate LIST to the right.
 Equivalent to drop last element and push it at the beginning."
-  (let ((duo (torus--drop list)))
-    (torus--push (car duo) list)))
+  ;; Length list > 1
+  (when (cdr list)
+    (let ((duo (torus--drop list)))
+      (torus--push (car duo) list))))
 
 ;;; Group
 ;;; ------------------------------
