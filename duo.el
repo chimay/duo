@@ -93,21 +93,25 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
   "Return cons before CONS in LIST. CONS must reference a cons in list.
 Circular : if in beginning of list, go to the end.
 Test with eq."
-  (let ((duo list))
-    (if (eq duo cons)
-        (torus--last list)
-      (while (and duo
-                  (not (eq (cdr duo) cons)))
-        (setq duo (cdr duo)))
-      duo)))
+  (if cons
+      (let ((duo list))
+        (if (eq cons list)
+            (torus--last list)
+          (while (and duo
+                      (not (eq (cdr duo) cons)))
+            (setq duo (cdr duo)))
+          duo))
+    nil))
 
 (defun torus--next (cons list)
   "Return cons after CONS in LIST. CONS must reference a cons in LIST.
 Circular : if in end of list, go to the beginning."
-  (let ((duo (cdr cons)))
-    (if duo
-        (cdr cons)
-      list)))
+  (if cons
+      (let ((duo (cdr cons)))
+        (if duo
+            (cdr cons)
+          list))
+    nil))
 
 (defun torus--before (elem list &optional predicate)
   "Return cons before ELEM in LIST.
@@ -233,7 +237,7 @@ PREDICATE defaults do `equal'."
   (let ((predicate (if predicate
                        predicate
                      #'equal)))
-    (if (funcall predicate elem (car list))
+    (if (funcall predicate (car list) elem)
         (torus--pop list)
       (let* ((previous (torus--before elem list predicate))
              (duo (cdr previous)))
@@ -241,6 +245,25 @@ PREDICATE defaults do `equal'."
           (setcdr previous (cdr duo))
           (setcdr duo nil))
         duo))))
+
+(defun torus--insert-next (cons new list)
+  "Insert NEW after CONS in LIST. Return cons of NEW."
+  (let ((duo (cons new (cdr cons))))
+    (setcdr cons duo)
+    duo))
+
+(defun torus--insert-previous (cons new list)
+  "Insert NEW before CONS in LIST. Return cons of NEW."
+  (if (eq cons list)
+      (torus--push new list)
+    (let* ((previous (torus--previous cons list))
+           (duo))
+      (if previous
+          (progn
+            (setq duo (cons new (cdr previous)))
+            (setcdr previous duo)
+            duo)
+        nil))))
 
 (defun torus--insert-after (elem new list &optional predicate)
   "Insert NEW after ELEM in LIST. Return cons of NEW.
@@ -256,13 +279,13 @@ PREDICATE defaults do `equal'."
       nil)))
 
 (defun torus--insert-before (elem new list &optional predicate)
-  "Insert NEW before ELEM in LIST. Return cons of ELEM.
+  "Insert NEW before ELEM in LIST. Return cons of NEW.
 PREDICATE takes two arguments and return t if they are considered equals.
 PREDICATE defaults do `equal'."
   (let ((predicate (if predicate
                        predicate
                      #'equal)))
-    (if (funcall predicate elem (car list))
+    (if (funcall predicate (car list) elem)
         (torus--push new list)
       (let* ((previous (torus--before elem list predicate))
              (duo))
@@ -305,6 +328,10 @@ PREDICATE defaults do `equal'."
   "Insert NEW in list, at the end of a group determined by PREDICATE.
 PREDICATE takes two arguments and returns t if they belongs to the same group.
 PREDICATE defaults do `equal'."
+  (let ((previous (torus--member new list predicate)))
+    (while (funcall predicate (car (cdr previous)) new)
+      (setq previous (cdr previous)))
+    )
   )
 
 ;;; Rotate <- ->
