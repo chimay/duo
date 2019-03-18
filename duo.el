@@ -220,7 +220,8 @@ Return LIST."
     duo))
 
 (defun torus--remove (cons list)
-  "Delete CONS from LIST. Return cons of removed element."
+  "Delete CONS from LIST. Return cons of removed element.
+CONS must reference a cons in LIST."
   (if (eq cons list)
       (torus--pop list)
     (let* ((previous (torus--previous cons list))
@@ -247,13 +248,15 @@ PREDICATE defaults do `equal'."
         duo))))
 
 (defun torus--insert-next (cons new list)
-  "Insert NEW after CONS in LIST. Return cons of NEW."
+  "Insert NEW after CONS in LIST. Return cons of NEW.
+CONS must reference a cons in LIST."
   (let ((duo (cons new (cdr cons))))
     (setcdr cons duo)
     duo))
 
 (defun torus--insert-previous (cons new list)
-  "Insert NEW before CONS in LIST. Return cons of NEW."
+  "Insert NEW before CONS in LIST. Return cons of NEW.
+CONS must reference a cons in LIST."
   (if (eq cons list)
       (torus--push new list)
     (let* ((previous (torus--previous cons list))
@@ -331,8 +334,7 @@ PREDICATE defaults do `equal'."
   (let ((previous (torus--member new list predicate)))
     (while (funcall predicate (car (cdr previous)) new)
       (setq previous (cdr previous)))
-    )
-  )
+    (torus--insert-next previous new list)))
 
 ;;; Rotate <- ->
 ;;; ------------------------------
