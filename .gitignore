@@ -1,0 +1,13 @@
+# vim: set filetype=conf
+
+# Emacs backup
+
+*~
+
+# Compiled
+
+*.elc
+
+# Unison backup
+
+.unison
