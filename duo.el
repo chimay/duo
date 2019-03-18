@@ -424,6 +424,45 @@ to the list of references."
       (setq duo (cdr duo)))
     filtered))
 
+(defun torus--filter-previous (predicate cons list)
+  "Return reference of previous element of CONS in LIST matching PREDICATE."
+  (let ((duo list)
+        (found)
+        (previous))
+    (while (and duo
+                (not found))
+      (if (eq duo cons)
+          (setq found t)
+        (when (funcall predicate (car duo))
+          (setq previous duo))
+        (setq duo (cdr duo))))
+    (if found
+        previous
+      nil)))
+
+(defun torus--filter-next (predicate cons list &optional test)
+  "Return reference of next element of CONS in LIST matching PREDICATE.")
+
+(defun torus--filter-before (predicate elem list &optional test)
+  "Return reference of ELEM before element in LIST matching PREDICATE.
+TEST tests equality of two elements, defaults to `equal'."
+  (let ((duo list)
+        (found)
+        (previous)
+        (test (if test
+                  test
+                #'equal)))
+    (while (and duo
+                (not found))
+      (if (funcall test (car duo) elem)
+          (setq found t)
+        (when (funcall predicate (car duo))
+          (setq previous duo))
+        (setq duo (cdr duo))))
+    (if found
+        previous
+      nil)))
+
 ;;; Assoc
 ;;; ------------------------------------------------------------
 
