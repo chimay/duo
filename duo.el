@@ -5,11 +5,17 @@
 ;; Author : Chimay
 ;; Name: Duo
 ;; Package-Version: 1.0
-;; Package-requires: ((emacs "24"))
+;; Package-requires: ((emacs "26"))
 ;; Keywords: list, in-place, operation
 ;; URL: https://github.com/chimay/duo
 
 ;;; Commentary:
+
+;; Cons DUO = (CAR . CDR) can be used as pointer
+;; with setcar and setcdr
+;;
+;; ELEM = (car DUO)
+;; DUO = (member ELEM LIST)
 
 ;;; Library of in place list operations in Emacs-Lisp.
 
@@ -36,14 +42,8 @@
 ;;; Code:
 ;;; ----------------------------------------------------------------------
 
-;; Cons DUO = (CAR . CDR) can be used as pointer
-;; with setcar and setcdr
-
-;; ELEM = (car DUO)
-;; DUO = (member ELEM LIST)
-
 ;;; References
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun torus--set-deref (ptr object)
   "Change the content of the variable referenced by PTR to OBJECT.
@@ -52,14 +52,21 @@ OBJECT must be a cons or a list."
   (setcdr ptr (cdr object))
   ptr)
 
+;;; Lists
+;;; ------------------------------------------------------------
+
 ;;; Find
 ;;; ------------------------------
 
-(defun torus--member (elem list)
-  "Return cons of ELEM in LIST or nil if ELEM is not in list."
-  (let ((duo list))
+(defun torus--member (elem list &optional predicate)
+  "Return cons of ELEM in LIST or nil if ELEM is not in list.
+PREDICATE takes two arguments and return t if they are considered equals."
+  (let ((duo list)
+        (predicate (if predicate
+                       predicate
+                     #'equal)))
     (while (and duo
-                (not (equal (car duo) elem)))
+                (not (funcall predicate (car duo) elem)))
       (setq duo (cdr duo)))
     duo))
 
@@ -101,21 +108,26 @@ Circular : if in end of list, go to the beginning."
         (cdr cons)
       list)))
 
-(defun torus--before (elem list)
+(defun torus--before (elem list &optional predicate)
   "Return cons before ELEM in LIST.
-Circular : if in beginning of list, go to the end."
-  (let ((duo list))
-    (if (equal (car duo) elem)
+Circular : if in beginning of list, go to the end.
+PREDICATE takes two arguments and return t if they are considered equals."
+  (let ((duo list)
+        (predicate (if predicate
+                       predicate
+                     #'equal)))
+    (if (funcall predicate (car list) elem)
         (torus--last list)
       (while (and duo
-                  (not (equal (car (cdr duo)) elem)))
+                  (not (funcall predicate (car (cdr duo)) elem)))
         (setq duo (cdr duo)))
       duo)))
 
-(defun torus--after (elem list)
+(defun torus--after (elem list &optional predicate)
   "Return cons after ELEM in LIST.
-Circular : if in end of list, go to the beginning."
-  (torus--next (torus--member elem list) list))
+Circular : if in end of list, go to the beginning.
+PREDICATE takes two arguments and return t if they are considered equals."
+  (torus--next (torus--member elem list predicate) list))
 
 ;;; Add / Remove
 ;;; ------------------------------
@@ -202,7 +214,7 @@ Return LIST."
 
 (defun torus--remove (cons list)
   "Delete CONS from LIST. Return cons of removed element."
-  (if (equal cons list)
+  (if (eq cons list)
       (torus--pop list)
     (let* ((previous (torus--previous cons list))
            (duo (cdr previous)))
@@ -211,20 +223,25 @@ Return LIST."
         (setcdr duo nil))
       duo)))
 
-(defun torus--delete (elem list)
-  "Delete ELEM from LIST. Return cons of removed element."
-  (if (equal elem (car list))
-      (torus--pop list)
-    (let* ((previous (torus--before elem list))
-           (duo (cdr previous)))
-      (when previous
-        (setcdr previous (cdr duo))
-        (setcdr duo nil))
-      duo)))
+(defun torus--delete (elem list &optional predicate)
+  "Delete ELEM from LIST. Return cons of removed element.
+PREDICATE takes two arguments and return t if they are considered equals."
+  (let ((predicate (if predicate
+                       predicate
+                     #'equal)))
+    (if (funcall predicate elem (car list))
+        (torus--pop list)
+      (let* ((previous (torus--before elem list predicate))
+             (duo (cdr previous)))
+        (when previous
+          (setcdr previous (cdr duo))
+          (setcdr duo nil))
+        duo))))
 
-(defun torus--insert-after (elem new list)
-  "Insert NEW after ELEM in LIST. Return cons of NEW."
-  (let* ((member (torus--member elem list))
+(defun torus--insert-after (elem new list &optional predicate)
+  "Insert NEW after ELEM in LIST. Return cons of NEW.
+PREDICATE takes two arguments and return t if they are considered equals."
+  (let* ((member (torus--member elem list predicate))
          (duo))
     (if member
         (progn
@@ -233,30 +250,42 @@ Return LIST."
           duo)
       nil)))
 
-(defun torus--insert-before (elem new list)
-  "Insert NEW before ELEM in LIST. Return cons of ELEM."
-  (if (equal elem (car list))
-      (torus--push new list)
-    (let* ((previous (torus--before elem list))
-           (duo))
-      (if previous
-          (progn
-            (setq duo (cons new (cdr previous)))
-            (setcdr previous duo)
-            duo)
-        nil))))
+(defun torus--insert-before (elem new list &optional predicate)
+  "Insert NEW before ELEM in LIST. Return cons of ELEM.
+PREDICATE takes two arguments and return t if they are considered equals."
+  (let ((predicate (if predicate
+                       predicate
+                     #'equal)))
+    (if (funcall predicate elem (car list))
+        (torus--push new list)
+      (let* ((previous (torus--before elem list predicate))
+             (duo))
+        (if previous
+            (progn
+              (setq duo (cons new (cdr previous)))
+              (setcdr previous duo)
+              duo)
+          nil)))))
 
-(defun torus--move-after (elem moved list)
-  "Move MOVED after ELEM in LIST. Return cons of MOVED."
-  (unless (equal moved elem)
-    (when (torus--delete moved list)
-      (torus--insert-after elem moved list))))
+(defun torus--move-after (elem moved list &optional predicate)
+  "Move MOVED after ELEM in LIST. Return cons of MOVED.
+PREDICATE takes two arguments and return t if they are considered equals."
+  (let ((predicate (if predicate
+                       predicate
+                     #'equal)))
+    (unless (funcall predicate moved elem)
+      (when (torus--delete moved list predicate)
+        (torus--insert-after elem moved list predicate)))))
 
-(defun torus--move-before (elem moved list)
-  "Move MOVED before ELEM in LIST. Return cons of MOVED."
-  (unless (equal moved elem)
-    (when (torus--delete moved list)
-      (torus--insert-before elem moved list))))
+(defun torus--move-before (elem moved list &optional predicate)
+  "Move MOVED before ELEM in LIST. Return cons of MOVED.
+PREDICATE takes two arguments and return t if they are considered equals."
+  (let ((predicate (if predicate
+                       predicate
+                     #'equal)))
+    (unless (funcall predicate moved elem)
+      (when (torus--delete moved list predicate)
+        (torus--insert-before elem moved list predicate)))))
 
 ;;; Rotate <- ->
 ;;; ------------------------------
@@ -274,23 +303,34 @@ Equivalent to drop last element and push it at the beginning."
     (torus--push (car duo) list)))
 
 ;;; Assoc
+;;; ------------------------------------------------------------
+
+;;; Find
 ;;; ------------------------------
 
-(defun torus--assoc (key list)
+(defun torus--assoc (key list &optional predicate)
   "Return cons of first element in LIST whose car equals KEY.
+PREDICATE takes two arguments and return t if they are considered equals.
 Return nil if no matching element is found."
-  (let ((duo list))
+  (let ((duo list)
+        (predicate (if predicate
+                       predicate
+                     #'equal)))
     (while (and duo
-                (not (equal (car (car duo)) key)))
+                (not (funcall predicate (car (car duo)) key)))
       (setq duo (cdr duo)))
     duo))
 
-(defun torus--reverse-assoc (value list)
+(defun torus--reverse-assoc (value list &optional predicate)
   "Return cons of first element in LIST whose cdr equals VALUE.
+PREDICATE takes two arguments and return t if they are considered equals.
 Return nil if no matching element is found."
-  (let ((duo list))
+  (let ((duo list)
+        (predicate (if predicate
+                       predicate
+                     #'equal)))
     (while (and duo
-                (not (equal (cdr (car duo)) value)))
+                (not (funcall predicate (cdr (car duo)) value)))
       (setq duo (cdr duo)))
     duo))
 
@@ -304,4 +344,4 @@ Return nil if no matching element is found."
 ;; indent-tabs-mode: nil
 ;; End:
 
-;;; torus.el ends here
+;;; duo.el ends here
