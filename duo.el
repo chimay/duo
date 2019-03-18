@@ -157,28 +157,12 @@ If non nil, LAST is used to speed up the process."
     (setcdr cons nil)
     cons))
 
-(defun torus--add (elem list)
-  "Add ELEM at the end of LIST. Return the new end cons."
-  (let ((last (torus--last list))
-        (duo (cons elem nil)))
-    (setcdr last duo)
-    duo))
-
-(defun torus--add-new (elem list)
-  "Add ELEM at the end of LIST if not already there. Return the new end cons."
-  (unless (member elem list)
-    (torus--add elem list)))
-
-(defun torus--drop (list)
-  "Remove last element of LIST. Return cons of removed element."
-  (let* ((before-last (torus--last list 2))
-         (last (cdr before-last)))
-    (if last
-        (setcdr before-last nil)
-      ;; One element list
-      (setq last (cons (car list) nil))
-      (setcar list nil))
-    last))
+(defun torus--push (elem list)
+  "Add ELEM at the beginning of LIST. Return LIST."
+  (let* ((duo (cons (car list) (cdr list))))
+    (setcar list elem)
+    (setcdr list duo))
+  list)
 
 (defun torus--truncate (list &optional num)
   "Truncate LIST to its first NUM elements."
@@ -195,13 +179,6 @@ If non nil, LAST is used to speed up the process."
       (when last
         (setcdr last nil)))
     tail))
-
-(defun torus--push (elem list)
-  "Add ELEM at the beginning of LIST. Return LIST."
-  (let* ((duo (cons (car list) (cdr list))))
-    (setcar list elem)
-    (setcdr list duo))
-  list)
 
 (defun torus--push-and-truncate (elem list &optional num)
   "Add ELEM at the beginning of LIST. Truncate LIST to NUM elements.
@@ -224,20 +201,28 @@ Return LIST."
       (setcar list nil))
     next))
 
-;;; Rotate <- ->
-;;; ---------------
+(defun torus--add (elem list)
+  "Add ELEM at the end of LIST. Return the new end cons."
+  (let ((last (torus--last list))
+        (duo (cons elem nil)))
+    (setcdr last duo)
+    duo))
 
-(defun torus--rotate-left (list)
-  "Rotate LIST to the left.
-Equivalent to pop first element and add it to the end."
-  (let ((duo (torus--pop list)))
-    (torus--add (car duo) list)))
+(defun torus--add-new (elem list)
+  "Add ELEM at the end of LIST if not already there. Return the new end cons."
+  (unless (member elem list)
+    (torus--add elem list)))
 
-(defun torus--rotate-right (list)
-  "Rotate LIST to the right.
-Equivalent to drop last element and push it at the beginning."
-  (let ((duo (torus--drop list)))
-    (torus--push (car duo) list)))
+(defun torus--drop (list)
+  "Remove last element of LIST. Return cons of removed element."
+  (let* ((before-last (torus--last list 2))
+         (last (cdr before-last)))
+    (if last
+        (setcdr before-last nil)
+      ;; One element list
+      (setq last (cons (car list) nil))
+      (setcar list nil))
+    last))
 
 ;;; Anywhere
 ;;; ---------------
@@ -382,6 +367,21 @@ PREDICATE defaults do `equal'."
     (unless (funcall predicate moved elem)
       (when (torus--delete moved list predicate)
         (torus--insert-before elem moved list predicate)))))
+
+;;; Rotate <- ->
+;;; ------------------------------
+
+(defun torus--rotate-left (list)
+  "Rotate LIST to the left.
+Equivalent to pop first element and add it to the end."
+  (let ((duo (torus--pop list)))
+    (torus--add (car duo) list)))
+
+(defun torus--rotate-right (list)
+  "Rotate LIST to the right.
+Equivalent to drop last element and push it at the beginning."
+  (let ((duo (torus--drop list)))
+    (torus--push (car duo) list)))
 
 ;;; Group
 ;;; ------------------------------
