@@ -42,12 +42,6 @@
 ;; ELEM = (car DUO)
 ;; DUO = (member ELEM LIST)
 
-;; Cons DUO = (CAR . CDR) can be used as pointer
-;; with setcar and setcdr
-
-;; ELEM = (car DUO)
-;; DUO = (member ELEM LIST)
-
 ;;; References
 ;;; ------------------------------
 
@@ -155,9 +149,9 @@ Circular : if in end of list, go to the beginning."
 (defun torus--truncate (list &optional num)
   "Truncate LIST to its first NUM elements."
   (let* ((num (if num
-		  num
-		nil))
-	 (last)
+                  num
+                nil))
+         (last)
          (tail))
     (when num
       (setq last (nthcdr (1- num) list))
@@ -165,7 +159,7 @@ Circular : if in end of list, go to the beginning."
                      (cdr last)
                    nil))
       (when last
-	(setcdr last nil)))
+        (setcdr last nil)))
     tail))
 
 (defun torus--push (elem list)
@@ -233,10 +227,10 @@ Return LIST."
   (let* ((member (torus--member elem list))
          (duo))
     (if member
-	(progn
-	  (setq duo (cons new (cdr member)))
-	  (setcdr member duo)
-	  duo)
+        (progn
+          (setq duo (cons new (cdr member)))
+          (setcdr member duo)
+          duo)
       nil)))
 
 (defun torus--insert-before (elem new list)
@@ -246,11 +240,11 @@ Return LIST."
     (let* ((previous (torus--before elem list))
            (duo))
       (if previous
-	  (progn
-	    (setq duo (cons new (cdr previous)))
-	    (setcdr previous duo)
-	    duo)
-	nil))))
+          (progn
+            (setq duo (cons new (cdr previous)))
+            (setcdr previous duo)
+            duo)
+        nil))))
 
 (defun torus--move-after (elem moved list)
   "Move MOVED after ELEM in LIST. Return cons of MOVED."
@@ -265,7 +259,7 @@ Return LIST."
       (torus--insert-before elem moved list))))
 
 ;;; Rotate <- ->
-;;; -----------------
+;;; ------------------------------
 
 (defun torus--rotate-left (list)
   "Rotate LIST to the left.
@@ -278,3 +272,36 @@ Equivalent to pop first element and add it to the end."
 Equivalent to drop last element and push it at the beginning."
   (let ((duo (torus--drop list)))
     (torus--push (car duo) list)))
+
+;;; Assoc
+;;; ------------------------------
+
+(defun torus--assoc (key list)
+  "Return cons of first element in LIST whose car equals KEY.
+Return nil if no matching element is found."
+  (let ((duo list))
+    (while (and duo
+                (not (equal (car (car duo)) key)))
+      (setq duo (cdr duo)))
+    duo))
+
+(defun torus--reverse-assoc (value list)
+  "Return cons of first element in LIST whose cdr equals VALUE.
+Return nil if no matching element is found."
+  (let ((duo list))
+    (while (and duo
+                (not (equal (cdr (car duo)) value)))
+      (setq duo (cdr duo)))
+    duo))
+
+;;; End
+;;; ------------------------------------------------------------
+
+(provide 'duo)
+
+;; Local Variables:
+;; mode: emacs-lisp
+;; indent-tabs-mode: nil
+;; End:
+
+;;; torus.el ends here

@@ -6,4 +6,5 @@
 
 * Introduction
 
-Duo is a library of in place list operations in Emacs-Lisp.
+Duo is a library of in place list operations in Emacs-Lisp. A =duo= is
+a =cons= used to reference elements in lists.
