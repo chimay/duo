@@ -1,0 +1,9 @@
+
+#+STARTUP: showall
+
+* Table of contents                                                     :TOC_2_gh:
+- [[#introduction][Introduction]]
+
+* Introduction
+
+Duo is a library of in place list operations in Emacs-Lisp.
