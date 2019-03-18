@@ -135,7 +135,10 @@ PREDICATE defaults do `equal'."
 ;;; Add / Change / Remove
 ;;; ------------------------------
 
-(defun torus--store (cons list)
+;;; Beginning / End
+;;; ---------------
+
+(defun torus--store-beg (cons list)
   "Store CONS in LIST. Return LIST."
   (let* ((value (car list)))
     (setcar list (car cons))
@@ -144,8 +147,15 @@ PREDICATE defaults do `equal'."
     (setcdr list cons)
     list))
 
-;;; Beginning / End
-;;; ---------------
+(defun torus--store-end (cons list &optional last)
+  "Add CONS at the end of LIST. Return CONS.
+If non nil, LAST is used to speed up the process."
+  (let ((last (if last
+                  last
+                (torus--last list))))
+    (setcdr last cons)
+    (setcdr cons nil)
+    cons))
 
 (defun torus--add (elem list)
   "Add ELEM at the end of LIST. Return the new end cons."
@@ -283,7 +293,7 @@ PREDICATE defaults do `equal'."
       ;; Pop case
       (setq removed (torus--remove list list))
       (if removed-list
-          (torus--store removed removed-list)
+          (torus--store-beg removed removed-list)
         (setq removed-list removed)))
     (setq duo list)
     (while duo
@@ -291,7 +301,7 @@ PREDICATE defaults do `equal'."
       (when (funcall predicate (car duo) elem)
         (setq removed (torus--remove duo list))
         (if removed-list
-            (torus--store removed removed-list)
+            (torus--store-beg removed removed-list)
           (setq removed-list removed)))
       (setq duo next))
     removed-list))
@@ -389,6 +399,14 @@ PREDICATE defaults do `equal'."
       (setq previous (cdr previous)))
     (when previous
       (torus--insert-next previous new list))))
+
+;;; Filter
+;;; ------------------------------
+
+(defun torus--filter (list predicate)
+  "Return list of references to elements of LIST matching PREDICATE.
+PREDICATE takes one argument and return t if it must belong
+to the list of references.")
 
 ;;; Assoc
 ;;; ------------------------------------------------------------
