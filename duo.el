@@ -294,7 +294,7 @@ TEST-EQUAL defaults do `equal'."
       (setq duo next))
     removed-list))
 
-(defun torus--insert-next (cons new list)
+(defun torus--insert-next (cons new)
   "Insert NEW after CONS in LIST. Return cons of NEW.
 CONS must reference a cons in LIST."
   (let ((duo (cons new (cdr cons))))
@@ -405,7 +405,7 @@ TEST-GROUP defaults do `equal'."
                 (funcall test-group (car (cdr previous)) new))
       (setq previous (cdr previous)))
     (when previous
-      (torus--insert-next previous new list))))
+      (torus--insert-next previous new))))
 
 ;;; Filter
 ;;; ------------------------------
@@ -444,13 +444,19 @@ to the list of references."
         previous
       nil)))
 
-(defun torus--filter-next (test-filter cons list)
-  "Return reference of next element of CONS in LIST matching TEST-FILTER."
-  (let )
-  )
+(defun torus--filter-next (test-filter cons)
+  "Return reference of next element of CONS in list matching TEST-FILTER."
+  (let ((next (cdr cons))
+        (found))
+    (while (and next
+                (not found))
+      (if (funcall test-filter (car next))
+          (setq found t)
+        (setq next (cdr next))))
+    next))
 
 (defun torus--filter-before (test-filter elem list &optional test-equal)
-  "Return reference of ELEM before element in LIST matching TEST-FILTER.
+  "Return reference of element before ELEM in LIST matching TEST-FILTER.
 TEST-EQUAL tests equality of two elements, defaults to `equal'."
   (let ((duo list)
         (found)
@@ -468,6 +474,18 @@ TEST-EQUAL tests equality of two elements, defaults to `equal'."
     (if found
         previous
       nil)))
+
+(defun torus--filter-after (test-filter elem list &optional test-equal)
+  "Return reference of element after ELEM in LIST matching TEST-FILTER.
+TEST-EQUAL tests equality of two elements, defaults to `equal'."
+  (let ((next (torus--after elem list test-equal))
+        (found))
+    (while (and next
+                (not found))
+      (if (funcall test-filter (car next))
+          (setq found t)
+        (setq next (cdr next))))
+    next))
 
 ;;; Assoc
 ;;; ------------------------------------------------------------
