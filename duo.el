@@ -58,16 +58,16 @@ OBJECT must be a cons or a list."
 ;;; Find
 ;;; ------------------------------
 
-(defun torus--member (elem list &optional predicate)
+(defun torus--member (elem list &optional test-equal)
   "Return cons of ELEM in LIST or nil if ELEM is not in list.
-PREDICATE takes two arguments and return t if they are considered equals.
-PREDICATE defaults do `equal'."
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
   (let ((duo list)
-        (predicate (if predicate
-                       predicate
-                     #'equal)))
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
     (while (and duo
-                (not (funcall predicate (car duo) elem)))
+                (not (funcall test-equal (car duo) elem)))
       (setq duo (cdr duo)))
     duo))
 
@@ -109,28 +109,28 @@ Circular : if in end of list, go to the beginning."
         duo
       list)))
 
-(defun torus--before (elem list &optional predicate)
+(defun torus--before (elem list &optional test-equal)
   "Return cons before ELEM in LIST.
 Circular : if in beginning of list, go to the end.
-PREDICATE takes two arguments and return t if they are considered equals.
-PREDICATE defaults do `equal'."
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
   (let ((duo list)
-        (predicate (if predicate
-                       predicate
-                     #'equal)))
-    (if (funcall predicate (car list) elem)
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (if (funcall test-equal (car list) elem)
         (torus--last list)
       (while (and duo
-                  (not (funcall predicate (car (cdr duo)) elem)))
+                  (not (funcall test-equal (car (cdr duo)) elem)))
         (setq duo (cdr duo)))
       duo)))
 
-(defun torus--after (elem list &optional predicate)
+(defun torus--after (elem list &optional test-equal)
   "Return cons after ELEM in LIST.
 Circular : if in end of list, go to the beginning.
-PREDICATE takes two arguments and return t if they are considered equals.
-PREDICATE defaults do `equal'."
-  (torus--next (torus--member elem list predicate) list))
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (torus--next (torus--member elem list test-equal) list))
 
 ;;; Add / Change / Remove
 ;;; ------------------------------
@@ -246,36 +246,36 @@ CONS must reference a cons in LIST."
         (setcdr duo nil))
       duo)))
 
-(defun torus--delete (elem list &optional predicate)
+(defun torus--delete (elem list &optional test-equal)
   "Delete ELEM from LIST. Return cons of removed element.
-PREDICATE takes two arguments and return t if they are considered equals.
-PREDICATE defaults do `equal'."
-  (let ((predicate (if predicate
-                       predicate
-                     #'equal)))
-    (if (funcall predicate (car list) elem)
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (let ((test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (if (funcall test-equal (car list) elem)
         (torus--pop list)
-      (let* ((previous (torus--before elem list predicate))
+      (let* ((previous (torus--before elem list test-equal))
              (duo (cdr previous)))
         (when previous
           (setcdr previous (cdr duo))
           (setcdr duo nil))
         duo))))
 
-(defun torus--delete-all (elem list &optional predicate)
+(defun torus--delete-all (elem list &optional test-equal)
   "Delete all elements equals to ELEM from LIST.
 Return list of removed elements.
-PREDICATE takes two arguments and return t if they are considered equals.
-PREDICATE defaults do `equal'."
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
   (let ((duo)
         (next)
         (removed)
         (last)
         (removed-list)
-        (predicate (if predicate
-                       predicate
-                     #'equal)))
-    (while (funcall predicate (car list) elem)
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (while (funcall test-equal (car list) elem)
       ;; Pop case
       (setq removed (torus--remove list list))
       (if removed-list
@@ -285,7 +285,7 @@ PREDICATE defaults do `equal'."
     (setq duo list)
     (while duo
       (setq next (cdr duo))
-      (when (funcall predicate (car duo) elem)
+      (when (funcall test-equal (car duo) elem)
         (setq removed (torus--remove duo list))
         (if removed-list
             (setq last (torus--store-end removed removed-list last))
@@ -315,11 +315,11 @@ CONS must reference a cons in LIST."
             duo)
         nil))))
 
-(defun torus--insert-after (elem new list &optional predicate)
+(defun torus--insert-after (elem new list &optional test-equal)
   "Insert NEW after ELEM in LIST. Return cons of NEW.
-PREDICATE takes two arguments and return t if they are considered equals.
-PREDICATE defaults do `equal'."
-  (let* ((member (torus--member elem list predicate))
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (let* ((member (torus--member elem list test-equal))
          (duo))
     (if member
         (progn
@@ -328,16 +328,16 @@ PREDICATE defaults do `equal'."
           duo)
       nil)))
 
-(defun torus--insert-before (elem new list &optional predicate)
+(defun torus--insert-before (elem new list &optional test-equal)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
-PREDICATE takes two arguments and return t if they are considered equals.
-PREDICATE defaults do `equal'."
-  (let ((predicate (if predicate
-                       predicate
-                     #'equal)))
-    (if (funcall predicate (car list) elem)
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (let ((test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (if (funcall test-equal (car list) elem)
         (torus--push new list)
-      (let* ((previous (torus--before elem list predicate))
+      (let* ((previous (torus--before elem list test-equal))
              (duo))
         (if previous
             (progn
@@ -346,27 +346,27 @@ PREDICATE defaults do `equal'."
               duo)
           nil)))))
 
-(defun torus--move-after (elem moved list &optional predicate)
+(defun torus--move-after (elem moved list &optional test-equal)
   "Move MOVED after ELEM in LIST. Return cons of MOVED.
-PREDICATE takes two arguments and return t if they are considered equals.
-PREDICATE defaults do `equal'."
-  (let ((predicate (if predicate
-                       predicate
-                     #'equal)))
-    (unless (funcall predicate moved elem)
-      (when (torus--delete moved list predicate)
-        (torus--insert-after elem moved list predicate)))))
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (let ((test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (unless (funcall test-equal moved elem)
+      (when (torus--delete moved list test-equal)
+        (torus--insert-after elem moved list test-equal)))))
 
-(defun torus--move-before (elem moved list &optional predicate)
+(defun torus--move-before (elem moved list &optional test-equal)
   "Move MOVED before ELEM in LIST. Return cons of MOVED.
-PREDICATE takes two arguments and return t if they are considered equals.
-PREDICATE defaults do `equal'."
-  (let ((predicate (if predicate
-                       predicate
-                     #'equal)))
-    (unless (funcall predicate moved elem)
-      (when (torus--delete moved list predicate)
-        (torus--insert-before elem moved list predicate)))))
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (let ((test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (unless (funcall test-equal moved elem)
+      (when (torus--delete moved list test-equal)
+        (torus--insert-before elem moved list test-equal)))))
 
 ;;; Rotate <- ->
 ;;; ------------------------------
@@ -386,19 +386,19 @@ Equivalent to drop last element and push it at the beginning."
 ;;; Group
 ;;; ------------------------------
 
-(defun torus--insert-at-group-beg (new list &optional predicate)
-  "Insert NEW in LIST, at the beginning of a group determined by PREDICATE.
-PREDICATE takes two arguments and returns t if they belongs to the same group.
-PREDICATE defaults do `equal'."
-  (torus--insert-before new new list predicate))
+(defun torus--insert-at-group-beg (new list &optional test-group)
+  "Insert NEW in LIST, at the beginning of a group determined by TEST-GROUP.
+TEST-GROUP takes two arguments and returns t if they belongs to the same group.
+TEST-GROUP defaults do `equal'."
+  (torus--insert-before new new list test-group))
 
-(defun torus--insert-at-group-end (new list &optional predicate)
-  "Insert NEW in LIST, at the end of a group determined by PREDICATE.
-PREDICATE takes two arguments and returns t if they belongs to the same group.
-PREDICATE defaults do `equal'."
-  (let ((previous (torus--member new list predicate)))
+(defun torus--insert-at-group-end (new list &optional test-group)
+  "Insert NEW in LIST, at the end of a group determined by TEST-GROUP.
+TEST-GROUP takes two arguments and returns t if they belongs to the same group.
+TEST-GROUP defaults do `equal'."
+  (let ((previous (torus--member new list test-group)))
     (while (and previous
-                (funcall predicate (car (cdr previous)) new))
+                (funcall test-group (car (cdr previous)) new))
       (setq previous (cdr previous)))
     (when previous
       (torus--insert-next previous new list))))
@@ -406,16 +406,16 @@ PREDICATE defaults do `equal'."
 ;;; Filter
 ;;; ------------------------------
 
-(defun torus--filter (predicate list)
-  "Return list of references to elements of LIST matching PREDICATE.
-PREDICATE takes one argument and return t if it must belong
+(defun torus--filter (test-filter list)
+  "Return list of references to elements of LIST matching TEST-FILTER.
+TEST-FILTER takes one argument and return t if it must belong
 to the list of references."
   (let ((duo list)
         (new)
         (last)
         (filtered))
     (while duo
-      (when (funcall predicate (car duo))
+      (when (funcall test-filter (car duo))
         (setq new (cons (car duo) nil))
         (if filtered
             (setcdr last new)
@@ -424,8 +424,8 @@ to the list of references."
       (setq duo (cdr duo)))
     filtered))
 
-(defun torus--filter-previous (predicate cons list)
-  "Return reference of previous element of CONS in LIST matching PREDICATE."
+(defun torus--filter-previous (test-filter cons list)
+  "Return reference of previous element of CONS in LIST matching TEST-FILTER."
   (let ((duo list)
         (found)
         (previous))
@@ -433,30 +433,32 @@ to the list of references."
                 (not found))
       (if (eq duo cons)
           (setq found t)
-        (when (funcall predicate (car duo))
+        (when (funcall test-filter (car duo))
           (setq previous duo))
         (setq duo (cdr duo))))
     (if found
         previous
       nil)))
 
-(defun torus--filter-next (predicate cons list)
-  "Return reference of next element of CONS in LIST matching PREDICATE.")
+(defun torus--filter-next (test-filter cons list)
+  "Return reference of next element of CONS in LIST matching TEST-FILTER."
+  (let )
+  )
 
-(defun torus--filter-before (predicate elem list &optional test)
-  "Return reference of ELEM before element in LIST matching PREDICATE.
-TEST tests equality of two elements, defaults to `equal'."
+(defun torus--filter-before (test-filter elem list &optional test-equal)
+  "Return reference of ELEM before element in LIST matching TEST-FILTER.
+TEST-EQUAL tests equality of two elements, defaults to `equal'."
   (let ((duo list)
         (found)
         (previous)
-        (test (if test
-                  test
-                #'equal)))
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
     (while (and duo
                 (not found))
-      (if (funcall test (car duo) elem)
+      (if (funcall test-equal (car duo) elem)
           (setq found t)
-        (when (funcall predicate (car duo))
+        (when (funcall test-filter (car duo))
           (setq previous duo))
         (setq duo (cdr duo))))
     (if found
@@ -469,29 +471,29 @@ TEST tests equality of two elements, defaults to `equal'."
 ;;; Find
 ;;; ------------------------------
 
-(defun torus--assoc (key list &optional predicate)
+(defun torus--assoc (key list &optional test-equal)
   "Return cons of first element in LIST whose car equals KEY.
-PREDICATE takes two arguments and return t if they are considered equals.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
 Return nil if no matching element is found."
   (let ((duo list)
-        (predicate (if predicate
-                       predicate
-                     #'equal)))
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
     (while (and duo
-                (not (funcall predicate (car (car duo)) key)))
+                (not (funcall test-equal (car (car duo)) key)))
       (setq duo (cdr duo)))
     duo))
 
-(defun torus--reverse-assoc (value list &optional predicate)
+(defun torus--reverse-assoc (value list &optional test-equal)
   "Return cons of first element in LIST whose cdr equals VALUE.
-PREDICATE takes two arguments and return t if they are considered equals.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
 Return nil if no matching element is found."
   (let ((duo list)
-        (predicate (if predicate
-                       predicate
-                     #'equal)))
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
     (while (and duo
-                (not (funcall predicate (cdr (car duo)) value)))
+                (not (funcall test-equal (cdr (car duo)) value)))
       (setq duo (cdr duo)))
     duo))
 
