@@ -139,7 +139,7 @@ PREDICATE defaults do `equal'."
 ;;; ---------------
 
 (defun torus--store-beg (cons list)
-  "Store CONS in LIST. Return LIST."
+  "Store CONS at the beginning of LIST. Return LIST."
   (let* ((value (car list)))
     (setcar list (car cons))
     (setcar cons value)
@@ -148,7 +148,7 @@ PREDICATE defaults do `equal'."
     list))
 
 (defun torus--store-end (cons list &optional last)
-  "Add CONS at the end of LIST. Return CONS.
+  "Store CONS at the end of LIST. Return CONS.
 If non nil, LAST is used to speed up the process."
   (let ((last (if last
                   last
