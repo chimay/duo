@@ -440,7 +440,7 @@ to the list of references."
         previous
       nil)))
 
-(defun torus--filter-next (predicate cons list &optional test)
+(defun torus--filter-next (predicate cons list)
   "Return reference of next element of CONS in LIST matching PREDICATE.")
 
 (defun torus--filter-before (predicate elem list &optional test)
