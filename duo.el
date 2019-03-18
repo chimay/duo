@@ -93,25 +93,21 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
   "Return cons before CONS in LIST. CONS must reference a cons in list.
 Circular : if in beginning of list, go to the end.
 Test with eq."
-  (if cons
-      (let ((duo list))
-        (if (eq cons list)
-            (torus--last list)
-          (while (and duo
-                      (not (eq (cdr duo) cons)))
-            (setq duo (cdr duo)))
-          duo))
-    nil))
+  (let ((duo list))
+    (if (eq cons list)
+        (torus--last list)
+      (while (and duo
+                  (not (eq (cdr duo) cons)))
+        (setq duo (cdr duo)))
+      duo)))
 
 (defun torus--next (cons list)
   "Return cons after CONS in LIST. CONS must reference a cons in LIST.
 Circular : if in end of list, go to the beginning."
-  (if cons
-      (let ((duo (cdr cons)))
-        (if duo
-            (cdr cons)
-          list))
-    nil))
+  (let ((duo (cdr cons)))
+    (if duo
+        duo
+      list)))
 
 (defun torus--before (elem list &optional predicate)
   "Return cons before ELEM in LIST.
@@ -332,9 +328,11 @@ PREDICATE defaults do `equal'."
 PREDICATE takes two arguments and returns t if they belongs to the same group.
 PREDICATE defaults do `equal'."
   (let ((previous (torus--member new list predicate)))
-    (while (funcall predicate (car (cdr previous)) new)
+    (while (and previous
+                (funcall predicate (car (cdr previous)) new))
       (setq previous (cdr previous)))
-    (torus--insert-next previous new list)))
+    (when previous
+      (torus--insert-next previous new list))))
 
 ;;; Rotate <- ->
 ;;; ------------------------------
