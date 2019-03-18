@@ -135,6 +135,15 @@ PREDICATE defaults do `equal'."
 ;;; Add / Change / Remove
 ;;; ------------------------------
 
+(defun torus--store (cons list)
+  "Store CONS in LIST. Return LIST."
+  (let* ((value (car list)))
+    (setcar list (car cons))
+    (setcar cons value)
+    (setcdr cons (cdr list))
+    (setcdr list cons)
+    list))
+
 ;;; Beginning / End
 ;;; ---------------
 
@@ -205,6 +214,21 @@ Return LIST."
       (setcar list nil))
     next))
 
+;;; Rotate <- ->
+;;; ---------------
+
+(defun torus--rotate-left (list)
+  "Rotate LIST to the left.
+Equivalent to pop first element and add it to the end."
+  (let ((duo (torus--pop list)))
+    (torus--add (car duo) list)))
+
+(defun torus--rotate-right (list)
+  "Rotate LIST to the right.
+Equivalent to drop last element and push it at the beginning."
+  (let ((duo (torus--drop list)))
+    (torus--push (car duo) list)))
+
 ;;; Anywhere
 ;;; ---------------
 
@@ -242,6 +266,40 @@ PREDICATE defaults do `equal'."
           (setcdr previous (cdr duo))
           (setcdr duo nil))
         duo))))
+
+(defun torus--delete-all (elem list &optional predicate)
+  "Delete all elements equals to ELEM from LIST.
+Return list of removed elements.
+PREDICATE takes two arguments and return t if they are considered equals.
+PREDICATE defaults do `equal'."
+  (let ((duo)
+        (next)
+        (removed)
+        (removed-list)
+        (predicate (if predicate
+                       predicate
+                     #'equal)))
+    (while (funcall predicate (car list) elem)
+      ;; Pop case
+      (setq removed (torus--remove list list))
+      (if removed-list
+          (torus--store removed removed-list)
+        (setq removed-list removed))
+      (message "Car list %s Removed %s" (car list) removed)
+      )
+    (setq duo list)
+    (while duo
+      (setq next (cdr duo))
+      (message "Duo %s Next %s" duo next)
+      (when (funcall predicate (car duo) elem)
+        (setq removed (torus--remove duo list))
+        (message "Duo %s Next %s" duo next)
+        (if removed-list
+            (torus--store removed removed-list)
+          (setq removed-list removed)))
+      (message "Duo %s Next %s Removed %s" duo next removed)
+      (setq duo next))
+    removed-list))
 
 (defun torus--insert-next (cons new list)
   "Insert NEW after CONS in LIST. Return cons of NEW.
@@ -317,14 +375,17 @@ PREDICATE defaults do `equal'."
       (when (torus--delete moved list predicate)
         (torus--insert-before elem moved list predicate)))))
 
+;;; Group
+;;; ------------------------------
+
 (defun torus--insert-at-group-beg (new list &optional predicate)
-  "Insert NEW in list, at the beginning of a group determined by PREDICATE.
+  "Insert NEW in LIST, at the beginning of a group determined by PREDICATE.
 PREDICATE takes two arguments and returns t if they belongs to the same group.
 PREDICATE defaults do `equal'."
   (torus--insert-before new new list predicate))
 
 (defun torus--insert-at-group-end (new list &optional predicate)
-  "Insert NEW in list, at the end of a group determined by PREDICATE.
+  "Insert NEW in LIST, at the end of a group determined by PREDICATE.
 PREDICATE takes two arguments and returns t if they belongs to the same group.
 PREDICATE defaults do `equal'."
   (let ((previous (torus--member new list predicate)))
@@ -333,21 +394,6 @@ PREDICATE defaults do `equal'."
       (setq previous (cdr previous)))
     (when previous
       (torus--insert-next previous new list))))
-
-;;; Rotate <- ->
-;;; ------------------------------
-
-(defun torus--rotate-left (list)
-  "Rotate LIST to the left.
-Equivalent to pop first element and add it to the end."
-  (let ((duo (torus--pop list)))
-    (torus--add (car duo) list)))
-
-(defun torus--rotate-right (list)
-  "Rotate LIST to the right.
-Equivalent to drop last element and push it at the beginning."
-  (let ((duo (torus--drop list)))
-    (torus--push (car duo) list)))
 
 ;;; Assoc
 ;;; ------------------------------------------------------------
