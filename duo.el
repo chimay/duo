@@ -285,23 +285,26 @@ PREDICATE defaults do `equal'."
   (let ((duo)
         (next)
         (removed)
+        (last-removed)
         (removed-list)
         (predicate (if predicate
                        predicate
                      #'equal)))
     (while (funcall predicate (car list) elem)
       ;; Pop case
+      (setq last-removed removed)
       (setq removed (torus--remove list list))
       (if removed-list
-          (torus--store-beg removed removed-list)
+          (torus--store-end removed removed-list last-removed)
         (setq removed-list removed)))
     (setq duo list)
     (while duo
       (setq next (cdr duo))
       (when (funcall predicate (car duo) elem)
+        (setq last-removed removed)
         (setq removed (torus--remove duo list))
         (if removed-list
-            (torus--store-beg removed removed-list)
+            (torus--store-end removed removed-list last-removed)
           (setq removed-list removed)))
       (setq duo next))
     removed-list))
