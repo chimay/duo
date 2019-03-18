@@ -284,20 +284,15 @@ PREDICATE defaults do `equal'."
       (setq removed (torus--remove list list))
       (if removed-list
           (torus--store removed removed-list)
-        (setq removed-list removed))
-      (message "Car list %s Removed %s" (car list) removed)
-      )
+        (setq removed-list removed)))
     (setq duo list)
     (while duo
       (setq next (cdr duo))
-      (message "Duo %s Next %s" duo next)
       (when (funcall predicate (car duo) elem)
         (setq removed (torus--remove duo list))
-        (message "Duo %s Next %s" duo next)
         (if removed-list
             (torus--store removed removed-list)
           (setq removed-list removed)))
-      (message "Duo %s Next %s Removed %s" duo next removed)
       (setq duo next))
     removed-list))
 
