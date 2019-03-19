@@ -145,9 +145,14 @@ CONS must reference a cons in list."
         (setq duo (cdr duo)))
       duo)))
 
-(defun torus--duo-next (cons)
-  "Return cons after CONS in list. CONS must reference a cons in the list."
-  (cdr cons))
+(defun torus--duo-next (cons &optional num)
+  "Return cons of NUM elements after CONS in list.
+NUM defaults to 1.
+CONS must reference a cons in the list."
+  (let ((num (if num
+                 num
+               1)))
+    (nthcdr num cons)))
 
 (defun torus--duo-before (elem list &optional test-equal)
   "Return cons before ELEM in LIST.
@@ -507,14 +512,25 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-move-previous (cons list)
-  "Move CONS to previous place in LIST."
-  (let* ((before (torus--duo-previous cons list 2))
-         (after (cdr before)))
-    (when (and before
-               after)
-      (setcdr after (cdr cons))
-      (setcdr cons after)
-      (setcdr before cons))))
+  "Move CONS to previous place in LIST. Return CONS.
+CONS must reference a cons in LIST."
+  (if (eq cons (cdr list))
+      ;; If cons = second in list, exchange the values
+      ;; of first and second
+      ;; See why in docstring of torus--duo-naive-pop
+      ;; and torus--duo-pop
+      (let ((value (car list)))
+        (setcar list (car cons))
+        (setcar cons value)
+        list)
+    (let* ((before (torus--duo-previous cons list 2))
+           (after (cdr before)))
+      (when (and before
+                 after)
+        (setcdr after (cdr cons))
+        (setcdr cons after)
+        (setcdr before cons)
+        cons))))
 
 (defun torus--duo-move-next (cons list)
   "Move CONS to next place in LIST.")
