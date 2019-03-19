@@ -59,9 +59,9 @@ circular lists by :
 There is a slight difference between next/previous and after/before
 functions :
 
-  - Next / Previous use a cons as argument
+  - Next / Previous use a cons as landmark argument
 
-  - After / Before use the value of an element of the list as argument
+  - After / Before use the value of an element of the list as landmark argument
 
 
 ** Assoc
