@@ -338,7 +338,7 @@ Modifies LIST."
 (defun torus--duo-insert-cons-previous (cons new list)
   "Insert NEW before CONS in LIST. Return NEW.
 CONS must reference a cons in LIST.
-NEW is the cons (element-inserted . next-in-list)
+NEW is the cons (inserted-element . next-in-list)
 Modifies LIST."
   (if (eq cons list)
       (torus--duo-store-beg new list)
@@ -353,7 +353,7 @@ Modifies LIST."
 (defun torus--duo-insert-cons-next (cons new)
   "Insert NEW after CONS in list. Return NEW.
 CONS must reference a cons in LIST.
-NEW is the cons (element-inserted . next-in-list)
+NEW is the cons (inserted-element . next-in-list)
 Modifies LIST."
     (setcdr new (cdr cons))
     (setcdr cons new)
@@ -518,7 +518,7 @@ Modifies LIST."
 
 (defun torus--duo-jump-cons-previous (cons moved list)
   "Move MOVED before CONS in LIST. Return MOVED.
-MOVED is the cons (element-moved . next-in-list)
+MOVED is the cons (moved-element . next-in-list)
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
@@ -537,7 +537,7 @@ Modifies LIST."
 
 (defun torus--duo-jump-cons-next (cons moved list)
   "Move MOVED after CONS in LIST. Return MOVED.
-MOVED is the cons (element-moved . next-in-list)
+MOVED is the cons (moved-element . next-in-list)
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
@@ -560,7 +560,8 @@ MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-    )
+  (let ((duo (torus--duo-member moved list test-equal)))
+    (torus--duo-jump-cons-previous cons duo list)))
 
 (defun torus--duo-jump-next (cons moved list &optional test-equal)
   "Move MOVED after CONS in LIST. Return cons of MOVED.
@@ -568,7 +569,8 @@ MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-    )
+  (let ((duo (torus--duo-member moved list test-equal)))
+    (torus--duo-jump-cons-next cons duo list)))
 
 (defun torus--duo-jump-before (elem moved list &optional test-equal)
   "Move MOVED before ELEM in LIST. Return cons of MOVED.
