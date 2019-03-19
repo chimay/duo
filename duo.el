@@ -762,7 +762,7 @@ TEST-EQUAL tests equality of two elements, defaults to `equal'."
   (let ((duo (torus--duo-member elem list test-equal)))
     (torus--duo-circ-filter-next test-filter duo list)))
 
-;;; Assoc
+;;; Alists
 ;;; ------------------------------------------------------------
 
 ;;; Find
@@ -793,6 +793,17 @@ Return nil if no matching element is found."
                 (not (funcall test-equal (cdr (car duo)) value)))
       (setq duo (cdr duo)))
     duo))
+
+;;; Group
+;;; ------------------------------
+
+(defun torus--duo-key-fun (funkey list)
+  "Partition LIST using FUNKEY.
+The resut is an alist whose keys are given by the values of FUNKEY
+applied to the elements of LIST.
+Each element of the alist is of the form :
+\(key elem-1 elem-2 ... elem-N)
+where all the elem-* verify (FUNKEY elem-?) = key.")
 
 ;;; End
 ;;; ------------------------------------------------------------
