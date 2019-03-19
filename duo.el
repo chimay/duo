@@ -41,7 +41,8 @@
 ;; either explicitely created or in lists. A list variable =list= is
 ;; itself the cons at the beginning of the list. =(cdr list)= is the
 ;; second cons in the list. And so one with =(cddr list)=, =(nthcdr N
-;; list)=.
+;; list)=. Generally speaking, a member of a list is a cons
+;; =(value . next-member-in-list)=.
 ;;
 ;; When a =duo= has to be modified, it’s generally by =setcar= and
 ;; =setcdr= built-in.
