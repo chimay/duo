@@ -525,7 +525,8 @@ Modifies LIST."
           ;; If moved was at the head of list, pop has been used
           ;; to remove it and the roles of first and second cons of list
           ;; have been exchanged.
-          ;; If cons is eq to duo = the old cdr, it should now be
+          ;; If cons is eq to duo, it means it was the old second cons in list.
+          ;; With the old first cons removed, it should now be
           ;; the first cons of the list
           (setq cons list))
         (torus--duo-insert-cons-previous cons duo list)))))
@@ -543,10 +544,11 @@ Modifies LIST."
           ;; If moved was at the head of list, pop has been used
           ;; to remove it and the roles of first and second cons of list
           ;; have been exchanged.
-          ;; If cons is eq to duo = the old cdr, it should now be
+          ;; If cons is eq to duo, it means it was the old second cons in list.
+          ;; With the old first cons removed, it should now be
           ;; the first cons of the list
           (setq cons list))
-        (torus--duo-insert-cons-next cons duo list)))))
+        (torus--duo-insert-cons-next cons duo)))))
 
 (defun torus--duo-jump-previous (cons moved list &optional test-equal)
   "Move MOVED before CONS in LIST. Return cons of MOVED.
