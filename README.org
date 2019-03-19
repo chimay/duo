@@ -6,13 +6,16 @@
 
 * Introduction
 
-Duo is a library of in place list operations in Emacs-Lisp. A =duo= is
-a =cons= used to reference elements in lists.
+Duo is a library of in place list operations in Emacs-Lisp. The
+functions use references whenever possible.
+
+A =duo= is a =cons= used to reference elements in lists.
 
 Caution : apply these functions to circular lists
 would produce infinite loops.
 
-However, some *-circ-* functions simulate circular lists by :
+However, some functions, like *-circ-* or *-rotate-*, simulate
+circular lists by :
 
   - continuing at the beginning once arrived at the end
 

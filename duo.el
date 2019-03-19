@@ -22,7 +22,8 @@
 ;; Caution : apply these functions to circular lists
 ;; would produce infinite loops.
 ;;
-;; However, some *-circ-* functions simulate circular lists by :
+;; However, some functions, like  *-circ-* or  *-rotate-*,
+;; simulate circular lists by :
 ;;   - continuing at the beginning once arrived at the end
 ;;   - continuing at the end once arrived at the beginning
 
@@ -184,7 +185,8 @@ TEST-EQUAL defaults do `equal'."
 ;;; ---------------
 
 (defun torus--store-beg (cons list)
-  "Store CONS at the beginning of LIST. Return LIST."
+  "Store CONS at the beginning of LIST. Return LIST.
+Modify LIST."
   (let* ((value (car list)))
     (setcar list (car cons))
     (setcar cons value)
@@ -432,6 +434,26 @@ Equivalent to drop last element and push it at the beginning."
     (let ((duo (torus--drop list)))
       (torus--push (car duo) list))))
 
+;;; Reverse
+;;; ------------------------------
+
+(defun torus--reverse (list)
+  "Reverse LIST. Return LIST."
+  (let* ((begin list)
+         (end (torus--last list))
+         (value)
+         (middle))
+    (while (not middle)
+      (if (or (eq begin end)
+              (eq begin (cdr end)))
+          (setq middle t)
+        (setq value (car begin))
+        (setcar begin (car end))
+        (setcar end value)
+        (setq begin (cdr begin))
+        (setq end (torus--previous end list)))))
+  list)
+
 ;;; Group
 ;;; ------------------------------
 
@@ -457,6 +479,7 @@ TEST-GROUP defaults do `equal'."
 
 (defun torus--filter (test-filter list)
   "Return list of references to elements of LIST matching TEST-FILTER.
+LIST is not modified.
 TEST-FILTER takes one argument and return t if it must belong
 to the list of references."
   (let ((duo list)
