@@ -129,7 +129,7 @@ TEST-EQUAL defaults do `equal'."
   "Return cons after ELEM in LIST.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (torus--next (torus--member elem list test-equal)))
+  (cdr (torus--member elem list test-equal)))
 
 ;;; Circular
 ;;; ---------------
