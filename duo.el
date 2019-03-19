@@ -119,9 +119,13 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
       (setq last (cdr last)))
     last))
 
-(defun torus--duo-index (elem list)
+(defun torus--duo-at-index (index list)
   "Index of ELEM in LIST."
-  (- (length list) (length (member elem list))))
+  (nthcdr index list))
+
+(defun torus--duo-index (elem list &optional test-eq)
+  "Index of ELEM in LIST."
+  (- (length list) (length (torus--duo-member elem list test-eq))))
 
 ;;; Next / Previous
 ;;; ------------------------------
