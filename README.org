@@ -6,10 +6,27 @@
 
 * Introduction
 
-Duo is a library of in place list operations in Emacs-Lisp. The
-functions use references whenever possible.
+Duo is a library of in place list operations in Emacs-Lisp. Its functions modify the
+original list when :
 
-A =duo= is a =cons= used to reference elements in lists.
+  - it’s easy to get back : rotate, reverse, etc
+
+  - the name is clear : push, pop, add, drop, etc
+
+However, when it’s difficult or impossible to reverse the operation, a
+new list is created, with references to the elements of the original
+list when possible. For instance :
+
+  - filter
+
+  - filter-{previous,next,before,after}
+
+If in doubt, check their doc.
+
+In fact, the functions use references whenever possible. It’s
+implemented with =cons= =(CAR . CDR)=, which are called =duo=, hence
+the name of the library. When a =duo= has to be modified, it’s
+generally by =setcar= and =setcdr= built-in.
 
 Caution : apply these functions to circular lists
 would produce infinite loops.
