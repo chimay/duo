@@ -3,12 +3,14 @@
 
 * Table of contents                                                     :TOC_2_gh:
 - [[#introduction][Introduction]]
+  - [[#circular-lists][Circular lists]]
   - [[#next--previous-vs-after--before][Next / Previous vs After / Before]]
+  - [[#assoc][Assoc]]
 
 * Introduction
 
 Duo is a library of in place list operations in Emacs-Lisp. Its functions modify the
-original list when :
+original list when :
 
   - It’s easy to get back : rotate, reverse, etc
 
@@ -18,7 +20,7 @@ original list when :
 
 However, when it’s difficult or impossible to reverse the operation, a
 new list is created, with references to the elements of the original
-list when possible. For instance :
+list when possible. For instance :
 
   - filter
 
@@ -26,15 +28,19 @@ list when possible. For instance :
 
 If in doubt, check their doc.
 
-In fact, the functions use references whenever possible. It’s
-implemented with =(CAR . CDR)= =cons=, which are called =duo=, hence
-the name of the library. These cons are everywhere in Elisp : a list
-variable =list= is itself the cons at the beginning of the list.
-=(cdr list)= is the second cons in the list. And so one with =(cddr
-list)=, =(nthcdr N list)=.
+In fact, the functions use and return references whenever possible.
+It’s implemented with =(CAR . CDR)= =cons=, which are called =duo=,
+hence the name of the library. These cons are everywhere in Elisp,
+either explicitely created or in lists. A list variable =list= is
+itself the cons at the beginning of the list. =(cdr list)= is the
+second cons in the list. And so one with =(cddr list)=, =(nthcdr N
+list)=.
 
 When a =duo= has to be modified, it’s generally by =setcar= and
 =setcdr= built-in.
+
+
+** Circular lists
 
 Caution : apply some of these functions to circular lists would
 produce infinite loops.
@@ -50,8 +56,15 @@ circular lists by :
 ** Next / Previous vs After / Before
 
 There is a slight difference between next/previous and after/before
-functions :
+functions :
 
   - Next / Previous use a cons as argument
 
   - After / Before use the value of an element of the list as argument
+
+
+** Assoc
+
+The classic =assoc= function return the cons =(key . value)=, which is
+the /value/ of the AList element, whereas the =duo assoc= function
+return the duo =((key . value) . next-elem-in-alist)=.
