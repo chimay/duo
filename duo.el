@@ -36,9 +36,14 @@
 ;; If in doubt, check their doc.
 ;;
 ;; In fact, the functions use references whenever possible. It’s
-;; implemented with =cons= =(CAR . CDR)=, which are called =duo=, hence
-;; the name of the library. When a =duo= has to be modified, it’s
-;; generally by =setcar= and =setcdr= built-in.
+;; implemented with =(CAR . CDR)= cons, which are called =duo=, hence
+;; the name of the library. These cons are everywhere in Elisp : a
+;; list variable =list= is itself the cons at the beginning of the
+;; list. =(cdr list)= is the second cons in the list. And so one with
+;; =(cddr list)=, =(nthcdr N list)=
+;;
+;; When a =duo= has to be modified, it’s generally by =setcar= and
+;; =setcdr= built-in.
 ;;
 ;; Caution : apply some of these functions to circular lists would
 ;; produce infinite loops.
@@ -540,6 +545,9 @@ to the list of references."
       (setq duo (cdr duo)))
     filtered))
 
+;;; Next / Previous
+;;; ---------------
+
 (defun torus--filter-previous (test-filter cons list)
   "Return reference of previous element of CONS in LIST matching TEST-FILTER."
   (let ((duo list)
@@ -588,6 +596,68 @@ TEST-EQUAL tests equality of two elements, defaults to `equal'."
       nil)))
 
 (defun torus--filter-after (test-filter elem list &optional test-equal)
+  "Return reference of element after ELEM in LIST matching TEST-FILTER.
+TEST-EQUAL tests equality of two elements, defaults to `equal'."
+  (let ((next (torus--after elem list test-equal))
+        (found))
+    (while (and next
+                (not found))
+      (if (funcall test-filter (car next))
+          (setq found t)
+        (setq next (cdr next))))
+    next))
+
+;;; Circular
+;;; ---------------
+
+(defun torus--circ-filter-previous (test-filter cons list)
+  "Return reference of previous element of CONS in LIST matching TEST-FILTER."
+  (let ((duo list)
+        (found)
+        (previous))
+    (while (and duo
+                (not found))
+      (if (eq duo cons)
+          (setq found t)
+        (when (funcall test-filter (car duo))
+          (setq previous duo))
+        (setq duo (cdr duo))))
+    (if found
+        previous
+      nil)))
+
+(defun torus--circ-filter-next (test-filter cons list)
+  "Return reference of next element of CONS in list matching TEST-FILTER."
+  (let ((next (cdr cons))
+        (found))
+    (while (and next
+                (not found))
+      (if (funcall test-filter (car next))
+          (setq found t)
+        (setq next (cdr next))))
+    next))
+
+(defun torus--circ-filter-before (test-filter elem list &optional test-equal)
+  "Return reference of element before ELEM in LIST matching TEST-FILTER.
+TEST-EQUAL tests equality of two elements, defaults to `equal'."
+  (let ((duo list)
+        (found)
+        (previous)
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (while (and duo
+                (not found))
+      (if (funcall test-equal (car duo) elem)
+          (setq found t)
+        (when (funcall test-filter (car duo))
+          (setq previous duo))
+        (setq duo (cdr duo))))
+    (if found
+        previous
+      nil)))
+
+(defun torus--circ-filter-after (test-filter elem list &optional test-equal)
   "Return reference of element after ELEM in LIST matching TEST-FILTER.
 TEST-EQUAL tests equality of two elements, defaults to `equal'."
   (let ((next (torus--after elem list test-equal))
