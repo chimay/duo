@@ -130,13 +130,18 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
 ;;; Next / Previous
 ;;; ------------------------------
 
-(defun torus--duo-previous (cons list)
-  "Return cons before CONS in LIST. CONS must reference a cons in list."
+(defun torus--duo-previous (cons list &optional num)
+  "Return cons of NUM elements before CONS in LIST.
+NUM defaults to 1.
+CONS must reference a cons in list."
   (if (eq cons list)
       nil
-    (let ((duo list))
+    (let ((duo list)
+          (num (if num
+                   num
+                 1)))
       (while (and duo
-                  (not (eq (cdr duo) cons)))
+                  (not (eq (nthcdr num duo) cons)))
         (setq duo (cdr duo)))
       duo)))
 
@@ -502,16 +507,46 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-move-previous (cons list)
-  "Move CONS to previous place in LIST.")
+  "Move CONS to previous place in LIST."
+  (let* ((before (torus--duo-previous cons list 2))
+         (after (cdr before)))
+    (when (and before
+               after)
+      (setcdr after (cdr cons))
+      (setcdr cons after)
+      (setcdr before cons))))
 
 (defun torus--duo-move-next (cons list)
   "Move CONS to next place in LIST.")
 
+(defun torus--duo-move-before (elem list)
+  "Move ELEM to next place in LIST.")
+
 (defun torus--duo-move-after (elem list)
   "Move ELEM to next place in LIST.")
 
-(defun torus--duo-move-before (elem list)
-  "Move ELEM to next place in LIST.")
+;;; Circular
+;;; ---------------
+
+(defun torus--duo-move-circ-previous (cons list)
+  "Move CONS to previous place in LIST.
+Circular : if in beginning of list, go to the end."
+  )
+
+(defun torus--duo-move-circ-next (cons list)
+  "Move CONS to next place in LIST.
+Circular : if in end of list, go to the beginning."
+  )
+
+(defun torus--duo-move-circ-before (elem list)
+  "Move ELEM to next place in LIST.
+Circular : if in beginning of list, go to the end."
+  )
+
+(defun torus--duo-move-circ-after (elem list)
+  "Move ELEM to next place in LIST.
+Circular : if in end of list, go to the beginning."
+  )
 
 ;;; Jump
 ;;; ---------------
