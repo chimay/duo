@@ -66,5 +66,6 @@ functions :
 ** Assoc
 
 The classic =assoc= function return the cons =(key . value)=, which is
-the /value/ of the AList element, whereas the =duo assoc= function
-return the duo =((key . value) . next-elem-in-alist)=.
+the /value/ of the Alist element, whereas the =duo assoc= function
+return the duo =((key . value) . next-elem-in-alist)=, real member of
+the Alist.
