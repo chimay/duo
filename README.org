@@ -28,8 +28,8 @@ implemented with =cons= =(CAR . CDR)=, which are called =duo=, hence
 the name of the library. When a =duo= has to be modified, it’s
 generally by =setcar= and =setcdr= built-in.
 
-Caution : apply these functions to circular lists
-would produce infinite loops.
+Caution : apply some of these functions to circular lists would
+produce infinite loops.
 
 However, some functions, like *-circ-* or *-rotate-*, simulate
 circular lists by :
