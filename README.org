@@ -14,7 +14,7 @@ original list when :
 
   - It’s easy to get back : rotate, reverse, etc
 
-  - The name is clear : push, pop, add, drop, etc
+  - The name is clear : push, pop, add, drop, insert, remove, etc
 
     + When an element is removed, a reference to it is often returned
 
