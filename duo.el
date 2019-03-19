@@ -19,13 +19,35 @@
 ;; ELEM = (car DUO)
 ;; DUO = (member ELEM LIST)
 ;;
-;; Caution : apply these functions to circular lists
-;; would produce infinite loops.
+;; Duo is a library of in place list operations in Emacs-Lisp. Its functions modify the
+;; original list when :
 ;;
-;; However, some functions, like  *-circ-* or  *-rotate-*,
-;; simulate circular lists by :
-;;   - continuing at the beginning once arrived at the end
-;;   - continuing at the end once arrived at the beginning
+;;   - It’s easy to get back : rotate, reverse, etc
+;;   - The name is clear : push, pop, add, drop, etc
+;;     + When an element is removed, a reference to it is often returned
+;;
+;; However, when it’s difficult or impossible to reverse the operation, a
+;; new list is created, with references to the elements of the original
+;; list when possible. For instance :
+;;
+;;   - filter
+;;   - filter-{previous,next,before,after}
+;;
+;; If in doubt, check their doc.
+;;
+;; In fact, the functions use references whenever possible. It’s
+;; implemented with =cons= =(CAR . CDR)=, which are called =duo=, hence
+;; the name of the library. When a =duo= has to be modified, it’s
+;; generally by =setcar= and =setcdr= built-in.
+;;
+;; Caution : apply some of these functions to circular lists would
+;; produce infinite loops.
+;;
+;; However, some functions, like =*-circ-*= or =*-rotate-*=, simulate
+;; circular lists by :
+;;
+;;   - Continuing at the beginning once arrived at the end
+;;   - Continuing at the end once arrived at the beginning
 
 ;;; License:
 ;;; ----------------------------------------------------------------------

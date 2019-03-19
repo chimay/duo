@@ -36,6 +36,6 @@ produce infinite loops.
 However, some functions, like =*-circ-*= or =*-rotate-*=, simulate
 circular lists by :
 
-  - continuing at the beginning once arrived at the end
+  - Continuing at the beginning once arrived at the end
 
-  - continuing at the end once arrived at the beginning
+  - Continuing at the end once arrived at the beginning
