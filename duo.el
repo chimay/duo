@@ -16,8 +16,8 @@
 ;; Cons DUO = (CAR . CDR) can be used as pointer
 ;; with setcar and setcdr
 ;;
-;; ELEM = (car DUO)
-;; DUO = (member ELEM LIST)
+;; ELEM = (car DUO)          -> straightforward
+;; DUO  = (member ELEM LIST) -> needs loop
 ;;
 ;; Duo is a library of in place list operations in Emacs-Lisp. Its functions modify the
 ;; original list when :
@@ -207,7 +207,7 @@ TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (torus--circ-next (torus--member elem list test-equal) list))
 
-;;; Add / Change / Remove
+;;; Add / Remove
 ;;; ------------------------------
 
 ;;; Beginning / End
@@ -241,6 +241,12 @@ Modifies LIST."
     (setcar list elem)
     (setcdr list duo))
   list)
+
+(defun torus--push-new (elem list)
+  "Add ELEM at the beginning of LIST if not already there. Return LIST.
+Modifies LIST."
+  (unless (member elem list)
+    (torus--push elem list)))
 
 (defun torus--truncate (list &optional num)
   "Truncate LIST to its first NUM elements.
@@ -310,13 +316,61 @@ Modifies LIST."
 ;;; Anywhere
 ;;; ---------------
 
-(defun torus--update (old new list)
-  "Replace OLD by NEW in LIST. Return cons of NEW.
+(defun torus--insert-previous (cons new list)
+  "Insert NEW before CONS in LIST. Return cons of NEW.
+CONS must reference a cons in LIST.
 Modifies LIST."
-  (let ((duo (torus--member old list)))
-    (when duo
-      (setcar duo new))
+  (if (eq cons list)
+      (torus--push new list)
+    (let* ((previous (torus--previous cons list))
+           (duo))
+      (if previous
+          (progn
+            (setq duo (cons new (cdr previous)))
+            (setcdr previous duo)
+            duo)
+        nil))))
+
+(defun torus--insert-next (cons new)
+  "Insert NEW after CONS in LIST. Return cons of NEW.
+CONS must reference a cons in LIST.
+Modifies LIST."
+  (let ((duo (cons new (cdr cons))))
+    (setcdr cons duo)
     duo))
+
+(defun torus--insert-before (elem new list &optional test-equal)
+  "Insert NEW before ELEM in LIST. Return cons of NEW.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+Modifies LIST."
+  (let ((test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (if (funcall test-equal (car list) elem)
+        (torus--push new list)
+      (let* ((previous (torus--before elem list test-equal))
+             (duo))
+        (if previous
+            (progn
+              (setq duo (cons new (cdr previous)))
+              (setcdr previous duo)
+              duo)
+          nil)))))
+
+(defun torus--insert-after (elem new list &optional test-equal)
+  "Insert NEW after ELEM in LIST. Return cons of NEW.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+Modifies LIST."
+  (let* ((member (torus--member elem list test-equal))
+         (duo))
+    (if member
+        (progn
+          (setq duo (cons new (cdr member)))
+          (setcdr member duo)
+          duo)
+      nil)))
 
 (defun torus--remove (cons list)
   "Delete CONS from LIST. Return cons of removed element.
@@ -381,63 +435,57 @@ Modifies LIST."
       (setq duo next))
     removed-list))
 
-(defun torus--insert-previous (cons new list)
-  "Insert NEW before CONS in LIST. Return cons of NEW.
-CONS must reference a cons in LIST.
-Modifies LIST."
-  (if (eq cons list)
-      (torus--push new list)
-    (let* ((previous (torus--previous cons list))
-           (duo))
-      (if previous
-          (progn
-            (setq duo (cons new (cdr previous)))
-            (setcdr previous duo)
-            duo)
-        nil))))
+;;; Change value
+;;; ------------------------------
 
-(defun torus--insert-next (cons new)
-  "Insert NEW after CONS in LIST. Return cons of NEW.
-CONS must reference a cons in LIST.
+(defun torus--update (old new list)
+  "Replace OLD by NEW in LIST. Return cons of NEW.
 Modifies LIST."
-  (let ((duo (cons new (cdr cons))))
-    (setcdr cons duo)
+  (let ((duo (torus--member old list)))
+    (when duo
+      (setcar duo new))
     duo))
 
-(defun torus--insert-before (elem new list &optional test-equal)
-  "Insert NEW before ELEM in LIST. Return cons of NEW.
+;;; Move
+;;; ------------------------------
+
+;;; Step
+;;; ---------------
+
+(defun torus--move-previous (cons list)
+  "Move CONS to previous place in LIST.")
+
+(defun torus--move-next (cons list)
+  "Move CONS to next place in LIST.")
+
+(defun torus--move-after (elem list)
+  "Move ELEM to next place in LIST.")
+
+(defun torus--move-before (cons list)
+  "Move ELEM to next place in LIST.")
+
+;;; Jump
+;;; ---------------
+
+(defun torus--jump-previous (cons moved list)
+  "Move MOVED cons before CONS in LIST. Return MOVED.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (let ((test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (if (funcall test-equal (car list) elem)
-        (torus--push new list)
-      (let* ((previous (torus--before elem list test-equal))
-             (duo))
-        (if previous
-            (progn
-              (setq duo (cons new (cdr previous)))
-              (setcdr previous duo)
-              duo)
-          nil)))))
+    (unless (eq cons moved)
+      (when (torus--remove moved list)
+        (torus--insert-previous cons moved list))))
 
-(defun torus--insert-after (elem new list &optional test-equal)
-  "Insert NEW after ELEM in LIST. Return cons of NEW.
+(defun torus--jump-next (cons moved list &optional test-equal)
+  "Move MOVED cons after CONS in LIST. Return MOVED.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (let* ((member (torus--member elem list test-equal))
-         (duo))
-    (if member
-        (progn
-          (setq duo (cons new (cdr member)))
-          (setcdr member duo)
-          duo)
-      nil)))
+    (unless (eq cons moved)
+      (when (torus--remove moved list)
+        (torus--insert-next cons moved list))))
 
-(defun torus--move-before (elem moved list &optional test-equal)
+(defun torus--jump-before (elem moved list &optional test-equal)
   "Move MOVED before ELEM in LIST. Return cons of MOVED.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
@@ -449,7 +497,7 @@ Modifies LIST."
       (when (torus--delete moved list test-equal)
         (torus--insert-before elem moved list test-equal)))))
 
-(defun torus--move-after (elem moved list &optional test-equal)
+(defun torus--jump-after (elem moved list &optional test-equal)
   "Move MOVED after ELEM in LIST. Return cons of MOVED.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.

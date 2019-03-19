@@ -12,7 +12,7 @@
 Duo is a library of in place list operations in Emacs-Lisp. Its functions modify the
 original list when :
 
-  - It’s easy to get back : rotate, reverse, etc
+  - It’s easy to get back : rotate, reverse, move, etc
 
   - The name is clear : push, pop, add, drop, insert, remove, etc
 
