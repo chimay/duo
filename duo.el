@@ -11,13 +11,20 @@
 
 ;;; Commentary:
 
+;; Library of in place list operations in Emacs-Lisp.
+;;
 ;; Cons DUO = (CAR . CDR) can be used as pointer
 ;; with setcar and setcdr
 ;;
 ;; ELEM = (car DUO)
 ;; DUO = (member ELEM LIST)
-
-;;; Library of in place list operations in Emacs-Lisp.
+;;
+;; Caution : apply these functions to circular lists
+;; would produce infinite loops.
+;;
+;; However, some *-circ-* functions simulate circular lists by :
+;;   - continuing at the beginning once arrived at the end
+;;   - continuing at the end once arrived at the beginning
 
 ;;; License:
 ;;; ----------------------------------------------------------------------
@@ -90,18 +97,56 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
 ;;; ------------------------------
 
 (defun torus--previous (cons list)
-  "Return cons before CONS in LIST. CONS must reference a cons in list.
-Circular : if in beginning of list, go to the end.
-Test with eq."
-  (let ((duo list))
-    (if (eq cons list)
-        (torus--last list)
+  "Return cons before CONS in LIST. CONS must reference a cons in list."
+  (if (eq cons list)
+      nil
+    (let ((duo list))
       (while (and duo
                   (not (eq (cdr duo) cons)))
         (setq duo (cdr duo)))
       duo)))
 
-(defun torus--next (cons list)
+(defun torus--next (cons)
+  "Return cons after CONS in list. CONS must reference a cons in the list."
+  (cdr cons))
+
+(defun torus--before (elem list &optional test-equal)
+  "Return cons before ELEM in LIST.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (let ((test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (if (funcall test-equal (car list) elem)
+        nil
+      (let ((duo list))
+        (while (and duo
+                    (not (funcall test-equal (car (cdr duo)) elem)))
+          (setq duo (cdr duo)))
+        duo))))
+
+(defun torus--after (elem list &optional test-equal)
+  "Return cons after ELEM in LIST.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (torus--next (torus--member elem list test-equal)))
+
+;;; Circular
+;;; ---------------
+
+(defun torus--circ-previous (cons list)
+  "Return cons before CONS in LIST. CONS must reference a cons in list.
+Circular : if in beginning of list, go to the end.
+Test with eq."
+  (if (eq cons list)
+      (torus--last list)
+    (let ((duo list))
+      (while (and duo
+                  (not (eq (cdr duo) cons)))
+        (setq duo (cdr duo)))
+      duo)))
+
+(defun torus--circ-next (cons list)
   "Return cons after CONS in LIST. CONS must reference a cons in LIST.
 Circular : if in end of list, go to the beginning."
   (let ((duo (cdr cons)))
@@ -109,28 +154,28 @@ Circular : if in end of list, go to the beginning."
         duo
       list)))
 
-(defun torus--before (elem list &optional test-equal)
+(defun torus--circ-before (elem list &optional test-equal)
   "Return cons before ELEM in LIST.
 Circular : if in beginning of list, go to the end.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (let ((duo list)
-        (test-equal (if test-equal
+  (let ((test-equal (if test-equal
                         test-equal
                       #'equal)))
     (if (funcall test-equal (car list) elem)
         (torus--last list)
-      (while (and duo
-                  (not (funcall test-equal (car (cdr duo)) elem)))
-        (setq duo (cdr duo)))
-      duo)))
+      (let ((duo list))
+        (while (and duo
+                    (not (funcall test-equal (car (cdr duo)) elem)))
+          (setq duo (cdr duo)))
+        duo))))
 
-(defun torus--after (elem list &optional test-equal)
+(defun torus--circ-after (elem list &optional test-equal)
   "Return cons after ELEM in LIST.
 Circular : if in end of list, go to the beginning.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (torus--next (torus--member elem list test-equal) list))
+  (torus--circ-next (torus--member elem list test-equal) list))
 
 ;;; Add / Change / Remove
 ;;; ------------------------------
