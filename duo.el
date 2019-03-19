@@ -519,12 +519,16 @@ TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
   (unless (eq cons moved)
-    ;; With pop, cdr list is remove
-    ;; Handle case when cons = cdr list
-
-    (let ((moved (torus--duo-remove moved list)))
-      (when moved
-        (torus--duo-insert-cons-previous cons moved list)))))
+    (let ((duo (torus--duo-remove moved list)))
+      (when duo
+        (when (eq cons duo)
+          ;; If moved was at the head of list, pop has been used
+          ;; to remove it and the roles of first and second cons of list
+          ;; have been exchanged.
+          ;; If cons is eq to duo = the old cdr, it should now be
+          ;; the first cons of the list
+          (setq cons list))
+        (torus--duo-insert-cons-previous cons duo list)))))
 
 (defun torus--duo-jump-cons-next (cons moved list)
   "Move MOVED after CONS in LIST. Return MOVED.
@@ -533,9 +537,16 @@ TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
   (unless (eq cons moved)
-    (let ((moved (torus--duo-remove moved list)))
-      (when moved
-        (torus--duo-insert-cons-next cons moved)))))
+    (let ((duo (torus--duo-remove moved list)))
+      (when duo
+        (when (eq cons duo)
+          ;; If moved was at the head of list, pop has been used
+          ;; to remove it and the roles of first and second cons of list
+          ;; have been exchanged.
+          ;; If cons is eq to duo = the old cdr, it should now be
+          ;; the first cons of the list
+          (setq cons list))
+        (torus--duo-insert-cons-next cons duo list)))))
 
 (defun torus--duo-jump-previous (cons moved list &optional test-equal)
   "Move MOVED before CONS in LIST. Return cons of MOVED.
