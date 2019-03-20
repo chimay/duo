@@ -64,6 +64,12 @@ functions :
 
   - After / Before use the value of an element of the list as landmark argument
 
+Same thing with remove vs delete :
+
+  - Remove removes a cons given as argument
+
+  - Delete remove the first cons whose car matches an element given as argument
+
 
 ** Returned objects
 

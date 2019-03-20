@@ -491,7 +491,7 @@ Modifies LIST."
         nil))))
 
 (defun torus--duo-delete (elem list &optional test-equal)
-  "Delete ELEM from LIST. Return (removed-cons . LIST)
+  "Delete ELEM from LIST. Return (removed-cons . LIST).
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the return.
@@ -515,7 +515,7 @@ Modifies LIST."
 
 (defun torus--duo-delete-all (elem list &optional test-equal)
   "Delete all elements equals to ELEM from LIST.
-Return (list-of-deleted-elements . LIST).
+Return (list-of-removed-elements . LIST).
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the return.
@@ -547,9 +547,8 @@ Modifies LIST."
     (while duo
       (setq next (cdr duo))
       (when (funcall test-equal (car duo) elem)
-        (setq pair (torus--duo-remove duo newlist))
-        (setq removed (car pair))
-        (setq newlist (cdr pair))
+        (setq newlist (torus--duo-remove duo newlist))
+        (setq removed duo)
         (if removed-list
             (setq last (torus--duo-add-cons removed removed-list last))
           (setq removed-list removed)
