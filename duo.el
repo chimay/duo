@@ -1041,13 +1041,27 @@ Return nil if no matching element is found."
 ;;; Group
 ;;; ------------------------------
 
-(defun torus--duo-key-fun (funkey list)
+(defun torus--duo-partition (funkey list)
   "Partition LIST using FUNKEY.
 The resut is an alist whose keys are given by the values of FUNKEY
 applied to the elements of LIST.
 Each element of the alist is of the form :
 \(key elem-1 elem-2 ... elem-N)
-where all the elem-* verify (FUNKEY elem-?) = key.")
+where all the elem-* verify (FUNKEY elem-?) = key."
+  (let ((duo list)
+        (assoc-list)
+        (key)
+        (key-list))
+    (while duo
+      (setq key (funcall funkey (car duo)))
+      (setq key-list (torus--duo-assoc key assoc-list))
+      (if key-list
+          (torus--duo-add (car duo) (car key-list))
+        (if assoc-list
+            (torus--duo-add (list key (car duo)) assoc-list)
+          (setq assoc-list (list (list key (car duo))))))
+      (setq duo (cdr duo)))
+    assoc-list))
 
 ;;; End
 ;;; ------------------------------------------------------------
