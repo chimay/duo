@@ -137,21 +137,19 @@ TEST-EQUAL defaults do `equal'."
   "Return cons of NUM elements before CONS in LIST.
 NUM defaults to 1.
 CONS must reference a cons in list."
-  (if (eq cons list)
-      nil
-    (let* ((num (if num
-                    num
-                  1))
-           (duo list)
-           (scout (nthcdr num duo)))
-      (while (and duo
-                  (not (eq scout cons))
-                  (not (eq duo cons)))
-        (setq duo (cdr duo))
-        (setq scout (cdr scout)))
-      (if (eq scout cons)
-          duo
-        nil))))
+  (let* ((num (if num
+                  num
+                1))
+         (duo list)
+         (scout (nthcdr num duo)))
+    (while (and duo
+                (not (eq scout cons))
+                (not (eq duo cons)))
+      (setq duo (cdr duo))
+      (setq scout (cdr scout)))
+    (if (eq scout cons)
+        duo
+      nil)))
 
 (defun torus--duo-next (cons &optional num)
   "Return cons of NUM elements after CONS in list.
@@ -171,21 +169,19 @@ TEST-EQUAL defaults do `equal'."
   (let ((test-equal (if test-equal
                         test-equal
                       #'equal)))
-    (if (funcall test-equal (car list) elem)
-        nil
-      (let* ((num (if num
-                      num
-                    1))
-             (duo list)
-             (scout (nthcdr num duo)))
-        (while (and duo
-                    (not (funcall test-equal (car scout) elem))
-                    (not (funcall test-equal (car duo) elem)))
-          (setq duo (cdr duo))
-          (setq scout (cdr scout)))
-        (if (funcall test-equal (car scout) elem)
-            duo
-          nil)))))
+    (let* ((num (if num
+                    num
+                  1))
+           (duo list)
+           (scout (nthcdr num duo)))
+      (while (and duo
+                  (not (funcall test-equal (car scout) elem))
+                  (not (funcall test-equal (car duo) elem)))
+        (setq duo (cdr duo))
+        (setq scout (cdr scout)))
+      (if (funcall test-equal (car scout) elem)
+          duo
+        nil))))
 
 (defun torus--duo-after (elem list &optional num test-equal)
   "Return cons of NUM elements after ELEM in LIST.
@@ -201,9 +197,11 @@ TEST-EQUAL defaults do `equal'."
 ;;; Circular
 ;;; ---------------
 
-(defun torus--duo-circ-previous (cons list)
-  "Return cons before CONS in LIST. CONS must reference a cons in list.
+(defun torus--duo-circ-previous (cons list &optional num)
+  "Return cons of NUM elements before CONS in LIST.
 Circular : if in beginning of list, go to the end.
+NUM defaults to 1.
+CONS must reference a cons in list.
 Test with eq."
   (if (eq cons list)
       (torus--duo-last list)
@@ -213,17 +211,20 @@ Test with eq."
         (setq duo (cdr duo)))
       duo)))
 
-(defun torus--duo-circ-next (cons list)
-  "Return cons after CONS in LIST. CONS must reference a cons in LIST.
+(defun torus--duo-circ-next (cons list &optional num)
+  "Return cons of NUM elements after CONS in LIST.
 Circular : if in end of list, go to the beginning."
+NUM defaults to 1.
+CONS must reference a cons in LIST.
   (let ((duo (cdr cons)))
     (if duo
         duo
       list)))
 
 (defun torus--duo-circ-before (elem list &optional test-equal)
-  "Return cons before ELEM in LIST.
+  "Return cons of NUM elements before ELEM in LIST.
 Circular : if in beginning of list, go to the end.
+NUM defaults to 1.
 ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
@@ -238,13 +239,14 @@ TEST-EQUAL defaults do `equal'."
           (setq duo (cdr duo)))
         duo))))
 
-(defun torus--duo-circ-after (elem list &optional test-equal)
-  "Return cons after ELEM in LIST.
+(defun torus--duo-circ-after (elem list &optional num test-equal)
+  "Return cons of NUM elements after ELEM in LIST.
 Circular : if in end of list, go to the beginning.
+NUM defaults to 1.
 ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (torus--duo-circ-next (torus--duo-member elem list test-equal) list))
+  (torus--duo-circ-next (torus--duo-member elem list num test-equal) list))
 
 ;;; Add / Remove
 ;;; ------------------------------
