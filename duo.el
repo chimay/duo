@@ -367,7 +367,7 @@ Modifies LIST."
   "Insert NEW before CONS in LIST. Return NEW.
 CONS must reference a cons in LIST.
 NEW is the cons inserted.
-It the new cons is inserted at the beginning of the list,
+If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
@@ -395,9 +395,16 @@ Modifies LIST."
     new)
 
 (defun torus--duo-insert-previous (cons new list)
-  "Insert NEW before CONS in LIST. Return NEW.
+  "Insert NEW before CONS in LIST. Return cons of NEW.
 CONS must reference a cons in LIST.
 NEW is the value of the element inserted.
+If the new cons is inserted at the beginning of the list,
+the actual new list must be recovered using new LIST = NEW.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq return (torus--duo-insert-previous cons new list))
+\(when (eq (cdr return) list)
+  (setq list return))
 Modifies LIST."
   (if (eq cons list)
       (torus--duo-push new list)
@@ -424,6 +431,13 @@ Modifies LIST."
 NEW is the value of the element inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
+If the new cons is inserted at the beginning of the list,
+the actual new list must be recovered using new LIST = NEW.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq return (torus--duo-insert-before cons new list))
+\(when (eq (cdr return) list)
+  (setq list return))
 Modifies LIST."
   (let ((test-equal (if test-equal
                         test-equal
@@ -458,17 +472,15 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-remove (cons list)
-  "Remove CONS from LIST. Return (removed-cons . LIST).
+  "Remove CONS from LIST. Return LIST.
 CONS must reference a cons in LIST.
 The actual new list must be recovered using the return.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-remove cons list))
-\(setq removed (car pair))
-\(setq list (cdr pair))
+\(setq list (torus--duo-remove cons list))
 Modifies LIST."
   (if (eq cons list)
-      (torus--duo-pop list)
+      (cdr (torus--duo-pop list))
     (let* ((previous (torus--duo-previous cons list))
            (duo cons))
       (if previous
