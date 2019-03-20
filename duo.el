@@ -139,14 +139,19 @@ NUM defaults to 1.
 CONS must reference a cons in list."
   (if (eq cons list)
       nil
-    (let ((duo list)
-          (num (if num
-                   num
-                 1)))
+    (let* ((num (if num
+                    num
+                  1))
+           (duo list)
+           (scout (nthcdr num duo)))
       (while (and duo
-                  (not (eq (nthcdr num duo) cons)))
-        (setq duo (cdr duo)))
-      duo)))
+                  (not (eq scout cons))
+                  (not (eq duo cons)))
+        (setq duo (cdr duo))
+        (setq scout (cdr scout)))
+      (if (eq scout cons)
+          duo
+        nil))))
 
 (defun torus--duo-next (cons &optional num)
   "Return cons of NUM elements after CONS in list.
@@ -157,8 +162,9 @@ CONS must reference a cons in the list."
                1)))
     (nthcdr num cons)))
 
-(defun torus--duo-before (elem list &optional test-equal)
-  "Return cons before ELEM in LIST.
+(defun torus--duo-before (elem list &optional num test-equal)
+  "Return cons of NUM elements before ELEM in LIST.
+NUM defaults to 1.
 ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
@@ -167,18 +173,30 @@ TEST-EQUAL defaults do `equal'."
                       #'equal)))
     (if (funcall test-equal (car list) elem)
         nil
-      (let ((duo list))
+      (let* ((num (if num
+                      num
+                    1))
+             (duo list)
+             (scout (nthcdr num duo)))
         (while (and duo
-                    (not (funcall test-equal (car (cdr duo)) elem)))
-          (setq duo (cdr duo)))
-        duo))))
+                    (not (funcall test-equal (car scout) elem))
+                    (not (funcall test-equal (car duo) elem)))
+          (setq duo (cdr duo))
+          (setq scout (cdr scout)))
+        (if (funcall test-equal (car scout) elem)
+            duo
+          nil)))))
 
-(defun torus--duo-after (elem list &optional test-equal)
-  "Return cons after ELEM in LIST.
+(defun torus--duo-after (elem list &optional num test-equal)
+  "Return cons of NUM elements after ELEM in LIST.
+NUM defaults to 1.
 ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (cdr (torus--duo-member elem list test-equal)))
+  (let ((num (if num
+                 num
+               1)))
+    (nthcdr num (torus--duo-member elem list test-equal))))
 
 ;;; Circular
 ;;; ---------------
@@ -450,7 +468,7 @@ Modifies LIST."
                       #'equal)))
     (if (funcall test-equal (car list) elem)
         (torus--duo-push new list)
-      (let* ((previous (torus--duo-before elem list test-equal))
+      (let* ((previous (torus--duo-before elem list 1 test-equal))
              (duo))
         (if previous
             (progn
@@ -511,7 +529,7 @@ Modifies LIST."
                       #'equal)))
     (if (funcall test-equal (car list) elem)
         (torus--duo-pop list)
-      (let* ((previous (torus--duo-before elem list test-equal))
+      (let* ((previous (torus--duo-before elem list 1 test-equal))
              (duo (cdr previous)))
         (when previous
           (setcdr previous (cdr duo))
