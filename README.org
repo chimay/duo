@@ -47,7 +47,7 @@ Caution : apply some of these functions to circular lists would
 produce infinite loops.
 
 However, some functions, like =*-circ-*= or =*-rotate-*=, simulate
-circular lists by :
+virtual circular lists by :
 
   - Continuing at the beginning once arrived at the end
 
