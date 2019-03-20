@@ -807,6 +807,7 @@ Modifies LIST."
 
 (defun torus--duo-insert-at-group-beg (new list &optional test-group)
   "Insert NEW in LIST, at the beginning of a group determined by TEST-GROUP.
+Return LIST.
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
@@ -815,10 +816,16 @@ See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq list (torus--duo-insert-at-group-beg new list))
 Modifies LIST."
-  (torus--duo-insert-before new new list test-group))
+  (let ((newlist list)
+        (return))
+    (setq return (torus--duo-insert-before new new list test-group))
+    (when (eq (cdr return) newlist)
+      (setq newlist return))
+    newlist))
 
 (defun torus--duo-insert-at-group-end (new list &optional test-group)
   "Insert NEW in LIST, at the end of a group determined by TEST-GROUP.
+Return LIST.
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
@@ -827,12 +834,17 @@ See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq list (torus--duo-insert-at-group-end new list))
 Modifies LIST."
-  (let ((previous (torus--duo-member new list test-group)))
+  (let ((newlist list)
+        (previous (torus--duo-member new list test-group))
+        (return))
     (while (and previous
                 (funcall test-group (car (cdr previous)) new))
       (setq previous (cdr previous)))
     (when previous
-      (torus--duo-insert-next previous new))))
+      (setq return (torus--duo-insert-next previous new))
+      (when (eq (cdr return) newlist)
+        (setq newlist return)))
+    newlist))
 
 ;;; Filter
 ;;; ------------------------------
