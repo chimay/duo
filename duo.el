@@ -234,7 +234,7 @@ TEST-EQUAL defaults do `equal'."
 The actual new list must be recovered using the return.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-push-cons (cons list)))
+\(setq list (torus--duo-push-cons cons list))
 Modifies LIST."
   (let* ((newlist))
     (setcdr cons list)
@@ -257,7 +257,7 @@ Modifies LIST."
 The actual new list must be recovered using the return.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-push (elem list)))
+\(setq list (torus--duo-push elem list))
 Modifies LIST."
   (let* ((duo (cons elem (cdr list)))
          (newlist))
@@ -278,7 +278,7 @@ Modifies LIST."
 The actual new list must be recovered using the return.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-push-new (elem list)))
+\(setq list (torus--duo-push-new elem list))
 Modifies LIST."
   (if (member elem list)
       list
@@ -353,7 +353,7 @@ Return LIST.
 The actual new list must be recovered using the return.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-push-and-truncate (elem list)))
+\(setq list (torus--duo-push-and-truncate elem list))
 Modifies LIST."
   (let ((newlist list))
     (setq newlist (torus--duo-push elem list))
@@ -466,8 +466,14 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-remove (cons list)
-  "Remove CONS from LIST. Return cons of removed element.
+  "Remove CONS from LIST. Return (removed-cons . LIST).
 CONS must reference a cons in LIST.
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq pair (torus--duo-remove cons list))
+\(setq removed (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (if (eq cons list)
       (torus--duo-pop list)
@@ -477,7 +483,7 @@ Modifies LIST."
           (progn
             (setcdr previous (cdr duo))
             (setcdr duo nil)
-            duo)
+            (cons duo list))
         nil))))
 
 (defun torus--duo-delete (elem list &optional test-equal)
