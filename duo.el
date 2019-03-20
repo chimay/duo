@@ -227,13 +227,23 @@ Test with eq."
 
 (defun torus--duo-circ-next (cons list &optional num)
   "Return cons of NUM elements after CONS in LIST.
-Circular : if in end of list, go to the beginning."
+Circular : if in end of list, go to the beginning.
 NUM defaults to 1.
-CONS must reference a cons in LIST.
-  (let ((duo (cdr cons)))
+CONS must reference a cons in LIST."
+  (let ((num (if num
+                 num
+               1))
+        (duo cons)
+        (iter 0))
+    (while (and duo
+                (< iter num))
+      (setq duo (cdr duo))
+      (setq iter (1+ iter)))
     (if duo
         duo
-      list)))
+      (setq iter (1- iter))
+      (setq duo (nthcdr (- num iter 1) list)))
+    duo))
 
 (defun torus--duo-circ-before (elem list &optional test-equal)
   "Return cons of NUM elements before ELEM in LIST.
