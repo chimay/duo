@@ -203,13 +203,27 @@ Circular : if in beginning of list, go to the end.
 NUM defaults to 1.
 CONS must reference a cons in list.
 Test with eq."
-  (if (eq cons list)
-      (torus--duo-last list)
-    (let ((duo list))
+  (let* ((num (if num
+                  num
+                1))
+         (duo list)
+         (scout (nthcdr num duo))
+         (iter 0))
+    (while (and duo
+                (not (eq scout cons))
+                (not (eq duo cons)))
+      (setq duo (cdr duo))
+      (setq scout (cdr scout))
+      (setq iter (1+ iter)))
+    (if (eq scout cons)
+        duo
+      (setq duo list)
+      (setq scout (nthcdr (- num iter) duo))
       (while (and duo
-                  (not (eq (cdr duo) cons)))
-        (setq duo (cdr duo)))
-      duo)))
+                  scout)
+        (setq duo (cdr duo))
+        (setq scout (cdr scout))))
+    duo))
 
 (defun torus--duo-circ-next (cons list &optional num)
   "Return cons of NUM elements after CONS in LIST.
