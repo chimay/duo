@@ -231,7 +231,7 @@ TEST-EQUAL defaults do `equal'."
 
 (defun torus--duo-push-cons (cons list)
   "Add CONS at the beginning of LIST. Return LIST.
-The actual new list must be recovered using the return.
+The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq list (torus--duo-push-cons cons list))
@@ -254,7 +254,7 @@ Modifies LIST."
 
 (defun torus--duo-push (elem list)
   "Add ELEM at the beginning of LIST. Return LIST.
-The actual new list must be recovered using the return.
+The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq list (torus--duo-push elem list))
@@ -275,7 +275,7 @@ Modifies LIST."
 
 (defun torus--duo-push-new (elem list)
   "Add ELEM at the beginning of LIST if not already there. Return LIST.
-The actual new list must be recovered using the return.
+The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq list (torus--duo-push-new elem list))
@@ -306,7 +306,7 @@ which becomes the address of the removed first element."
 
 (defun torus--duo-pop (list)
   "Remove the first element of LIST. Return (popped-cons . new-list)
-The actual new list must be recovered using the return.
+The actual new list must be recovered using the returned structure.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq pair (torus--duo-pop list))
@@ -350,7 +350,7 @@ Modifies LIST."
 (defun torus--duo-push-and-truncate (elem list &optional num)
   "Add ELEM at the beginning of LIST. Truncate LIST to NUM elements.
 Return LIST.
-The actual new list must be recovered using the return.
+The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq list (torus--duo-push-and-truncate elem list))
@@ -474,7 +474,7 @@ Modifies LIST."
 (defun torus--duo-remove (cons list)
   "Remove CONS from LIST. Return LIST.
 CONS must reference a cons in LIST.
-The actual new list must be recovered using the return.
+The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq list (torus--duo-remove cons list))
@@ -483,18 +483,16 @@ Modifies LIST."
       (cdr (torus--duo-pop list))
     (let* ((previous (torus--duo-previous cons list))
            (duo cons))
-      (if previous
-          (progn
-            (setcdr previous (cdr duo))
-            (setcdr duo nil)
-            list)
-        nil))))
+      (when previous
+        (setcdr previous (cdr duo))
+        (setcdr duo nil))
+      list)))
 
 (defun torus--duo-delete (elem list &optional test-equal)
   "Delete ELEM from LIST. Return (removed-cons . LIST).
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-The actual new list must be recovered using the return.
+The actual new list must be recovered using the returned structure.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq pair (torus--duo-delete elem list))
@@ -518,7 +516,7 @@ Modifies LIST."
 Return (list-of-removed-elements . LIST).
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-The actual new list must be recovered using the return.
+The actual new list must be recovered using the returned structure.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
 \(setq pair (torus--duo-delete-all elem list))
@@ -574,25 +572,25 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-move-previous (cons list)
-  "Move CONS to previous place in LIST. Return CONS.
-CONS must reference a cons in LIST."
+  "Move CONS to previous place in LIST. Return LIST.
+CONS must reference a cons in LIST.
+The actual new list must be recovered using the returned list.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-move-previous cons list))
+Modifies LIST."
   (if (eq cons (cdr list))
-      ;; If cons = second in list, exchange the values
-      ;; of first and second
-      ;; See why in docstring of torus--duo-naive-pop
-      ;; and torus--duo-pop
-      (let ((value (car list)))
-        (setcar list (car cons))
-        (setcar cons value)
-        list)
+      (let ((newlist (cdr list)))
+        (setcdr list (cdr newlist))
+        (setcdr newlist list)
+        newlist)
     (let* ((before (torus--duo-previous cons list 2))
            (after (cdr before)))
-      (when (and before
-                 after)
+      (when before
         (setcdr after (cdr cons))
         (setcdr cons after)
-        (setcdr before cons)
-        cons))))
+        (setcdr before cons))
+      list)))
 
 (defun torus--duo-move-next (cons list)
   "Move CONS to next place in LIST.")
@@ -630,42 +628,42 @@ Circular : if in end of list, go to the beginning."
 ;;; ---------------
 
 (defun torus--duo-jump-cons-previous (cons moved list)
-  "Move MOVED before CONS in LIST. Return MOVED.
-MOVED is the cons (moved-element . next-in-list)
+  "Move MOVED before CONS in LIST. Return LIST.
+MOVED is the cons of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-jump-cons-previous cons moved list))
 Modifies LIST."
-  (unless (eq cons moved)
-    (let ((duo (torus--duo-remove moved list)))
-      (when duo
-        (when (eq cons duo)
-          ;; If moved was at the head of list, pop has been used
-          ;; to remove it and the roles of first and second cons of list
-          ;; have been exchanged.
-          ;; If cons is eq to duo, it means it was the old second cons in list.
-          ;; With the old first cons removed, it should now be
-          ;; the first cons of the list
-          (setq cons list))
-        (torus--duo-insert-cons-previous cons duo list)))))
+  (let ((newlist list)
+        (return))
+    (unless (eq cons moved)
+      (setq newlist (torus--duo-remove moved list))
+      (setq return (torus--duo-insert-cons-previous cons moved newlist))
+      (when (eq (cdr return) newlist)
+        (setq newlist return)))
+    newlist))
 
 (defun torus--duo-jump-cons-next (cons moved list)
-  "Move MOVED after CONS in LIST. Return MOVED.
-MOVED is the cons (moved-element . next-in-list)
+  "Move MOVED after CONS in LIST. Return LIST.
+MOVED is the cons of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-jump-cons-next cons moved list))
 Modifies LIST."
-  (unless (eq cons moved)
-    (let ((duo (torus--duo-remove moved list)))
-      (when duo
-        (when (eq cons duo)
-          ;; If moved was at the head of list, pop has been used
-          ;; to remove it and the roles of first and second cons of list
-          ;; have been exchanged.
-          ;; If cons is eq to duo, it means it was the old second cons in list.
-          ;; With the old first cons removed, it should now be
-          ;; the first cons of the list
-          (setq cons list))
-        (torus--duo-insert-cons-next cons duo)))))
+  (let ((newlist list)
+        (return))
+    (unless (eq cons moved)
+      (setq newlist (torus--duo-remove moved list))
+      (setq return (torus--duo-insert-cons-next cons moved))
+      (when (eq (cdr return) newlist)
+        (setq newlist return)))
+    newlist))
 
 (defun torus--duo-jump-previous (cons moved list &optional test-equal)
   "Move MOVED before CONS in LIST. Return cons of MOVED.
