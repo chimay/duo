@@ -807,15 +807,25 @@ Modifies LIST."
 
 (defun torus--duo-insert-at-group-beg (new list &optional test-group)
   "Insert NEW in LIST, at the beginning of a group determined by TEST-GROUP.
+NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-insert-at-group-beg new list))
 Modifies LIST."
   (torus--duo-insert-before new new list test-group))
 
 (defun torus--duo-insert-at-group-end (new list &optional test-group)
   "Insert NEW in LIST, at the end of a group determined by TEST-GROUP.
+NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-insert-at-group-end new list))
 Modifies LIST."
   (let ((previous (torus--duo-member new list test-group)))
     (while (and previous
