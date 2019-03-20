@@ -229,19 +229,19 @@ TEST-EQUAL defaults do `equal'."
 ;;; Beginning / End
 ;;; ---------------
 
-(defun torus--duo-store-beg (cons list)
+(defun torus--duo-push-cons (cons list)
   "Add CONS at the beginning of LIST. Return LIST.
 The actual new list must be recovered using the return.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-store-beg (cons list)))
+\(setq list (torus--duo-push-cons (cons list)))
 Modifies LIST."
   (let* ((newlist))
     (setcdr cons list)
     (setq newlist cons)
     newlist))
 
-(defun torus--duo-store-end (cons list &optional last)
+(defun torus--duo-add-cons (cons list &optional last)
   "Store CONS at the end of LIST. Return CONS.
 If non nil, LAST is used to speed up the process.
 Modifies LIST."
@@ -265,13 +265,6 @@ Modifies LIST."
     (setq newlist duo)
     newlist))
 
-(defun torus--duo-push-new (elem list)
-  "Add ELEM at the beginning of LIST if not already there. Return LIST.
-Modifies LIST."
-  (if (member elem list)
-      list
-    (torus--duo-push elem list)))
-
 (defun torus--duo-add (elem list)
   "Add ELEM at the end of LIST. Return the new end cons.
 Modifies LIST."
@@ -279,6 +272,17 @@ Modifies LIST."
         (duo (cons elem nil)))
     (setcdr last duo)
     duo))
+
+(defun torus--duo-push-new (elem list)
+  "Add ELEM at the beginning of LIST if not already there. Return LIST.
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-push-new (elem list)))
+Modifies LIST."
+  (if (member elem list)
+      list
+    (torus--duo-push elem list)))
 
 (defun torus--duo-add-new (elem list)
   "Add ELEM at the end of LIST if not already there. Return the new end cons.
@@ -294,10 +298,11 @@ Tha argument list var holds a copy of it.
 Using (setq list ...) inside the defun changes the argument list reference,
 not the calling scope one. So, the calling scope address remains the same,
 which becomes the address of the removed first element."
-  (let ((return list))
-    (setq list (cdr list))
-    (setcdr return nil)
-    return))
+  ;; (let ((popped list))
+  ;;   (setq list (cdr list))
+  ;;   (setcdr popped nil)
+  ;;   popped)
+  )
 
 (defun torus--duo-pop (list)
   "Remove the first element of LIST. Return (popped-cons . new-list)
@@ -345,6 +350,10 @@ Modifies LIST."
 (defun torus--duo-push-and-truncate (elem list &optional num)
   "Add ELEM at the beginning of LIST. Truncate LIST to NUM elements.
 Return LIST.
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-push-and-truncate (elem list)))
 Modifies LIST."
   (let ((newlist list))
     (setq newlist (torus--duo-push elem list))
@@ -355,12 +364,18 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-insert-cons-previous (cons new list)
-  "Insert NEW before CONS in LIST. Return NEW.
+  "Insert NEW before CONS in LIST. Return (NEW . newlist).
 CONS must reference a cons in LIST.
 NEW is the cons (inserted-element . next-in-list)
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq pair (torus--duo-insert-cons-previous cons new list))
+\(setq inserted (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (if (eq cons list)
-      (torus--duo-store-beg new list)
+      (torus--duo-push-cons new list)
     (let* ((previous (torus--duo-previous cons list)))
       (if previous
           (progn
@@ -488,7 +503,7 @@ Modifies LIST."
       ;; Pop case
       (setq removed (torus--duo-remove list list))
       (if removed-list
-          (setq last (torus--duo-store-end removed removed-list last))
+          (setq last (torus--duo-add-cons removed removed-list last))
         (setq last removed)
         (setq removed-list removed)))
     (setq duo list)
@@ -497,7 +512,7 @@ Modifies LIST."
       (when (funcall test-equal (car duo) elem)
         (setq removed (torus--duo-remove duo list))
         (if removed-list
-            (setq last (torus--duo-store-end removed removed-list last))
+            (setq last (torus--duo-add-cons removed removed-list last))
           (setq last removed)
           (setq removed-list removed)))
       (setq duo next))
