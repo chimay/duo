@@ -360,19 +360,17 @@ Modifies LIST."
     (torus--duo-truncate newlist num)
     newlist))
 
-;;; Anywhere
+;;; Insert
 ;;; ---------------
 
 (defun torus--duo-insert-cons-previous (cons new list)
-  "Insert NEW before CONS in LIST. Return (NEW . newlist).
+  "Insert NEW before CONS in LIST. Return LIST.
 CONS must reference a cons in LIST.
-NEW is the cons (inserted-element . next-in-list)
+NEW is the cons inserted.
 The actual new list must be recovered using the return.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-insert-cons-previous cons new list))
-\(setq inserted (car pair))
-\(setq list (cdr pair))
+\(setq list (torus--duo-insert-cons-previous cons new list))
 Modifies LIST."
   (if (eq cons list)
       (torus--duo-push-cons new list)
@@ -381,22 +379,26 @@ Modifies LIST."
           (progn
             (setcdr new (cdr previous))
             (setcdr previous new)
-            new)
+            list)
         nil))))
 
 (defun torus--duo-insert-cons-next (cons new)
   "Insert NEW after CONS in list. Return NEW.
 CONS must reference a cons in LIST.
-NEW is the cons (inserted-element . next-in-list)
+NEW is the cons inserted.
 Modifies LIST."
     (setcdr new (cdr cons))
     (setcdr cons new)
     new)
 
 (defun torus--duo-insert-previous (cons new list)
-  "Insert NEW before CONS in LIST. Return cons of NEW.
+  "Insert NEW before CONS in LIST. Return LIST.
 CONS must reference a cons in LIST.
 NEW is the value of the element inserted.
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-insert-previous cons new list))
 Modifies LIST."
   (if (eq cons list)
       (torus--duo-push new list)
@@ -406,7 +408,7 @@ Modifies LIST."
           (progn
             (setq duo (cons new (cdr previous)))
             (setcdr previous duo)
-            duo)
+            list)
         nil))))
 
 (defun torus--duo-insert-next (cons new)
@@ -419,23 +421,30 @@ Modifies LIST."
     duo))
 
 (defun torus--duo-insert-before (elem new list &optional test-equal)
-  "Insert NEW before ELEM in LIST. Return cons of NEW.
+  "Insert NEW before ELEM in LIST. Return (NEW . LIST).
 NEW is the value of the element inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq pair (torus--duo-insert-before elem new list))
+\(setq inserted (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (let ((test-equal (if test-equal
                         test-equal
                       #'equal)))
     (if (funcall test-equal (car list) elem)
-        (torus--duo-push new list)
+        (let ((newlist (torus--duo-push new list)))
+          (cons newlist newlist))
       (let* ((previous (torus--duo-before elem list test-equal))
              (duo))
         (if previous
             (progn
               (setq duo (cons new (cdr previous)))
               (setcdr previous duo)
-              duo)
+              (cons duo list))
           nil)))))
 
 (defun torus--duo-insert-after (elem new list &optional test-equal)
@@ -452,6 +461,9 @@ Modifies LIST."
           (setcdr member duo)
           duo)
       nil)))
+
+;;; Remove
+;;; ---------------
 
 (defun torus--duo-remove (cons list)
   "Remove CONS from LIST. Return cons of removed element.
@@ -518,7 +530,7 @@ Modifies LIST."
       (setq duo next))
     removed-list))
 
-;;; Change value
+;;; Change
 ;;; ------------------------------
 
 (defun torus--duo-update (old new list)
