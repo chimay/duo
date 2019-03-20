@@ -487,9 +487,15 @@ Modifies LIST."
         nil))))
 
 (defun torus--duo-delete (elem list &optional test-equal)
-  "Delete ELEM from LIST. Return cons of deleted element.
+  "Delete ELEM from LIST. Return (removed-cons . LIST)
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq pair (torus--duo-delete elem list))
+\(setq removed (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (let ((test-equal (if test-equal
                         test-equal
@@ -501,7 +507,7 @@ Modifies LIST."
         (when previous
           (setcdr previous (cdr duo))
           (setcdr duo nil))
-        duo))))
+        (cons duo list)))))
 
 (defun torus--duo-delete-all (elem list &optional test-equal)
   "Delete all elements equals to ELEM from LIST.
