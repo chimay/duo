@@ -487,7 +487,7 @@ Modifies LIST."
           (progn
             (setcdr previous (cdr duo))
             (setcdr duo nil)
-            (cons duo list))
+            list)
         nil))))
 
 (defun torus--duo-delete (elem list &optional test-equal)
