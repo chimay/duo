@@ -125,6 +125,7 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
 
 (defun torus--duo-index (elem list &optional test-equal)
   "Index of ELEM in LIST.
+ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (- (length list) (length (torus--duo-member elem list test-equal))))
@@ -158,6 +159,7 @@ CONS must reference a cons in the list."
 
 (defun torus--duo-before (elem list &optional test-equal)
   "Return cons before ELEM in LIST.
+ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (let ((test-equal (if test-equal
@@ -173,6 +175,7 @@ TEST-EQUAL defaults do `equal'."
 
 (defun torus--duo-after (elem list &optional test-equal)
   "Return cons after ELEM in LIST.
+ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (cdr (torus--duo-member elem list test-equal)))
@@ -203,6 +206,7 @@ Circular : if in end of list, go to the beginning."
 (defun torus--duo-circ-before (elem list &optional test-equal)
   "Return cons before ELEM in LIST.
 Circular : if in beginning of list, go to the end.
+ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (let ((test-equal (if test-equal
@@ -219,6 +223,7 @@ TEST-EQUAL defaults do `equal'."
 (defun torus--duo-circ-after (elem list &optional test-equal)
   "Return cons after ELEM in LIST.
 Circular : if in end of list, go to the beginning.
+ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (torus--duo-circ-next (torus--duo-member elem list test-equal) list))
@@ -428,6 +433,7 @@ Modifies LIST."
 
 (defun torus--duo-insert-before (elem new list &optional test-equal)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
+ELEM must be present in list.
 NEW is the value of the element inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
@@ -455,6 +461,7 @@ Modifies LIST."
 
 (defun torus--duo-insert-after (elem new list &optional test-equal)
   "Insert NEW after ELEM in LIST. Return cons of NEW.
+ELEM must be present in list.
 NEW is the value of the element inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
@@ -697,6 +704,7 @@ Modifies LIST."
 
 (defun torus--duo-jump-before (elem moved list &optional test-equal)
   "Move MOVED before ELEM in LIST. Return cons of MOVED.
+ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
@@ -710,6 +718,7 @@ Modifies LIST."
 
 (defun torus--duo-jump-after (elem moved list &optional test-equal)
   "Move MOVED after ELEM in LIST. Return cons of MOVED.
+ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
