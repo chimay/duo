@@ -703,18 +703,33 @@ Modifies LIST."
     (torus--duo-jump-cons-next cons duo list)))
 
 (defun torus--duo-jump-before (elem moved list &optional test-equal)
-  "Move MOVED before ELEM in LIST. Return cons of MOVED.
+  "Move MOVED before ELEM in LIST. Return LIST.
 ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-jump-before cons moved list))
 Modifies LIST."
-  (let ((test-equal (if test-equal
+  (let ((newlist list)
+        (test-equal (if test-equal
                         test-equal
                       #'equal)))
     (unless (funcall test-equal moved elem)
-      (when (torus--duo-delete moved list test-equal)
-        (torus--duo-insert-before elem moved list test-equal)))))
+      (let ((pair (torus--duo-delete moved newlist test-equal))
+            (member)
+            (duo)
+            (return))
+        (setq duo (car pair))
+        (setq newlist (cdr pair))
+        (setq member (torus--duo-member elem newlist test-equal))
+        (message "%s %s" member duo)
+        (setq return (torus--duo-insert-cons-previous member duo newlist))
+        (when (eq (cdr return) newlist)
+          (setq newlist return))))
+    newlist))
 
 (defun torus--duo-jump-after (elem moved list &optional test-equal)
   "Move MOVED after ELEM in LIST. Return cons of MOVED.
@@ -723,12 +738,23 @@ MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (let ((test-equal (if test-equal
+  (let ((newlist list)
+        (test-equal (if test-equal
                         test-equal
                       #'equal)))
     (unless (funcall test-equal moved elem)
-      (when (torus--duo-delete moved list test-equal)
-        (torus--duo-insert-after elem moved list test-equal)))))
+      (let ((pair (torus--duo-delete moved newlist test-equal))
+            (member)
+            (duo)
+            (return))
+        (setq duo (car pair))
+        (setq newlist (cdr pair))
+        (setq member (torus--duo-member elem newlist test-equal))
+        (message "%s %s" member duo)
+        (setq return (torus--duo-insert-cons-next member duo))
+        (when (eq (cdr return) newlist)
+          (setq newlist return))))
+    newlist))
 
 ;;; Rotate <- ->
 ;;; ------------------------------
