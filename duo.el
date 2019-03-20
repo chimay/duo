@@ -294,7 +294,7 @@ Modifies LIST."
   "Do not use it on any LIST !
 Removing the first cons does not work.
 The calling scope list var holds the address of the first cons of the list.
-Tha argument list var holds a copy of it.
+The argument list var holds a copy of it.
 Using (setq list ...) inside the defun changes the argument list reference,
 not the calling scope one. So, the calling scope address remains the same,
 which becomes the address of the removed first element."

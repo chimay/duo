@@ -5,6 +5,7 @@
 - [[#introduction][Introduction]]
   - [[#circular-lists][Circular lists]]
   - [[#next--previous-vs-after--before][Next / Previous vs After / Before]]
+  - [[#returned-objects][Returned objects]]
   - [[#assoc][Assoc]]
 
 * Introduction
@@ -62,6 +63,22 @@ functions :
   - Next / Previous use a cons as landmark argument
 
   - After / Before use the value of an element of the list as landmark argument
+
+
+** Returned objects
+
+When you pass a list as argument of a function, the calling scope
+=list-var= holds the address of the first cons of the list. The
+argument =arg-list-var= holds a copy of it. Using ~(setq list ...)~
+inside the definition of the function changes the argument list
+reference, not the calling scope one. So, the calling scope address is
+not updated. As a result, you need to recover the modified list as the
+returned value of the function.
+
+A common case of this situation is with functions which modify the
+first cons of the list : push, pop, etc.
+
+Check their doc to know how to recover the updated list.
 
 
 ** Assoc
