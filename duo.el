@@ -245,23 +245,37 @@ CONS must reference a cons in LIST."
       (setq duo (nthcdr (- num iter 1) list)))
     duo))
 
-(defun torus--duo-circ-before (elem list &optional test-equal)
+(defun torus--duo-circ-before (elem list &optional num test-equal)
   "Return cons of NUM elements before ELEM in LIST.
 Circular : if in beginning of list, go to the end.
 NUM defaults to 1.
 ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (let ((test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (if (funcall test-equal (car list) elem)
-        (torus--duo-last list)
-      (let ((duo list))
-        (while (and duo
-                    (not (funcall test-equal (car (cdr duo)) elem)))
-          (setq duo (cdr duo)))
-        duo))))
+  (let* ((num (if num
+                  num
+                1))
+         (duo list)
+         (scout (nthcdr num duo))
+         (test-equal (if test-equal
+                         test-equal
+                       #'equal))
+         (iter 0))
+    (while (and duo
+                (not (funcall test-equal (car scout) elem))
+                (not (funcall test-equal (car duo) elem)))
+      (setq duo (cdr duo))
+      (setq scout (cdr scout))
+      (setq iter (1+ iter)))
+    (if (funcall test-equal (car scout) elem)
+        duo
+      (setq duo list)
+      (setq scout (nthcdr (- num iter) duo))
+      (while (and duo
+                  scout)
+        (setq duo (cdr duo))
+        (setq scout (cdr scout))))
+    duo))
 
 (defun torus--duo-circ-after (elem list &optional num test-equal)
   "Return cons of NUM elements after ELEM in LIST.
@@ -270,7 +284,7 @@ NUM defaults to 1.
 ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (torus--duo-circ-next (torus--duo-member elem list num test-equal) list))
+  (torus--duo-circ-next (torus--duo-member elem list test-equal) list num))
 
 ;;; Add / Remove
 ;;; ------------------------------
