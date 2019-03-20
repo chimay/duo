@@ -511,36 +511,48 @@ Modifies LIST."
 
 (defun torus--duo-delete-all (elem list &optional test-equal)
   "Delete all elements equals to ELEM from LIST.
-Return list of deleted elements.
+Return (list-of-deleted-elements . LIST).
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq pair (torus--duo-delete-all elem list))
+\(setq removed-list (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
-  (let ((duo)
-        (next)
+  (let ((newlist list)
+        (pair)
         (removed)
-        (last)
         (removed-list)
+        (last)
+        (duo)
+        (next)
         (test-equal (if test-equal
                         test-equal
                       #'equal)))
-    (while (funcall test-equal (car list) elem)
-      ;; Pop case
-      (setq removed (torus--duo-remove list list))
+    (while (funcall test-equal (car newlist) elem)
+      (message "%s" newlist)
+      (setq pair (torus--duo-pop newlist))
+      (setq removed (car pair))
+      (setq newlist (cdr pair))
       (if removed-list
           (setq last (torus--duo-add-cons removed removed-list last))
-        (setq last removed)
-        (setq removed-list removed)))
-    (setq duo list)
+        (setq removed-list removed)
+        (setq last removed)))
+    (setq duo newlist)
     (while duo
       (setq next (cdr duo))
       (when (funcall test-equal (car duo) elem)
-        (setq removed (torus--duo-remove duo list))
+        (setq pair (torus--duo-remove duo newlist))
+        (setq removed (car pair))
+        (setq newlist (cdr pair))
         (if removed-list
             (setq last (torus--duo-add-cons removed removed-list last))
-          (setq last removed)
-          (setq removed-list removed)))
+          (setq removed-list removed)
+          (setq last removed)))
       (setq duo next))
-    removed-list))
+    (cons removed-list newlist)))
 
 ;;; Change
 ;;; ------------------------------
