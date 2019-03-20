@@ -120,12 +120,14 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
     last))
 
 (defun torus--duo-at-index (index list)
-  "Index of ELEM in LIST."
+  "Element at INDEX in LIST."
   (nthcdr index list))
 
-(defun torus--duo-index (elem list &optional test-eq)
-  "Index of ELEM in LIST."
-  (- (length list) (length (torus--duo-member elem list test-eq))))
+(defun torus--duo-index (elem list &optional test-equal)
+  "Index of ELEM in LIST.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (- (length list) (length (torus--duo-member elem list test-equal))))
 
 ;;; Next / Previous
 ;;; ------------------------------
@@ -228,14 +230,16 @@ TEST-EQUAL defaults do `equal'."
 ;;; ---------------
 
 (defun torus--duo-store-beg (cons list)
-  "Store CONS at the beginning of LIST. Return LIST.
+  "Add CONS at the beginning of LIST. Return LIST.
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-store-beg (cons list)))
 Modifies LIST."
-  (let* ((value (car list)))
-    (setcar list (car cons))
-    (setcar cons value)
-    (setcdr cons (cdr list))
-    (setcdr list cons)
-    list))
+  (let* ((newlist))
+    (setcdr cons list)
+    (setq newlist cons)
+    newlist))
 
 (defun torus--duo-store-end (cons list &optional last)
   "Store CONS at the end of LIST. Return CONS.
@@ -250,16 +254,22 @@ Modifies LIST."
 
 (defun torus--duo-push (elem list)
   "Add ELEM at the beginning of LIST. Return LIST.
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-push (elem list)))
 Modifies LIST."
-  (let* ((duo (cons (car list) (cdr list))))
-    (setcar list elem)
-    (setcdr list duo))
-  list)
+  (let* ((duo (cons elem (cdr list)))
+         (newlist))
+    (setcdr duo list)
+    (setq newlist duo)
+    newlist))
 
 (defun torus--duo-push-new (elem list)
   "Add ELEM at the beginning of LIST if not already there. Return LIST.
 Modifies LIST."
-  (unless (member elem list)
+  (if (member elem list)
+      list
     (torus--duo-push elem list)))
 
 (defun torus--duo-add (elem list)
@@ -277,33 +287,31 @@ Modifies LIST."
     (torus--duo-add elem list)))
 
 (defun torus--duo-naive-pop (list)
-  "Do not use it on any LIST.
+  "Do not use it on any LIST !
 Removing the first cons does not work.
 The calling scope list var holds the address of the first cons of the list.
 Tha argument list var holds a copy of it.
 Using (setq list ...) inside the defun changes the argument list reference,
 not the calling scope one. So, the calling scope address remains the same,
 which becomes the address of the removed first element."
-  (setq return list)
-  (setq list (cdr list))
-  (setcdr return nil)
-  return)
+  (let ((return list))
+    (setq list (cdr list))
+    (setcdr return nil)
+    return))
 
 (defun torus--duo-pop (list)
-  "Remove first element of LIST. Return cons of removed element.
-Modifies LIST : values of first and second element are exchanged,
-then the second cons is removed."
-  (let ((value (car list))
-        (next (cdr list)))
-    (if next
-        (progn
-          (setcar list (car next))
-          (setcdr list (cdr next))
-          (setcar next value)
-          (setcdr next nil))
-      (setq next (cons (car list) nil))
-      (setcar list nil))
-    next))
+  "Remove the first element of LIST. Return (popped-cons . new-list)
+The actual new list must be recovered using the return.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq pair (torus--duo-pop list))
+\(setq popped (car pair))
+\(setq list (cdr pair))
+That’s all folks."
+  (let ((popped list)
+        (newlist (cdr list)))
+    (setcdr popped nil)
+    (cons popped newlist)))
 
 (defun torus--duo-drop (list)
   "Remove last element of LIST. Return cons of removed element.
@@ -338,9 +346,10 @@ Modifies LIST."
   "Add ELEM at the beginning of LIST. Truncate LIST to NUM elements.
 Return LIST.
 Modifies LIST."
-  (torus--duo-push elem list)
-  (torus--duo-truncate list num)
-  list)
+  (let ((newlist list))
+    (setq newlist (torus--duo-push elem list))
+    (torus--duo-truncate newlist num)
+    newlist))
 
 ;;; Anywhere
 ;;; ---------------
