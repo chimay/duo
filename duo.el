@@ -80,7 +80,7 @@
 ;;; Code:
 ;;; ----------------------------------------------------------------------
 
-;;; References
+;;; Pointers
 ;;; ------------------------------------------------------------
 
 (defun torus--duo-set-deref (ptr object)
@@ -355,6 +355,25 @@ Modifies LIST."
     (setcdr last duo)
     duo))
 
+(defun torus--duo-ref-push-cons (cons reflist)
+  "Add CONS at the beginning of the car of REFLIST. Return REFLIST.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-push' to know why you
+can’t use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))          ; this
+\(setq reflist (cons mylist nil))      ; or that
+\(setq reflist (cons mylist whatever)) ; or that
+;; Push
+\(torus--duo-ref-push-cons reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (setcdr cons (car reflist))
+  (setcar reflist cons)
+  reflist)
+
 (defun torus--duo-push-new (elem list)
   "Add ELEM at the beginning of LIST if not already there. Return LIST.
 The actual new list must be recovered using the returned list.
@@ -425,7 +444,7 @@ Common usage :
 ;; Pop
 \(setq popped (torus--duo-ref-pop reflist))
 ;; Update list
-\(setq list (car reflist))
+\(setq mylist (car reflist))
 That’s all folks."
   (let* ((list (car reflist))
          (popped list))
