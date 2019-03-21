@@ -748,9 +748,7 @@ Modifies LIST."
         (return))
     (unless (eq cons moved)
       (setq newlist (torus--duo-remove moved list))
-      (setq return (torus--duo-insert-cons-next cons moved))
-      (when (eq (cdr return) newlist)
-        (setq newlist return)))
+      (torus--duo-insert-cons-next cons moved))
     newlist))
 
 (defun torus--duo-teleport-previous (cons moved list &optional test-equal)
@@ -804,7 +802,6 @@ Modifies LIST."
         (setq duo (car pair))
         (setq newlist (cdr pair))
         (setq member (torus--duo-member elem newlist test-equal))
-        (message "%s %s" member duo)
         (setq return (torus--duo-insert-cons-previous member duo newlist))
         (when (eq (cdr return) newlist)
           (setq newlist return))))
@@ -833,10 +830,7 @@ Modifies LIST."
         (setq duo (car pair))
         (setq newlist (cdr pair))
         (setq member (torus--duo-member elem newlist test-equal))
-        (message "%s %s" member duo)
-        (setq return (torus--duo-insert-cons-next member duo))
-        (when (eq (cdr return) newlist)
-          (setq newlist return))))
+        (torus--duo-insert-cons-next member duo)))
     newlist))
 
 ;;; Rotate <- ->
