@@ -699,17 +699,8 @@ Common usage :
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
-  (let ((list (car reflist)))
-    (if (eq cons list)
-        (car (torus--duo-ref-push new reflist))
-      (let* ((previous (torus--duo-previous cons list))
-             (duo))
-        (if previous
-            (progn
-              (setq duo (cons new (cdr previous)))
-              (setcdr previous duo)
-              duo)
-          nil)))))
+  (let ((duo (list new)))
+    (torus--duo-ref-insert-cons-previous cons duo reflist)))
 
 (defun torus--duo-ref-insert-cons-before (elem new reflist &optional test-equal)
   "Insert NEW before ELEM in car of REFLIST. Return NEW.
