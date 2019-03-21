@@ -551,16 +551,8 @@ Common usage :
 \(when (eq (cdr return) list)
   (setq list return))
 Modifies LIST."
-  (if (eq cons list)
-      (torus--duo-push new list)
-    (let* ((previous (torus--duo-previous cons list))
-           (duo))
-      (if previous
-          (progn
-            (setq duo (cons new (cdr previous)))
-            (setcdr previous duo)
-            duo)
-        nil))))
+  (let ((duo (list new)))
+    (torus--duo-insert-cons-previous cons duo list)))
 
 (defun torus--duo-insert-next (cons new)
   "Insert NEW after CONS in list. Return cons of NEW.
