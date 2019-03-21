@@ -296,10 +296,25 @@ TEST-EQUAL defaults do `equal'."
 ;;; Beginning / End
 ;;; ---------------
 
+(defun torus--duo-naive-push (list)
+  "Do not use it on any LIST !
+Adding a cons before the first one without returning the updated list
+does not work.
+The calling scope list var holds the address of the first cons of the list.
+The argument list var holds a copy of this address.
+Using (setq list ...) inside the defun changes the argument list reference,
+not the calling scope one. So, the calling scope address remains the same,
+which becomes the address of the second cons of the list."
+;; (let* ((newlist))
+;;     (setcdr cons list)
+;;     (setq newlist cons)
+;;     nil)
+  )
+
 (defun torus--duo-push-cons (cons list)
   "Add CONS at the beginning of LIST. Return LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-push-cons cons list))
 Modifies LIST."
@@ -322,7 +337,7 @@ Modifies LIST."
 (defun torus--duo-push (elem list)
   "Add ELEM at the beginning of LIST. Return LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-push elem list))
 Modifies LIST."
@@ -343,7 +358,7 @@ Modifies LIST."
 (defun torus--duo-push-new (elem list)
   "Add ELEM at the beginning of LIST if not already there. Return LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-push-new elem list))
 Modifies LIST."
@@ -359,12 +374,12 @@ Modifies LIST."
 
 (defun torus--duo-naive-pop (list)
   "Do not use it on any LIST !
-Removing the first cons does not work.
+Removing the first cons without returning the updated list does not work.
 The calling scope list var holds the address of the first cons of the list.
-The argument list var holds a copy of it.
+The argument list var holds a copy of this address.
 Using (setq list ...) inside the defun changes the argument list reference,
 not the calling scope one. So, the calling scope address remains the same,
-which becomes the address of the removed first element."
+which becomes the address of the removed cons."
   ;; (let ((popped list))
   ;;   (setq list (cdr list))
   ;;   (setcdr popped nil)
@@ -384,6 +399,18 @@ That’s all folks."
         (newlist (cdr list)))
     (setcdr popped nil)
     (cons popped newlist)))
+
+(defun torus--duo-drop (list)
+  "Remove last element of LIST. Return cons of removed element.
+Modifies LIST."
+  (let* ((before-last (torus--duo-last list 2))
+         (last (cdr before-last)))
+    (if last
+        (setcdr before-last nil)
+      ;; One element list
+      (setq last (cons (car list) nil))
+      (setcar list nil))
+    last))
 
 (defun torus--duo-ref-pop (reflist)
   "Remove first element in the car of REFLIST. Return popped cons.
@@ -405,18 +432,6 @@ That’s all folks."
     (setcar reflist (cdr list))
     (setcdr popped nil)
     popped))
-
-(defun torus--duo-drop (list)
-  "Remove last element of LIST. Return cons of removed element.
-Modifies LIST."
-  (let* ((before-last (torus--duo-last list 2))
-         (last (cdr before-last)))
-    (if last
-        (setcdr before-last nil)
-      ;; One element list
-      (setq last (cons (car list) nil))
-      (setcar list nil))
-    last))
 
 (defun torus--duo-truncate (list &optional num)
   "Truncate LIST to its first NUM elements.
