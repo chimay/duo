@@ -719,6 +719,69 @@ Modifies LIST."
               duo)
           nil)))))
 
+(defun torus--duo-ref-insert-cons-before (elem new reflist &optional test-equal)
+  "Insert NEW before ELEM in car of REFLIST. Return cons of NEW.
+ELEM must be present in list.
+NEW is the cons inserted.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-insert-cons-before elem new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((list (car reflist))
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (if (funcall test-equal (car list) elem)
+        (torus--duo-ref-push-cons new reflist)
+      (let* ((previous (torus--duo-before elem list 1 test-equal)))
+        (if previous
+            (progn
+              (setcdr new (cdr previous))
+              (setcdr previous new)
+              new)
+          nil)))))
+
+(defun torus--duo-ref-insert-before (elem new reflist &optional test-equal)
+  "Insert NEW before ELEM in car of REFLIST. Return cons of NEW.
+ELEM must be present in list.
+NEW is the value of the element inserted.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-insert-before elem new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((list (car reflist))
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (if (funcall test-equal (car list) elem)
+        (torus--duo-ref-push new reflist)
+      (let* ((previous (torus--duo-before elem list 1 test-equal))
+             (duo))
+        (if previous
+            (progn
+              (setq duo (cons new (cdr previous)))
+              (setcdr previous duo)
+              duo)
+          nil)))))
+
 ;;; Remove
 ;;; ------------------------------
 
