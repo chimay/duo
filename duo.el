@@ -971,10 +971,12 @@ Modifies LIST."
 ;;; Change
 ;;; ------------------------------
 
-(defun torus--duo-update (old new list)
+(defun torus--duo-update (old new list &optional test-equal)
   "Replace OLD by NEW in LIST. Return cons of NEW.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (let ((duo (torus--duo-member old list)))
+  (let ((duo (torus--duo-member old list test-equal)))
     (when duo
       (setcar duo new))
     duo))
@@ -1093,7 +1095,7 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-teleport-previous (cons moved list &optional test-equal)
-  "Move MOVED before CONS in LIST. Return (MOVED . LIST).
+  "Move MOVED before CONS in LIST. Return (cons of MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1109,7 +1111,7 @@ Modifies LIST."
     (torus--duo-teleport-cons-previous cons duo list)))
 
 (defun torus--duo-teleport-next (cons moved list &optional test-equal)
-  "Move MOVED after CONS in LIST. Return (MOVED . LIST).
+  "Move MOVED after CONS in LIST. Return (cons of MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1131,7 +1133,7 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-teleport-before (elem moved list &optional test-equal)
-  "Move MOVED before ELEM in LIST. Return (MOVED . LIST).
+  "Move MOVED before ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1161,7 +1163,7 @@ Modifies LIST."
     (cons duo newlist)))
 
 (defun torus--duo-teleport-after (elem moved list &optional test-equal)
-  "Move MOVED after ELEM in LIST. Return (MOVED . LIST).
+  "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1192,7 +1194,7 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-ref-teleport-before (elem moved reflist &optional test-equal)
-  "Move MOVED before ELEM in car of REFLIST. Return REFLIST.
+  "Move MOVED before ELEM in car of REFLIST. Return cons of MOVED.
 ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1213,15 +1215,14 @@ Modifies LIST."
                         test-equal
                       #'equal)))
     (unless (funcall test-equal moved elem)
-      (let ((duo (torus--duo-ref-delete moved newlist test-equal))
+      (let ((duo (torus--duo-ref-delete moved reflist test-equal))
             (member)
             (return))
         (setq list (car reflist))
-        (setq member (torus--duo-member elem newlist test-equal))
+        (setq member (torus--duo-member elem list test-equal))
         (torus--duo-ref-insert-cons-previous member duo reflist)
-        (when (eq (cdr return) newlist)
-          (setq newlist return))))
-    newlist))
+        (setq list (car reflist))
+        duo))))
 
 ;;; Rotate <- ->
 ;;; ------------------------------
