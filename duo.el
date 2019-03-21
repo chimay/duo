@@ -392,13 +392,13 @@ See the docstring of `torus--duo-naive-pop' to know why you
 can’t use the list itself in argument.
 Common usage :
 ;; Create reflist
-(setq reflist (list mylist))          ; this
-(setq reflist (cons mylist nil))      ; or that
-(setq reflist (cons mylist whatever)) ; or that
+\(setq reflist (list mylist))          ; this
+\(setq reflist (cons mylist nil))      ; or that
+\(setq reflist (cons mylist whatever)) ; or that
 ;; Pop
-(setq popped (torus--duo-ref-pop reflist))
+\(setq popped (torus--duo-ref-pop reflist))
 ;; Update list
-(setq list (car reflist))
+\(setq list (car reflist))
 That’s all folks."
   (let* ((list (car reflist))
          (popped list))
