@@ -209,6 +209,9 @@ Test with eq."
          (duo list)
          (scout (nthcdr num duo))
          (iter 0))
+    (unless scout
+      (setq num (mod num (length list)))
+      (setq scout (nthcdr num duo)))
     (while (and duo
                 (not (eq scout cons))
                 (not (eq duo cons)))
@@ -239,10 +242,11 @@ CONS must reference a cons in LIST."
                 (< iter num))
       (setq duo (cdr duo))
       (setq iter (1+ iter)))
-    (if duo
-        duo
-      (setq iter (1- iter))
-      (setq duo (nthcdr (- num iter 1) list)))
+    (unless duo
+      (setq duo (nthcdr (- num iter) list)))
+    (unless duo
+      (setq num (mod (- num iter) (length list)))
+      (setq duo (nthcdr num list)))
     duo))
 
 (defun torus--duo-circ-before (elem list &optional num test-equal)
@@ -267,8 +271,7 @@ TEST-EQUAL defaults do `equal'."
       (setq duo (cdr duo))
       (setq scout (cdr scout))
       (setq iter (1+ iter)))
-    (if (funcall test-equal (car scout) elem)
-        duo
+    (unless (funcall test-equal (car scout) elem)
       (setq duo list)
       (setq scout (nthcdr (- num iter) duo))
       (while (and duo
