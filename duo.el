@@ -470,7 +470,7 @@ Common usage :
 \(setq reflist (cons mylist nil))      ; or that
 \(setq reflist (cons mylist whatever)) ; or that
 ;; Push
-\(torus--duo-ref-push-cons reflist)
+\(torus--duo-ref-push reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
@@ -575,7 +575,7 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-insert-cons-before (elem new list &optional test-equal)
-  "Insert NEW before ELEM in LIST. Return cons of NEW.
+  "Insert NEW before ELEM in LIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -602,7 +602,7 @@ Modifies LIST."
           nil)))))
 
 (defun torus--duo-insert-cons-after (elem new list &optional test-equal)
-  "Insert NEW after ELEM in LIST. Return cons of NEW.
+  "Insert NEW after ELEM in LIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -683,7 +683,7 @@ Common usage :
 Modifies LIST."
   (let ((list (car reflist)))
     (if (eq cons list)
-        (torus--duo-ref-push-cons new reflist)
+        (car (torus--duo-ref-push-cons new reflist))
       (let ((previous (torus--duo-previous cons list)))
         (if previous
             (progn
@@ -709,7 +709,7 @@ Common usage :
 Modifies LIST."
   (let ((list (car reflist)))
     (if (eq cons list)
-        (torus--duo-ref-push new reflist)
+        (car (torus--duo-ref-push new reflist))
       (let* ((previous (torus--duo-previous cons list))
              (duo))
         (if previous
@@ -720,7 +720,7 @@ Modifies LIST."
           nil)))))
 
 (defun torus--duo-ref-insert-cons-before (elem new reflist &optional test-equal)
-  "Insert NEW before ELEM in car of REFLIST. Return cons of NEW.
+  "Insert NEW before ELEM in car of REFLIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -741,7 +741,7 @@ Modifies LIST."
                         test-equal
                       #'equal)))
     (if (funcall test-equal (car list) elem)
-        (torus--duo-ref-push-cons new reflist)
+        (car (torus--duo-ref-push-cons new reflist))
       (let* ((previous (torus--duo-before elem list 1 test-equal)))
         (if previous
             (progn
@@ -772,7 +772,7 @@ Modifies LIST."
                         test-equal
                       #'equal)))
     (if (funcall test-equal (car list) elem)
-        (torus--duo-ref-push new reflist)
+        (car (torus--duo-ref-push new reflist))
       (let* ((previous (torus--duo-before elem list 1 test-equal))
              (duo))
         (if previous
@@ -870,6 +870,32 @@ Modifies LIST."
 
 ;;; Reference
 ;;; ---------------
+
+(defun torus--duo-ref-remove (cons reflist)
+  "Remove CONS from car of REFLIST. Return REFLIST.
+CONS must reference a cons in LIST.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-remove cons reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((list (car reflist)))
+    (if (eq cons list)
+        (progn
+          (torus--duo-ref-pop reflist)
+          reflist)
+      (let* ((previous (torus--duo-previous cons list))
+             (duo cons))
+        (when previous
+          (setcdr previous (cdr duo))
+          (setcdr duo nil))
+        reflist))))
 
 ;;; Change
 ;;; ------------------------------
