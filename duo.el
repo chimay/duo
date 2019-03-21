@@ -19,8 +19,8 @@
 ;; ELEM = (car DUO)          -> straightforward
 ;; DUO  = (member ELEM LIST) -> needs loop
 ;;
-;; Duo is a library of in place list operations in Emacs-Lisp. Its functions modify the
-;; original list when :
+;; Duo is a library of in place list operations in Emacs-Lisp.
+;; Its functions modify the original list when :
 ;;
 ;;   - It’s easy to get back : rotate, reverse, etc
 ;;   - The name is clear : push, pop, add, drop, insert, remove, etc
@@ -36,13 +36,14 @@
 ;; If in doubt, check their doc.
 ;;
 ;; In fact, the functions use and return references whenever possible.
-;; It’s implemented with =(CAR . CDR)= cons, which are called =duo=,
+;; It’s implemented with (CAR . CDR) cons, which are called duo,
 ;; hence the name of the library. These cons are everywhere in Elisp,
-;; either explicitely created or in lists. A list variable =list= is
-;; itself the cons at the beginning of the list. =(cdr list)= is the
-;; second cons in the list. And so one with =(cddr list)=, =(nthcdr N
-;; list)=. Generally speaking, a member of a list is a cons
-;; =(value . next-member-in-list)=.
+;; either explicitely created or in lists. A list variable <list> is
+;; itself the cons at the beginning of the list. (cdr list) is the
+;; second cons in the list. And so one with (cddr list), (nthcdr N list).
+;; Generally speaking, a member of a list is a cons
+;; (value . next-member-in-list). Most of Elisp is built around these
+;; (CAR . CDR) double pointers. You can even construct binary trees with it.
 ;;
 ;; When a =duo= has to be modified, it’s generally by =setcar= and
 ;; =setcdr= built-in.
