@@ -1224,6 +1224,36 @@ Modifies LIST."
         (setq list (car reflist))
         duo))))
 
+(defun torus--duo-ref-teleport-after (elem moved reflist &optional test-equal)
+  "Move MOVED after ELEM in car of REFLIST. Return cons of MOVED.
+ELEM must be present in list.
+MOVED is the value of the moved element.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-teleport-after elem moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((list (car reflist))
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (unless (funcall test-equal moved elem)
+      (let ((duo (torus--duo-ref-delete moved reflist test-equal))
+            (member)
+            (return))
+        (setq list (car reflist))
+        (setq member (torus--duo-member elem list test-equal))
+        (torus--duo-insert-cons-next member duo)
+        duo))))
+
 ;;; Rotate <- ->
 ;;; ------------------------------
 
