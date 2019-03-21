@@ -601,6 +601,21 @@ Modifies LIST."
               new)
           nil)))))
 
+(defun torus--duo-insert-cons-after (elem new list &optional test-equal)
+  "Insert NEW after ELEM in LIST. Return cons of NEW.
+ELEM must be present in list.
+NEW is the cons inserted.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+Modifies LIST."
+  (let* ((member (torus--duo-member elem list test-equal)))
+    (if member
+        (progn
+          (setcdr new (cdr member))
+          (setcdr member new)
+          new)
+      nil)))
+
 ;;; Elem Elem
 ;;; ---------------
 
