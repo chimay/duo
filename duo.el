@@ -531,15 +531,16 @@ Common usage :
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
-  (if (eq cons (car reflist))
-      (torus--duo-ref-push-cons new reflist)
-    (let* ((previous (torus--duo-previous cons list)))
-      (if previous
-          (progn
-            (setcdr new (cdr previous))
-            (setcdr previous new)
-            new)
-        nil))))
+  (let ((list (car reflist)))
+    (if (eq cons list)
+        (torus--duo-ref-push-cons new reflist)
+      (let ((previous (torus--duo-previous cons list)))
+        (if previous
+            (progn
+              (setcdr new (cdr previous))
+              (setcdr previous new)
+              new)
+          nil)))))
 
 (defun torus--duo-insert-previous (cons new list)
   "Insert NEW before CONS in LIST. Return cons of NEW.
