@@ -293,7 +293,7 @@ TEST-EQUAL defaults do `equal'."
 ;;; Add / Remove at Beg / End
 ;;; ------------------------------
 
-(defun torus--duo-naive-push (list)
+(defun torus--duo-naive-push ()
   "Do not use it on any LIST !
 Adding a cons before the first one without returning the updated list
 does not work.
@@ -308,7 +308,7 @@ which becomes the address of the second cons of the list."
 ;;     nil)
   )
 
-(defun torus--duo-naive-pop (list)
+(defun torus--duo-naive-pop ()
   "Do not use it on any LIST !
 Removing the first cons without returning the updated list does not work.
 The calling scope list var holds the address of the first cons of the list.
@@ -827,7 +827,7 @@ Modifies LIST."
 
 (defun torus--duo-delete-all (elem list &optional test-equal)
   "Delete all elements equals to ELEM from LIST.
-Return (list-of-removed-elements . LIST).
+Return (list-of-removed-cons . LIST).
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned structure.
@@ -896,6 +896,79 @@ Modifies LIST."
           (setcdr previous (cdr duo))
           (setcdr duo nil))
         reflist))))
+
+(defun torus--duo-ref-delete (elem reflist &optional test-equal)
+  "Delete ELEM from car of REFLIST. Return removed cons.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-delete elem reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((list (car reflist))
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (if (funcall test-equal (car list) elem)
+        (torus--duo-ref-pop reflist)
+      (let* ((previous (torus--duo-before elem list 1 test-equal))
+             (duo (cdr previous)))
+        (when previous
+          (setcdr previous (cdr duo))
+          (setcdr duo nil))
+        duo))))
+
+(defun torus--duo-ref-delete-all (elem reflist &optional test-equal)
+  "Delete all elements equals to ELEM from car of REFLIST.
+Return list of removed cons.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-delete-all elem reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((removed)
+        (removed-list)
+        (last)
+        (list)
+        (duo)
+        (next)
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (while (funcall test-equal (car (car reflist)) elem)
+      (setq removed (torus--duo-ref-pop reflist))
+      (if removed-list
+          (setq last (torus--duo-add-cons removed removed-list last))
+        (setq removed-list removed)
+        (setq last removed)))
+    (setq list (car reflist))
+    (setq duo list)
+    (while duo
+      (setq next (cdr duo))
+      (when (funcall test-equal (car duo) elem)
+        (setq list (car (torus--duo-ref-remove duo reflist)))
+        (setq removed duo)
+        (if removed-list
+            (setq last (torus--duo-add-cons removed removed-list last))
+          (setq removed-list removed)
+          (setq last removed)))
+      (setq duo next))
+    removed-list))
 
 ;;; Change
 ;;; ------------------------------
