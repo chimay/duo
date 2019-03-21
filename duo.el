@@ -408,7 +408,7 @@ Modifies LIST."
     last))
 
 (defun torus--duo-truncate (list &optional num)
-  "Truncate LIST to its first NUM elements.
+  "Truncate LIST to its first NUM elements. Return removed part.
 Modifies LIST."
   (let* ((num (if num
                   num
@@ -786,21 +786,22 @@ Modifies LIST."
 ;;; ------------------------------
 
 (defun torus--duo-remove (cons list)
-  "Remove CONS from LIST. Return LIST.
+  "Remove CONS from LIST. Return (CONS . LIST).
 CONS must reference a cons in LIST.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-remove cons list))
+\(setq pair (torus--duo-remove cons list))
+\(setq removed (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (if (eq cons list)
-      (cdr (torus--duo-pop list))
-    (let* ((previous (torus--duo-previous cons list))
-           (duo cons))
+      (cons cons (cdr (torus--duo-pop list)))
+    (let* ((previous (torus--duo-previous cons list)))
       (when previous
-        (setcdr previous (cdr duo))
-        (setcdr duo nil))
-      list)))
+        (setcdr previous (cdr cons))
+        (setcdr cons nil))
+      (cons cons list))))
 
 (defun torus--duo-delete (elem list &optional test-equal)
   "Delete ELEM from LIST. Return (removed-cons . LIST).
@@ -859,7 +860,7 @@ Modifies LIST."
     (while duo
       (setq next (cdr duo))
       (when (funcall test-equal (car duo) elem)
-        (setq newlist (torus--duo-remove duo newlist))
+        (setq newlist (cdr (torus--duo-remove duo newlist)))
         (setq removed duo)
         (if removed-list
             (setq last (torus--duo-add-cons removed removed-list last))
@@ -872,7 +873,7 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-ref-remove (cons reflist)
-  "Remove CONS from car of REFLIST. Return REFLIST.
+  "Remove CONS from car of REFLIST. Return CONS.
 CONS must reference a cons in LIST.
 REFLIST must be a cons (list . whatever-you-want)
 See the docstring of `torus--duo-naive-pop' to know why it doesn’t
@@ -887,15 +888,12 @@ Common usage :
 Modifies LIST."
   (let ((list (car reflist)))
     (if (eq cons list)
-        (progn
-          (torus--duo-ref-pop reflist)
-          reflist)
-      (let* ((previous (torus--duo-previous cons list))
-             (duo cons))
+        (torus--duo-ref-pop reflist)
+      (let* ((previous (torus--duo-previous cons list)))
         (when previous
-          (setcdr previous (cdr duo))
-          (setcdr duo nil))
-        reflist))))
+          (setcdr previous (cdr cons))
+          (setcdr cons nil))
+        cons))))
 
 (defun torus--duo-ref-delete (elem reflist &optional test-equal)
   "Delete ELEM from car of REFLIST. Return removed cons.
@@ -988,7 +986,7 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-move-previous (cons list)
-  "Move CONS to previous place in LIST. Return LIST.
+  "Move CONS to previous place in LIST. Return (CONS . LIST).
 CONS must reference a cons in LIST.
 The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-push' to know why.
@@ -996,17 +994,17 @@ Common usage :
 \(setq list (torus--duo-move-previous cons list))
 Modifies LIST."
   (if (eq cons (cdr list))
-      (let ((newlist (cdr list)))
+      (let ((newlist cons))
         (setcdr list (cdr newlist))
         (setcdr newlist list)
-        newlist)
+        (cons cons newlist))
     (let* ((before (torus--duo-previous cons list 2))
            (after (cdr before)))
       (when before
         (setcdr after (cdr cons))
         (setcdr cons after)
         (setcdr before cons))
-      list)))
+      (cons cons list))))
 
 (defun torus--duo-move-next (cons list)
   "Move CONS to next place in LIST.")
@@ -1050,7 +1048,7 @@ Circular : if in end of list, go to the beginning."
 ;;; ---------------
 
 (defun torus--duo-teleport-cons-previous (cons moved list)
-  "Move MOVED before CONS in LIST. Return LIST.
+  "Move MOVED before CONS in LIST. Return (MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the cons of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1058,19 +1056,21 @@ TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
-\(setq list (torus--duo-teleport-cons-previous cons moved list))
+\(setq pair (torus--duo-teleport-cons-previous cons moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (let ((newlist list)
         (return))
     (unless (eq cons moved)
-      (setq newlist (torus--duo-remove moved list))
+      (setq newlist (cdr (torus--duo-remove moved list)))
       (setq return (torus--duo-insert-cons-previous cons moved newlist))
       (when (eq (cdr return) newlist)
         (setq newlist return)))
-    newlist))
+    (cons moved newlist)))
 
 (defun torus--duo-teleport-cons-next (cons moved list)
-  "Move MOVED after CONS in LIST. Return LIST.
+  "Move MOVED after CONS in LIST. Return (MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the cons of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1078,20 +1078,22 @@ TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-teleport-cons-next cons moved list))
+\(setq pair (torus--duo-teleport-cons-next cons moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (let ((newlist list)
         (return))
     (unless (eq cons moved)
-      (setq newlist (torus--duo-remove moved list))
+      (setq newlist (cdr (torus--duo-remove moved list)))
       (torus--duo-insert-cons-next cons moved))
-    newlist))
+    (cons moved newlist)))
 
 ;;; Cons Elem
 ;;; ---------------
 
 (defun torus--duo-teleport-previous (cons moved list &optional test-equal)
-  "Move MOVED before CONS in LIST. Return LIST.
+  "Move MOVED before CONS in LIST. Return (MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1099,13 +1101,15 @@ TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
-\(setq list (torus--duo-teleport-previous cons moved list))
+\(setq pair (torus--duo-teleport-previous cons moved list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (let ((duo (torus--duo-member moved list test-equal)))
     (torus--duo-teleport-cons-previous cons duo list)))
 
 (defun torus--duo-teleport-next (cons moved list &optional test-equal)
-  "Move MOVED after CONS in LIST. Return LIST.
+  "Move MOVED after CONS in LIST. Return (MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1113,7 +1117,9 @@ TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-teleport-next cons moved list))
+\(setq pair (torus--duo-teleport-next cons moved list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (let ((duo (torus--duo-member moved list test-equal)))
     (torus--duo-teleport-cons-next cons duo list)))
@@ -1125,7 +1131,7 @@ Modifies LIST."
 ;;; ---------------
 
 (defun torus--duo-teleport-before (elem moved list &optional test-equal)
-  "Move MOVED before ELEM in LIST. Return LIST.
+  "Move MOVED before ELEM in LIST. Return (MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1133,16 +1139,18 @@ TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
-\(setq list (torus--duo-teleport-before cons moved list))
+\(setq pair (torus--duo-teleport-before elem moved list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
-  (let ((newlist list)
+  (let ((duo)
+        (newlist list)
         (test-equal (if test-equal
                         test-equal
                       #'equal)))
     (unless (funcall test-equal moved elem)
       (let ((pair (torus--duo-delete moved newlist test-equal))
             (member)
-            (duo)
             (return))
         (setq duo (car pair))
         (setq newlist (cdr pair))
@@ -1150,10 +1158,10 @@ Modifies LIST."
         (setq return (torus--duo-insert-cons-previous member duo newlist))
         (when (eq (cdr return) newlist)
           (setq newlist return))))
-    newlist))
+    (cons duo newlist)))
 
 (defun torus--duo-teleport-after (elem moved list &optional test-equal)
-  "Move MOVED after ELEM in LIST. Return cons of MOVED.
+  "Move MOVED after ELEM in LIST. Return (MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1161,25 +1169,59 @@ TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-teleport-after cons moved list))
+\(setq pair (torus--duo-teleport-after elem moved list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
-  (let ((newlist list)
+  (let ((duo)
+        (newlist list)
         (test-equal (if test-equal
                         test-equal
                       #'equal)))
     (unless (funcall test-equal moved elem)
       (let ((pair (torus--duo-delete moved newlist test-equal))
             (member)
-            (duo)
             (return))
         (setq duo (car pair))
         (setq newlist (cdr pair))
         (setq member (torus--duo-member elem newlist test-equal))
         (torus--duo-insert-cons-next member duo)))
-    newlist))
+    (cons duo newlist)))
 
 ;;; Reference
 ;;; ---------------
+
+(defun torus--duo-ref-teleport-before (elem moved reflist &optional test-equal)
+  "Move MOVED before ELEM in car of REFLIST. Return REFLIST.
+ELEM must be present in list.
+MOVED is the value of the moved element.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-teleport-before elem moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((list (car reflist))
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (unless (funcall test-equal moved elem)
+      (let ((duo (torus--duo-ref-delete moved newlist test-equal))
+            (member)
+            (return))
+        (setq list (car reflist))
+        (setq member (torus--duo-member elem newlist test-equal))
+        (torus--duo-ref-insert-cons-previous member duo reflist)
+        (when (eq (cdr return) newlist)
+          (setq newlist return))))
+    newlist))
 
 ;;; Rotate <- ->
 ;;; ------------------------------
