@@ -381,6 +381,27 @@ That’s all folks."
     (setcdr popped nil)
     (cons popped newlist)))
 
+(defun torus--duo-ref-pop (reflist)
+  "Remove first element in the car of REFLIST. Return popped cons.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-pop' to know why you
+can’t use the list itself in argument.
+Common usage :
+;; Create reflist
+(setq reflist (list mylist))          ; this
+(setq reflist (cons mylist nil))      ; or that
+(setq reflist (cons mylist whatever)) ; or that
+;; Pop
+(setq popped (torus--duo-ref-pop reflist))
+;; Update list
+(setq list (car reflist))
+That’s all folks."
+  (let ((list (car reflist)))
+    (setcar reflist (cdr list))
+    (setq return list)
+    (setcdr return nil)
+    return))
+
 (defun torus--duo-drop (list)
   "Remove last element of LIST. Return cons of removed element.
 Modifies LIST."
