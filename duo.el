@@ -358,8 +358,8 @@ Modifies LIST."
 (defun torus--duo-ref-push-cons (cons reflist)
   "Add CONS at the beginning of the car of REFLIST. Return REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-push' to know why you
-can’t use the list itself in argument.
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself as argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))          ; this
@@ -434,8 +434,8 @@ Modifies LIST."
 (defun torus--duo-ref-pop (reflist)
   "Remove first element in the car of REFLIST. Return popped cons.
 REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-pop' to know why you
-can’t use the list itself in argument.
+See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+use the list itself as argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))          ; this
@@ -473,7 +473,7 @@ Modifies LIST."
   "Add ELEM at the beginning of LIST. Truncate LIST to NUM elements.
 Return LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-push-and-truncate elem list))
 Modifies LIST."
@@ -491,7 +491,7 @@ CONS must reference a cons in LIST.
 NEW is the cons inserted.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq return (torus--duo-insert-cons-previous cons new list))
 \(when (eq (cdr return) list)
@@ -516,13 +516,38 @@ Modifies LIST."
     (setcdr cons new)
     new)
 
+(defun torus--duo-ref-insert-cons-previous (cons new reflist)
+  "Insert NEW before CONS in car of REFLIST. Return NEW.
+CONS must reference a cons in LIST.
+NEW is the cons inserted.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-insert-cons-previous cons new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (if (eq cons (car reflist))
+      (torus--duo-ref-push-cons new reflist)
+    (let* ((previous (torus--duo-previous cons list)))
+      (if previous
+          (progn
+            (setcdr new (cdr previous))
+            (setcdr previous new)
+            new)
+        nil))))
+
 (defun torus--duo-insert-previous (cons new list)
   "Insert NEW before CONS in LIST. Return cons of NEW.
 CONS must reference a cons in LIST.
 NEW is the value of the element inserted.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq return (torus--duo-insert-previous cons new list))
 \(when (eq (cdr return) list)
@@ -556,7 +581,7 @@ TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq return (torus--duo-insert-before cons new list))
 \(when (eq (cdr return) list)
@@ -699,7 +724,7 @@ Modifies LIST."
   "Move CONS to previous place in LIST. Return LIST.
 CONS must reference a cons in LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-move-previous cons list))
 Modifies LIST."
@@ -758,7 +783,7 @@ MOVED is the cons of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-teleport-cons-previous cons moved list))
 Modifies LIST."
@@ -796,7 +821,7 @@ MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-teleport-previous cons moved list))
 Modifies LIST."
@@ -824,7 +849,7 @@ MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-teleport-before cons moved list))
 Modifies LIST."
@@ -895,7 +920,7 @@ Modifies LIST."
   "Rotate LIST to the right.
 Equivalent to drop last element and push it at the beginning.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-rotate-right list))
 Modifies LIST."
