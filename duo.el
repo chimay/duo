@@ -308,6 +308,20 @@ which becomes the address of the second cons of the list."
 ;;     nil)
   )
 
+(defun torus--duo-naive-pop (list)
+  "Do not use it on any LIST !
+Removing the first cons without returning the updated list does not work.
+The calling scope list var holds the address of the first cons of the list.
+The argument list var holds a copy of this address.
+Using (setq list ...) inside the defun changes the argument list reference,
+not the calling scope one. So, the calling scope address remains the same,
+which becomes the address of the removed cons."
+  ;; (let ((popped list))
+  ;;   (setq list (cdr list))
+  ;;   (setcdr popped nil)
+  ;;   popped)
+  )
+
 (defun torus--duo-push-cons (cons list)
   "Add CONS at the beginning of LIST. Return LIST.
 The actual new list must be recovered using the returned list.
@@ -366,20 +380,6 @@ Modifies LIST."
 Modifies LIST."
   (unless (member elem list)
     (torus--duo-add elem list)))
-
-(defun torus--duo-naive-pop (list)
-  "Do not use it on any LIST !
-Removing the first cons without returning the updated list does not work.
-The calling scope list var holds the address of the first cons of the list.
-The argument list var holds a copy of this address.
-Using (setq list ...) inside the defun changes the argument list reference,
-not the calling scope one. So, the calling scope address remains the same,
-which becomes the address of the removed cons."
-  ;; (let ((popped list))
-  ;;   (setq list (cdr list))
-  ;;   (setcdr popped nil)
-  ;;   popped)
-  )
 
 (defun torus--duo-pop (list)
   "Remove the first element of LIST. Return (popped-cons . new-list)
@@ -502,6 +502,9 @@ That’s all folks."
 ;;; Insert
 ;;; ------------------------------
 
+;;; Cons Cons
+;;; ---------------
+
 (defun torus--duo-insert-cons-previous (cons new list)
   "Insert NEW before CONS in LIST. Return NEW.
 CONS must reference a cons in LIST.
@@ -532,6 +535,9 @@ Modifies LIST."
     (setcdr new (cdr cons))
     (setcdr cons new)
     new)
+
+;;; Cons Elem
+;;; ---------------
 
 (defun torus--duo-insert-previous (cons new list)
   "Insert NEW before CONS in LIST. Return cons of NEW.
@@ -564,6 +570,39 @@ Modifies LIST."
   (let ((duo (cons new (cdr cons))))
     (setcdr cons duo)
     duo))
+
+;;; Elem Cons
+;;; ---------------
+
+(defun torus--duo-insert-cons-before (elem new list &optional test-equal)
+  "Insert NEW before ELEM in LIST. Return cons of NEW.
+ELEM must be present in list.
+NEW is the cons inserted.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+If the new cons is inserted at the beginning of the list,
+the actual new list must be recovered using new LIST = NEW.
+See the docstring of `torus--duo-naive-push' to know why.
+Common usage :
+\(setq return (torus--duo-insert-before cons new list))
+\(when (eq (cdr return) list)
+  (setq list return))
+Modifies LIST."
+  (let ((test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (if (funcall test-equal (car list) elem)
+        (torus--duo-push-cons new list)
+      (let* ((previous (torus--duo-before elem list 1 test-equal)))
+        (if previous
+            (progn
+              (setcdr new (cdr previous))
+              (setcdr previous new)
+              new)
+          nil)))))
+
+;;; Elem Elem
+;;; ---------------
 
 (defun torus--duo-insert-before (elem new list &optional test-equal)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
@@ -751,6 +790,9 @@ Modifies LIST."
       (setq duo next))
     (cons removed-list newlist)))
 
+;;; Reference
+;;; ---------------
+
 ;;; Change
 ;;; ------------------------------
 
@@ -821,7 +863,13 @@ Circular : if in beginning of list, go to the end."
 Circular : if in end of list, go to the beginning."
   )
 
-;;; Jump
+;;; Reference
+;;; ---------------
+
+;;; Teleport
+;;; ------------------------------
+
+;;; Cons Cons
 ;;; ---------------
 
 (defun torus--duo-teleport-cons-previous (cons moved list)
@@ -862,6 +910,9 @@ Modifies LIST."
       (torus--duo-insert-cons-next cons moved))
     newlist))
 
+;;; Cons Elem
+;;; ---------------
+
 (defun torus--duo-teleport-previous (cons moved list &optional test-equal)
   "Move MOVED before CONS in LIST. Return LIST.
 CONS must reference a cons in LIST.
@@ -889,6 +940,12 @@ Common usage :
 Modifies LIST."
   (let ((duo (torus--duo-member moved list test-equal)))
     (torus--duo-teleport-cons-next cons duo list)))
+
+;;; Elem Cons
+;;; ---------------
+
+;;; Elem Elem
+;;; ---------------
 
 (defun torus--duo-teleport-before (elem moved list &optional test-equal)
   "Move MOVED before ELEM in LIST. Return LIST.
@@ -943,6 +1000,9 @@ Modifies LIST."
         (setq member (torus--duo-member elem newlist test-equal))
         (torus--duo-insert-cons-next member duo)))
     newlist))
+
+;;; Reference
+;;; ---------------
 
 ;;; Rotate <- ->
 ;;; ------------------------------
