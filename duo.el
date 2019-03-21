@@ -369,10 +369,13 @@ Modifies LIST."
          (newlist duo))
     newlist))
 
-(defun torus--duo-add (elem list)
-  "Add ELEM at the end of LIST. Return the new end cons.
+(defun torus--duo-add (elem list &optional last)
+  "Add ELEM at the end of LIST. Return the new LAST.
+If non nil, LAST is used to speed up the process.
 Modifies LIST."
-  (let ((last (torus--duo-last list))
+  (let ((last (if last
+                  last
+                (torus--duo-last list)))
         (duo (cons elem nil)))
     (setcdr last duo)
     duo))
@@ -388,11 +391,12 @@ Modifies LIST."
       list
     (torus--duo-push elem list)))
 
-(defun torus--duo-add-new (elem list)
-  "Add ELEM at the end of LIST if not already there. Return the new end cons.
+(defun torus--duo-add-new (elem list &optional last)
+  "Add ELEM at the end of LIST if not already there. Return the new LAST.
+If non nil, LAST is used to speed up the process.
 Modifies LIST."
   (unless (member elem list)
-    (torus--duo-add elem list)))
+    (torus--duo-add elem list last)))
 
 (defun torus--duo-pop (list)
   "Remove the first element of LIST. Return (popped-cons . new-list)
@@ -573,10 +577,11 @@ Modifies LIST."
 ;;; Cons Cons
 ;;; ---------------
 
-(defun torus--duo-insert-cons-previous (cons new list)
+(defun torus--duo-insert-cons-previous (cons new list &optional previous)
   "Insert NEW before CONS in LIST. Return NEW.
 CONS must reference a cons in LIST.
 NEW is the cons inserted.
+If non nil, PREVIOUS is used to speed up the process.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
 See the docstring of `torus--duo-naive-push' to know why.
@@ -587,7 +592,9 @@ Common usage :
 Modifies LIST."
   (if (eq cons list)
       (torus--duo-push-cons new list)
-    (let* ((previous (torus--duo-previous cons list)))
+    (let ((previous (if previous
+                        previous
+                      (torus--duo-previous cons list))))
       (if previous
           (progn
             (setcdr new (cdr previous))
@@ -607,10 +614,11 @@ Modifies LIST."
 ;;; Cons Elem
 ;;; ---------------
 
-(defun torus--duo-insert-previous (cons new list)
+(defun torus--duo-insert-previous (cons new list &optional previous)
   "Insert NEW before CONS in LIST. Return cons of NEW.
 CONS must reference a cons in LIST.
 NEW is the value of the element inserted.
+If non nil, PREVIOUS is used to speed up the process.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
 See the docstring of `torus--duo-naive-push' to know why.
@@ -620,46 +628,41 @@ Common usage :
   (setq list return))
 Modifies LIST."
   (let ((duo (list new)))
-    (torus--duo-insert-cons-previous cons duo list)))
+    (torus--duo-insert-cons-previous cons duo list previous)))
 
 (defun torus--duo-insert-next (cons new)
   "Insert NEW after CONS in list. Return cons of NEW.
 CONS must reference a cons in LIST.
 NEW is the value of the element inserted.
 Modifies LIST."
-  (let ((duo (cons new (cdr cons))))
-    (setcdr cons duo)
-    duo))
+  (let ((duo (list new)))
+    (torus--duo-insert-cons-next cons duo)))
 
 ;;; Elem Cons
 ;;; ---------------
 
-(defun torus--duo-insert-cons-before (elem new list &optional test-equal)
+(defun torus--duo-insert-cons-before (elem new list &optional previous test-equal)
   "Insert NEW before ELEM in LIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
+If non nil, PREVIOUS is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
 See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
-\(setq return (torus--duo-insert-before cons new list))
+\(setq return (torus--duo-insert-cons-before cons new list))
 \(when (eq (cdr return) list)
   (setq list return))
 Modifies LIST."
-  (let ((test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (if (funcall test-equal (car list) elem)
-        (torus--duo-push-cons new list)
-      (let* ((previous (torus--duo-before elem list 1 test-equal)))
-        (if previous
-            (progn
-              (setcdr new (cdr previous))
-              (setcdr previous new)
-              new)
-          nil)))))
+  (let ((previous (if previous
+                      previous
+                    (torus--duo-before elem list 1 test-equal)))
+        (duo (if (eq elem (car list))
+                 list
+               (cdr previous))))
+    (torus--duo-insert-cons-previous duo new list previous)))
 
 (defun torus--duo-insert-cons-after (elem new list &optional test-equal)
   "Insert NEW after ELEM in LIST. Return NEW.
@@ -668,21 +671,17 @@ NEW is the cons inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (let* ((member (torus--duo-member elem list test-equal)))
-    (if member
-        (progn
-          (setcdr new (cdr member))
-          (setcdr member new)
-          new)
-      nil)))
+  (let ((duo (torus--duo-member elem list test-equal)))
+    (torus--duo-insert-cons-next duo new)))
 
 ;;; Elem Elem
 ;;; ---------------
 
-(defun torus--duo-insert-before (elem new list &optional test-equal)
+(defun torus--duo-insert-before (elem new list &optional previous test-equal)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
+If non nil, PREVIOUS is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 If the new cons is inserted at the beginning of the list,
@@ -707,10 +706,11 @@ Modifies LIST."
               duo)
           nil)))))
 
-(defun torus--duo-insert-after (elem new list &optional test-equal)
+(defun torus--duo-insert-after (elem new list &optional previous test-equal)
   "Insert NEW after ELEM in LIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
+If non nil, PREVIOUS is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
