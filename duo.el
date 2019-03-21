@@ -13,7 +13,7 @@
 
 ;; Library of in place list operations in Emacs-Lisp.
 ;;
-;; Cons DUO = (CAR . CDR) can be used as pointer
+;; Cons DUO = (CAR . CDR) can be used as double pointer
 ;; with setcar and setcdr
 ;;
 ;; ELEM = (car DUO)          -> straightforward
@@ -824,20 +824,33 @@ Modifies LIST."
 (defun torus--duo-rotate-left (list)
   "Rotate LIST to the left.
 Equivalent to pop first element and add it to the end.
+The actual new list must be recovered using the returned list.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-rotate-left list))
 Modifies LIST."
   ;; Length list > 1
-  (when (cdr list)
-    (let ((duo (torus--duo-pop list)))
-      (torus--duo-add (car duo) list))))
+  (if (cdr list)
+      (let* ((pair (torus--duo-pop list))
+             (duo (car pair))
+             (newlist (cdr pair)))
+        (torus--duo-add-cons duo newlist)
+        newlist)
+    list))
 
 (defun torus--duo-rotate-right (list)
   "Rotate LIST to the right.
 Equivalent to drop last element and push it at the beginning.
+The actual new list must be recovered using the returned list.
+See the docstring of `torus--duo-naive-pop' to know why.
+Common usage :
+\(setq list (torus--duo-rotate-right list))
 Modifies LIST."
   ;; Length list > 1
-  (when (cdr list)
-    (let ((duo (torus--duo-drop list)))
-      (torus--duo-push (car duo) list))))
+  (if (cdr list)
+      (let ((duo (torus--duo-drop list)))
+        (torus--duo-push-cons duo list))
+    list))
 
 ;;; Reverse
 ;;; ------------------------------
