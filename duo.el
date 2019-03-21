@@ -290,11 +290,8 @@ TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (torus--duo-circ-next (torus--duo-member elem list test-equal) list num))
 
-;;; Add / Remove
+;;; Add / Remove at Beg / End
 ;;; ------------------------------
-
-;;; Beginning / End
-;;; ---------------
 
 (defun torus--duo-naive-push (list)
   "Do not use it on any LIST !
@@ -341,10 +338,8 @@ See the docstring of `torus--duo-naive-push' to know why.
 Common usage :
 \(setq list (torus--duo-push elem list))
 Modifies LIST."
-  (let* ((duo (cons elem (cdr list)))
-         (newlist))
-    (setcdr duo list)
-    (setq newlist duo)
+  (let* ((duo (cons elem list))
+         (newlist duo))
     newlist))
 
 (defun torus--duo-add (elem list)
@@ -354,25 +349,6 @@ Modifies LIST."
         (duo (cons elem nil)))
     (setcdr last duo)
     duo))
-
-(defun torus--duo-ref-push-cons (cons reflist)
-  "Add CONS at the beginning of the car of REFLIST. Return REFLIST.
-REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
-use the list itself as argument.
-Common usage :
-;; Create reflist
-\(setq reflist (list mylist))          ; this
-\(setq reflist (cons mylist nil))      ; or that
-\(setq reflist (cons mylist whatever)) ; or that
-;; Push
-\(torus--duo-ref-push-cons reflist)
-;; Update list
-\(setq mylist (car reflist))
-Modifies LIST."
-  (setcdr cons (car reflist))
-  (setcar reflist cons)
-  reflist)
 
 (defun torus--duo-push-new (elem list)
   "Add ELEM at the beginning of LIST if not already there. Return LIST.
@@ -431,27 +407,6 @@ Modifies LIST."
       (setcar list nil))
     last))
 
-(defun torus--duo-ref-pop (reflist)
-  "Remove first element in the car of REFLIST. Return popped cons.
-REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-pop' to know why it doesn’t
-use the list itself as argument.
-Common usage :
-;; Create reflist
-\(setq reflist (list mylist))          ; this
-\(setq reflist (cons mylist nil))      ; or that
-\(setq reflist (cons mylist whatever)) ; or that
-;; Pop
-\(setq popped (torus--duo-ref-pop reflist))
-;; Update list
-\(setq mylist (car reflist))
-That’s all folks."
-  (let* ((list (car reflist))
-         (popped list))
-    (setcar reflist (cdr list))
-    (setcdr popped nil)
-    popped))
-
 (defun torus--duo-truncate (list &optional num)
   "Truncate LIST to its first NUM elements.
 Modifies LIST."
@@ -482,8 +437,70 @@ Modifies LIST."
     (torus--duo-truncate newlist num)
     newlist))
 
-;;; Insert
+;;; Reference
 ;;; ---------------
+
+(defun torus--duo-ref-push-cons (cons reflist)
+  "Add CONS at the beginning of the car of REFLIST. Return REFLIST.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))          ; this
+\(setq reflist (cons mylist nil))      ; or that
+\(setq reflist (cons mylist whatever)) ; or that
+;; Push
+\(torus--duo-ref-push-cons reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (setcdr cons (car reflist))
+  (setcar reflist cons)
+  reflist)
+
+(defun torus--duo-ref-push (elem reflist)
+  "Add ELEM at the beginning of the car of REFLIST. Return REFLIST.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))          ; this
+\(setq reflist (cons mylist nil))      ; or that
+\(setq reflist (cons mylist whatever)) ; or that
+;; Push
+\(torus--duo-ref-push-cons reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((duo (cons elem (car reflist))))
+    (setcar reflist duo)
+    reflist))
+
+(defun torus--duo-ref-pop (reflist)
+  "Remove first element in the car of REFLIST. Return popped cons.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))          ; this
+\(setq reflist (cons mylist nil))      ; or that
+\(setq reflist (cons mylist whatever)) ; or that
+;; Pop
+\(setq popped (torus--duo-ref-pop reflist))
+;; Update list
+\(setq mylist (car reflist))
+That’s all folks."
+  (let* ((list (car reflist))
+         (popped list))
+    (setcar reflist (cdr list))
+    (setcdr popped nil)
+    popped))
+
+;;; Insert
+;;; ------------------------------
 
 (defun torus--duo-insert-cons-previous (cons new list)
   "Insert NEW before CONS in LIST. Return NEW.
@@ -573,6 +590,33 @@ Modifies LIST."
   (let ((duo (cons new (cdr cons))))
     (setcdr cons duo)
     duo))
+
+(defun torus--duo-ref-insert-previous (cons new reflist)
+  "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
+CONS must reference a cons in LIST.
+NEW is the value of the element inserted.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-insert-previous cons new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  ;; TODO
+  (if (eq cons list)
+      (torus--duo-push new list)
+    (let* ((previous (torus--duo-previous cons list))
+           (duo))
+      (if previous
+          (progn
+            (setq duo (cons new (cdr previous)))
+            (setcdr previous duo)
+            duo)
+        nil))))
 
 (defun torus--duo-insert-before (elem new list &optional test-equal)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
