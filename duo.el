@@ -533,32 +533,6 @@ Modifies LIST."
     (setcdr cons new)
     new)
 
-(defun torus--duo-ref-insert-cons-previous (cons new reflist)
-  "Insert NEW before CONS in car of REFLIST. Return NEW.
-CONS must reference a cons in LIST.
-NEW is the cons inserted.
-REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
-use the list itself in argument.
-Common usage :
-;; Create reflist
-\(setq reflist (list mylist))
-;; Insert
-\(torus--duo-ref-insert-cons-previous cons new reflist)
-;; Update list
-\(setq mylist (car reflist))
-Modifies LIST."
-  (let ((list (car reflist)))
-    (if (eq cons list)
-        (torus--duo-ref-push-cons new reflist)
-      (let ((previous (torus--duo-previous cons list)))
-        (if previous
-            (progn
-              (setcdr new (cdr previous))
-              (setcdr previous new)
-              new)
-          nil)))))
-
 (defun torus--duo-insert-previous (cons new list)
   "Insert NEW before CONS in LIST. Return cons of NEW.
 CONS must reference a cons in LIST.
@@ -590,33 +564,6 @@ Modifies LIST."
   (let ((duo (cons new (cdr cons))))
     (setcdr cons duo)
     duo))
-
-(defun torus--duo-ref-insert-previous (cons new reflist)
-  "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
-CONS must reference a cons in LIST.
-NEW is the value of the element inserted.
-REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
-use the list itself in argument.
-Common usage :
-;; Create reflist
-\(setq reflist (list mylist))
-;; Insert
-\(torus--duo-ref-insert-previous cons new reflist)
-;; Update list
-\(setq mylist (car reflist))
-Modifies LIST."
-  ;; TODO
-  (if (eq cons list)
-      (torus--duo-push new list)
-    (let* ((previous (torus--duo-previous cons list))
-           (duo))
-      (if previous
-          (progn
-            (setq duo (cons new (cdr previous)))
-            (setcdr previous duo)
-            duo)
-        nil))))
 
 (defun torus--duo-insert-before (elem new list &optional test-equal)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
@@ -662,8 +609,64 @@ Modifies LIST."
           duo)
       nil)))
 
-;;; Remove
+;;; Reference
 ;;; ---------------
+
+(defun torus--duo-ref-insert-cons-previous (cons new reflist)
+  "Insert NEW before CONS in car of REFLIST. Return NEW.
+CONS must reference a cons in LIST.
+NEW is the cons inserted.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-insert-cons-previous cons new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((list (car reflist)))
+    (if (eq cons list)
+        (torus--duo-ref-push-cons new reflist)
+      (let ((previous (torus--duo-previous cons list)))
+        (if previous
+            (progn
+              (setcdr new (cdr previous))
+              (setcdr previous new)
+              new)
+          nil)))))
+
+(defun torus--duo-ref-insert-previous (cons new reflist)
+  "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
+CONS must reference a cons in LIST.
+NEW is the value of the element inserted.
+REFLIST must be a cons (list . whatever-you-want)
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-insert-previous cons new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((list (car reflist)))
+    (if (eq cons list)
+        (torus--duo-ref-push new reflist)
+      (let* ((previous (torus--duo-previous cons list))
+             (duo))
+        (if previous
+            (progn
+              (setq duo (cons new (cdr previous)))
+              (setcdr previous duo)
+              duo)
+          nil)))))
+
+;;; Remove
+;;; ------------------------------
 
 (defun torus--duo-remove (cons list)
   "Remove CONS from LIST. Return LIST.
@@ -1172,7 +1175,7 @@ Return nil if no matching element is found."
       (setq duo (cdr duo)))
     duo))
 
-;;; Group
+;;; Partition
 ;;; ------------------------------
 
 (defun torus--duo-partition (funkey list)
