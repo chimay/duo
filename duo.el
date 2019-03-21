@@ -290,6 +290,19 @@ TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (torus--duo-circ-next (torus--duo-member elem list test-equal) list num))
 
+;;; Change
+;;; ------------------------------
+
+(defun torus--duo-update (old new list &optional test-equal)
+  "Replace OLD by NEW in LIST. Return cons of NEW.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+Modifies LIST."
+  (let ((duo (torus--duo-member old list test-equal)))
+    (when duo
+      (setcar duo new))
+    duo))
+
 ;;; Add / Remove at Beg / End
 ;;; ------------------------------
 
@@ -1005,19 +1018,6 @@ Modifies LIST."
           (setq last removed)))
       (setq duo next))
     removed-list))
-
-;;; Change
-;;; ------------------------------
-
-(defun torus--duo-update (old new list &optional test-equal)
-  "Replace OLD by NEW in LIST. Return cons of NEW.
-TEST-EQUAL takes two arguments and return t if they are considered equals.
-TEST-EQUAL defaults do `equal'.
-Modifies LIST."
-  (let ((duo (torus--duo-member old list test-equal)))
-    (when duo
-      (setcar duo new))
-    duo))
 
 ;;; Move
 ;;; ------------------------------
