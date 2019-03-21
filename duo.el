@@ -927,9 +927,7 @@ Modifies LIST."
                 (funcall test-group (car (cdr previous)) new))
       (setq previous (cdr previous)))
     (when previous
-      (setq return (torus--duo-insert-next previous new))
-      (when (eq (cdr return) newlist)
-        (setq newlist return)))
+      (torus--duo-insert-next previous new))
     newlist))
 
 ;;; Filter
