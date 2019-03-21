@@ -399,11 +399,11 @@ Common usage :
 ;; Update list
 (setq list (car reflist))
 That’s all folks."
-  (let ((list (car reflist)))
+  (let* ((list (car reflist))
+         (popped list))
     (setcar reflist (cdr list))
-    (setq return list)
-    (setcdr return nil)
-    return))
+    (setcdr popped nil)
+    popped))
 
 (defun torus--duo-drop (list)
   "Remove last element of LIST. Return cons of removed element.
