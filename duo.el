@@ -734,7 +734,9 @@ Modifies LIST."
   (let ((list (car reflist)))
     (if (eq cons list)
         (car (torus--duo-ref-push-cons new reflist))
-      (let ((previous (torus--duo-previous cons list)))
+      (let ((previous (if previous
+                        previous
+                      (torus--duo-previous cons list))))
         (if previous
             (progn
               (setcdr new (cdr previous))
