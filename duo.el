@@ -699,12 +699,15 @@ Common usage :
 \(when (eq (cdr return) list)
   (setq list return))
 Modifies LIST."
-  (let ((previous (if previous
-                      previous
-                    (duo-before elem list 1 test-equal)))
-        (duo (if (eq elem (car list))
-                 list
-               (cdr previous))))
+  (let* ((test-equal (if test-equal
+                         test-equal
+                       #'equal))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 test-equal)))
+         (duo (if (funcall test-equal (car list) elem)
+                  list
+                (cdr previous))))
     (duo-insert-cons-previous duo new list previous)))
 
 (defun duo-insert-cons-after (elem new list &optional test-equal)
@@ -735,13 +738,16 @@ Common usage :
 \(when (eq (cdr return) list)
   (setq list return))
 Modifies LIST."
-  (let ((previous (if previous
-                      previous
-                    (duo-before elem list 1 test-equal)))
-        (cons-elem (if (eq elem (car list))
-                       list
-                     (cdr previous)))
-        (cons-new (list new)))
+  (let* ((test-equal (if test-equal
+                         test-equal
+                       #'equal))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 test-equal)))
+         (cons-elem (if (funcall test-equal (car list) elem)
+                        list
+                      (cdr previous)))
+         (cons-new (list new)))
     (duo-insert-cons-previous cons-elem cons-new list previous)))
 
 (defun duo-insert-after (elem new list &optional test-equal)
@@ -970,10 +976,11 @@ Modifies LIST."
 ;;; Reference
 ;;; ---------------
 
-(defun duo-ref-remove (cons reflist)
+(defun duo-ref-remove (cons reflist &optional previous)
   "Remove CONS from car of REFLIST. Return CONS.
 CONS must reference a cons in LIST.
 REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS removed is used to speed up the process.
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -987,13 +994,15 @@ Modifies LIST."
   (let ((list (car reflist)))
     (if (eq cons list)
         (duo-ref-pop reflist)
-      (let* ((previous (duo-previous cons list)))
+      (let ((previous (if previous
+                          previous
+                        (duo-previous cons list))))
         (when previous
           (setcdr previous (cdr cons))
           (setcdr cons nil))
         cons))))
 
-(defun duo-ref-delete (elem reflist &optional test-equal)
+(defun duo-ref-delete (elem reflist &optional previous test-equal)
   "Delete ELEM from car of REFLIST. Return removed cons.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
@@ -1008,18 +1017,17 @@ Common usage :
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
-  (let ((list (car reflist))
-        (test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (if (funcall test-equal (car list) elem)
-        (duo-ref-pop reflist)
-      (let* ((previous (duo-before elem list 1 test-equal))
-             (duo (cdr previous)))
-        (when previous
-          (setcdr previous (cdr duo))
-          (setcdr duo nil))
-        duo))))
+  (let* ((list (car reflist))
+         (test-equal (if test-equal
+                         test-equal
+                       #'equal))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 test-equal)))
+         (duo (if (funcall test-equal (car list) elem)
+                  list
+                (cdr previous))))
+    (duo-ref-remove duo reflist previous)))
 
 (defun duo-ref-delete-all (elem reflist &optional test-equal)
   "Delete all elements equals to ELEM from car of REFLIST.
