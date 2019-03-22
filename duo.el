@@ -861,11 +861,14 @@ Common usage :
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
-  (let* ((list (car reflist))
+  (let* ((test-equal (if test-equal
+                         test-equal
+                       #'equal))
+         (list (car reflist))
          (previous (if previous
                        previous
                      (duo-before elem list 1 test-equal)))
-         (cons-elem (if (eq elem (car list))
+         (cons-elem (if (funcall test-equal (car list) elem)
                         list
                       (cdr previous)))
          (cons-new (list new)))
