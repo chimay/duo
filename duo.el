@@ -83,7 +83,7 @@
 ;;; Pointers
 ;;; ------------------------------------------------------------
 
-(defun torus--duo-set-deref (ptr object)
+(defun duo-set-deref (ptr object)
   "Change the content of the variable referenced by PTR to OBJECT.
 OBJECT must be a cons or a list."
   (setcar ptr (car object))
@@ -96,7 +96,7 @@ OBJECT must be a cons or a list."
 ;;; Find
 ;;; ------------------------------
 
-(defun torus--duo-member (elem list &optional test-equal)
+(defun duo-member (elem list &optional test-equal)
   "Return cons of ELEM in LIST or nil if ELEM is not in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
@@ -109,7 +109,7 @@ TEST-EQUAL defaults do `equal'."
       (setq duo (cdr duo)))
     duo))
 
-(defun torus--duo-last (list &optional num)
+(defun duo-last (list &optional num)
   "Return cons starting a sublist of NUM elements at the end of LIST.
 NUM defaults to 1 : NUM nil means return cons of last element in LIST."
   (let ((num (if num
@@ -120,21 +120,21 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
       (setq last (cdr last)))
     last))
 
-(defun torus--duo-at-index (index list)
+(defun duo-at-index (index list)
   "Element at INDEX in LIST."
   (nthcdr index list))
 
-(defun torus--duo-index (elem list &optional test-equal)
+(defun duo-index (elem list &optional test-equal)
   "Index of ELEM in LIST.
 ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (- (length list) (length (torus--duo-member elem list test-equal))))
+  (- (length list) (length (duo-member elem list test-equal))))
 
 ;;; Next / Previous
 ;;; ------------------------------
 
-(defun torus--duo-previous (cons list &optional num)
+(defun duo-previous (cons list &optional num)
   "Return cons of NUM elements before CONS in LIST.
 NUM defaults to 1.
 CONS must reference a cons in list."
@@ -152,7 +152,7 @@ CONS must reference a cons in list."
         duo
       nil)))
 
-(defun torus--duo-next (cons &optional num)
+(defun duo-next (cons &optional num)
   "Return cons of NUM elements after CONS in list.
 NUM defaults to 1.
 CONS must reference a cons in the list."
@@ -161,7 +161,7 @@ CONS must reference a cons in the list."
                1)))
     (nthcdr num cons)))
 
-(defun torus--duo-before (elem list &optional num test-equal)
+(defun duo-before (elem list &optional num test-equal)
   "Return cons of NUM elements before ELEM in LIST.
 NUM defaults to 1.
 ELEM must be present in list.
@@ -184,7 +184,7 @@ TEST-EQUAL defaults do `equal'."
           duo
         nil))))
 
-(defun torus--duo-after (elem list &optional num test-equal)
+(defun duo-after (elem list &optional num test-equal)
   "Return cons of NUM elements after ELEM in LIST.
 NUM defaults to 1.
 ELEM must be present in list.
@@ -193,12 +193,12 @@ TEST-EQUAL defaults do `equal'."
   (let ((num (if num
                  num
                1)))
-    (nthcdr num (torus--duo-member elem list test-equal))))
+    (nthcdr num (duo-member elem list test-equal))))
 
 ;;; Circular
 ;;; ---------------
 
-(defun torus--duo-circ-previous (cons list &optional num)
+(defun duo-circ-previous (cons list &optional num)
   "Return cons of NUM elements before CONS in LIST.
 Circular : if in beginning of list, go to the end.
 NUM defaults to 1.
@@ -229,7 +229,7 @@ Test with eq."
         (setq scout (cdr scout))))
     duo))
 
-(defun torus--duo-circ-next (cons list &optional num)
+(defun duo-circ-next (cons list &optional num)
   "Return cons of NUM elements after CONS in LIST.
 Circular : if in end of list, go to the beginning.
 NUM defaults to 1.
@@ -250,7 +250,7 @@ CONS must reference a cons in LIST."
       (setq duo (nthcdr num list)))
     duo))
 
-(defun torus--duo-circ-before (elem list &optional num test-equal)
+(defun duo-circ-before (elem list &optional num test-equal)
   "Return cons of NUM elements before ELEM in LIST.
 Circular : if in beginning of list, go to the end.
 NUM defaults to 1.
@@ -281,24 +281,24 @@ TEST-EQUAL defaults do `equal'."
         (setq scout (cdr scout))))
     duo))
 
-(defun torus--duo-circ-after (elem list &optional num test-equal)
+(defun duo-circ-after (elem list &optional num test-equal)
   "Return cons of NUM elements after ELEM in LIST.
 Circular : if in end of list, go to the beginning.
 NUM defaults to 1.
 ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (torus--duo-circ-next (torus--duo-member elem list test-equal) list num))
+  (duo-circ-next (duo-member elem list test-equal) list num))
 
 ;;; Change
 ;;; ------------------------------
 
-(defun torus--duo-update (old new list &optional test-equal)
+(defun duo-update (old new list &optional test-equal)
   "Replace OLD by NEW in LIST. Return cons of NEW.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (let ((duo (torus--duo-member old list test-equal)))
+  (let ((duo (duo-member old list test-equal)))
     (when duo
       (setcar duo new))
     duo))
@@ -306,7 +306,7 @@ Modifies LIST."
 ;;; Add / Remove at Beg / End
 ;;; ------------------------------
 
-(defun torus--duo-naive-push ()
+(defun duo-naive-push ()
   "Do not use it on any LIST !
 Adding a cons before the first one without returning the updated list
 does not work.
@@ -321,7 +321,7 @@ which becomes the address of the second cons of the list."
 ;;     nil)
   )
 
-(defun torus--duo-naive-pop ()
+(defun duo-naive-pop ()
   "Do not use it on any LIST !
 Removing the first cons without returning the updated list does not work.
 The calling scope list var holds the address of the first cons of the list.
@@ -335,75 +335,75 @@ which becomes the address of the removed cons."
   ;;   popped)
   )
 
-(defun torus--duo-push-cons (cons list)
+(defun duo-push-cons (cons list)
   "Add CONS at the beginning of LIST. Return LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (torus--duo-push-cons cons list))
+\(setq list (duo-push-cons cons list))
 Modifies LIST."
   (let* ((newlist))
     (setcdr cons list)
     (setq newlist cons)
     newlist))
 
-(defun torus--duo-add-cons (cons list &optional last)
+(defun duo-add-cons (cons list &optional last)
   "Store CONS at the end of LIST. Return CONS.
 If non nil, LAST is used to speed up the process.
 Modifies LIST."
   (let ((last (if last
                   last
-                (torus--duo-last list))))
+                (duo-last list))))
     (setcdr last cons)
     (setcdr cons nil)
     cons))
 
-(defun torus--duo-push (elem list)
+(defun duo-push (elem list)
   "Add ELEM at the beginning of LIST. Return LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (torus--duo-push elem list))
+\(setq list (duo-push elem list))
 Modifies LIST."
   (let* ((duo (cons elem list))
          (newlist duo))
     newlist))
 
-(defun torus--duo-add (elem list &optional last)
+(defun duo-add (elem list &optional last)
   "Add ELEM at the end of LIST. Return the new LAST.
 If non nil, LAST is used to speed up the process.
 Modifies LIST."
   (let ((last (if last
                   last
-                (torus--duo-last list)))
+                (duo-last list)))
         (duo (cons elem nil)))
     (setcdr last duo)
     duo))
 
-(defun torus--duo-push-new (elem list)
+(defun duo-push-new (elem list)
   "Add ELEM at the beginning of LIST if not already there. Return LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (torus--duo-push-new elem list))
+\(setq list (duo-push-new elem list))
 Modifies LIST."
   (if (member elem list)
       list
-    (torus--duo-push elem list)))
+    (duo-push elem list)))
 
-(defun torus--duo-add-new (elem list &optional last)
+(defun duo-add-new (elem list &optional last)
   "Add ELEM at the end of LIST if not already there. Return the new LAST.
 If non nil, LAST is used to speed up the process.
 Modifies LIST."
   (unless (member elem list)
-    (torus--duo-add elem list last)))
+    (duo-add elem list last)))
 
-(defun torus--duo-pop (list)
+(defun duo-pop (list)
   "Remove the first element of LIST. Return (popped-cons . new-list)
 The actual new list must be recovered using the returned structure.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-pop list))
+\(setq pair (duo-pop list))
 \(setq popped (car pair))
 \(setq list (cdr pair))
 That’s all folks."
@@ -412,10 +412,10 @@ That’s all folks."
     (setcdr popped nil)
     (cons popped newlist)))
 
-(defun torus--duo-drop (list)
+(defun duo-drop (list)
   "Remove last element of LIST. Return cons of removed element.
 Modifies LIST."
-  (let* ((before-last (torus--duo-last list 2))
+  (let* ((before-last (duo-last list 2))
          (last (cdr before-last)))
     (if last
         (setcdr before-last nil)
@@ -424,7 +424,7 @@ Modifies LIST."
       (setcar list nil))
     last))
 
-(defun torus--duo-truncate (list &optional num)
+(defun duo-truncate (list &optional num)
   "Truncate LIST to its first NUM elements. Return removed part.
 Modifies LIST."
   (let* ((num (if num
@@ -441,26 +441,26 @@ Modifies LIST."
         (setcdr last nil)))
     tail))
 
-(defun torus--duo-push-and-truncate (elem list &optional num)
+(defun duo-push-and-truncate (elem list &optional num)
   "Add ELEM at the beginning of LIST. Truncate LIST to NUM elements.
 Return LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (torus--duo-push-and-truncate elem list))
+\(setq list (duo-push-and-truncate elem list))
 Modifies LIST."
   (let ((newlist list))
-    (setq newlist (torus--duo-push elem list))
-    (torus--duo-truncate newlist num)
+    (setq newlist (duo-push elem list))
+    (duo-truncate newlist num)
     newlist))
 
 ;;; Reference
 ;;; ---------------
 
-(defun torus--duo-ref-push-cons (cons reflist)
+(defun duo-ref-push-cons (cons reflist)
   "Add CONS at the beginning of the car of REFLIST. Return REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
+See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
 ;; Create reflist
@@ -468,7 +468,7 @@ Common usage :
 \(setq reflist (cons mylist nil))      ; or that
 \(setq reflist (cons mylist whatever)) ; or that
 ;; Push
-\(torus--duo-ref-push-cons reflist)
+\(duo-ref-push-cons reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
@@ -476,18 +476,16 @@ Modifies LIST."
   (setcar reflist cons)
   reflist)
 
-(defun torus--duo-ref-push (elem reflist)
+(defun duo-ref-push (elem reflist)
   "Add ELEM at the beginning of the car of REFLIST. Return REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
+See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
 ;; Create reflist
-\(setq reflist (list mylist))          ; this
-\(setq reflist (cons mylist nil))      ; or that
-\(setq reflist (cons mylist whatever)) ; or that
+\(setq reflist (list mylist))
 ;; Push
-\(torus--duo-ref-push reflist)
+\(duo-ref-push reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
@@ -495,10 +493,10 @@ Modifies LIST."
     (setcar reflist duo)
     reflist))
 
-(defun torus--duo-ref-pop (reflist)
+(defun duo-ref-pop (reflist)
   "Remove first element in the car of REFLIST. Return popped cons.
 REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself as argument.
 Common usage :
 ;; Create reflist
@@ -506,7 +504,7 @@ Common usage :
 \(setq reflist (cons mylist nil))      ; or that
 \(setq reflist (cons mylist whatever)) ; or that
 ;; Pop
-\(setq popped (torus--duo-ref-pop reflist))
+\(setq popped (duo-ref-pop reflist))
 ;; Update list
 \(setq mylist (car reflist))
 That’s all folks."
@@ -519,45 +517,68 @@ That’s all folks."
 ;;; Rotate <- ->
 ;;; ------------------------------
 
-(defun torus--duo-rotate-left (list)
+(defun duo-rotate-left (list)
   "Rotate LIST to the left. Return LIST.
 Equivalent to pop first element and add it to the end.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-rotate-left list))
+\(setq list (duo-rotate-left list))
 Modifies LIST."
   ;; Length list > 1
   (if (cdr list)
-      (let* ((pair (torus--duo-pop list))
+      (let* ((pair (duo-pop list))
              (duo (car pair))
              (newlist (cdr pair)))
-        (torus--duo-add-cons duo newlist)
+        (duo-add-cons duo newlist)
         newlist)
     list))
 
-(defun torus--duo-rotate-right (list)
+(defun duo-rotate-right (list)
   "Rotate LIST to the right. Return LIST.
 Equivalent to drop last element and push it at the beginning.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (torus--duo-rotate-right list))
+\(setq list (duo-rotate-right list))
 Modifies LIST."
   ;; Length list > 1
   (if (cdr list)
-      (let ((duo (torus--duo-drop list)))
-        (torus--duo-push-cons duo list))
+      (let ((duo (duo-drop list)))
+        (duo-push-cons duo list))
     list))
+
+;;; Reference
+;;; ---------------
+
+(defun duo-ref-rotate-left (reflist)
+  "Rotate car of REFLIST to the left. Return REFLIST.
+Equivalent to pop first element and add it to the end.
+See the docstring of `duo-naive-pop' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Push
+\(duo-ref-rotate-left reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  ;; Length list > 1
+  (if (cdr (car reflist))
+      (let* ((popped (duo-ref-pop reflist)))
+        (duo-add-cons duo newlist)
+        newlist)
+    reflist))
 
 ;;; Reverse
 ;;; ------------------------------
 
-(defun torus--duo-reverse (list)
+(defun duo-reverse (list)
   "Reverse LIST. Return LIST.
 Modifies LIST."
   (let* ((begin list)
-         (end (torus--duo-last list))
+         (end (duo-last list))
          (value)
          (middle))
     (while (not middle)
@@ -568,7 +589,7 @@ Modifies LIST."
         (setcar begin (car end))
         (setcar end value)
         (setq begin (cdr begin))
-        (setq end (torus--duo-previous end list)))))
+        (setq end (duo-previous end list)))))
   list)
 
 ;;; Insert
@@ -577,24 +598,24 @@ Modifies LIST."
 ;;; Cons Cons
 ;;; ---------------
 
-(defun torus--duo-insert-cons-previous (cons new list &optional previous)
+(defun duo-insert-cons-previous (cons new list &optional previous)
   "Insert NEW before CONS in LIST. Return NEW.
 CONS must reference a cons in LIST.
 NEW is the cons inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq return (torus--duo-insert-cons-previous cons new list))
+\(setq return (duo-insert-cons-previous cons new list))
 \(when (eq (cdr return) list)
   (setq list return))
 Modifies LIST."
   (if (eq cons list)
-      (torus--duo-push-cons new list)
+      (duo-push-cons new list)
     (let ((previous (if previous
                         previous
-                      (torus--duo-previous cons list))))
+                      (duo-previous cons list))))
       (if previous
           (progn
             (setcdr new (cdr previous))
@@ -602,7 +623,7 @@ Modifies LIST."
             new)
         nil))))
 
-(defun torus--duo-insert-cons-next (cons new)
+(defun duo-insert-cons-next (cons new)
   "Insert NEW after CONS in list. Return NEW.
 CONS must reference a cons in LIST.
 NEW is the cons inserted.
@@ -614,34 +635,34 @@ Modifies LIST."
 ;;; Cons Elem
 ;;; ---------------
 
-(defun torus--duo-insert-previous (cons new list &optional previous)
+(defun duo-insert-previous (cons new list &optional previous)
   "Insert NEW before CONS in LIST. Return cons of NEW.
 CONS must reference a cons in LIST.
 NEW is the value of the element inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq return (torus--duo-insert-previous cons new list))
+\(setq return (duo-insert-previous cons new list))
 \(when (eq (cdr return) list)
   (setq list return))
 Modifies LIST."
   (let ((duo (list new)))
-    (torus--duo-insert-cons-previous cons duo list previous)))
+    (duo-insert-cons-previous cons duo list previous)))
 
-(defun torus--duo-insert-next (cons new)
+(defun duo-insert-next (cons new)
   "Insert NEW after CONS in list. Return cons of NEW.
 CONS must reference a cons in LIST.
 NEW is the value of the element inserted.
 Modifies LIST."
   (let ((duo (list new)))
-    (torus--duo-insert-cons-next cons duo)))
+    (duo-insert-cons-next cons duo)))
 
 ;;; Elem Cons
 ;;; ---------------
 
-(defun torus--duo-insert-cons-before (elem new list &optional previous test-equal)
+(defun duo-insert-cons-before (elem new list &optional previous test-equal)
   "Insert NEW before ELEM in LIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
@@ -650,34 +671,34 @@ TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq return (torus--duo-insert-cons-before cons new list))
+\(setq return (duo-insert-cons-before cons new list))
 \(when (eq (cdr return) list)
   (setq list return))
 Modifies LIST."
   (let ((previous (if previous
                       previous
-                    (torus--duo-before elem list 1 test-equal)))
+                    (duo-before elem list 1 test-equal)))
         (duo (if (eq elem (car list))
                  list
                (cdr previous))))
-    (torus--duo-insert-cons-previous duo new list previous)))
+    (duo-insert-cons-previous duo new list previous)))
 
-(defun torus--duo-insert-cons-after (elem new list &optional test-equal)
+(defun duo-insert-cons-after (elem new list &optional test-equal)
   "Insert NEW after ELEM in LIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (let ((duo (torus--duo-member elem list test-equal)))
-    (torus--duo-insert-cons-next duo new)))
+  (let ((duo (duo-member elem list test-equal)))
+    (duo-insert-cons-next duo new)))
 
 ;;; Elem Elem
 ;;; ---------------
 
-(defun torus--duo-insert-before (elem new list &optional previous test-equal)
+(defun duo-insert-before (elem new list &optional previous test-equal)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
@@ -686,31 +707,31 @@ TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq return (torus--duo-insert-before cons new list))
+\(setq return (duo-insert-before cons new list))
 \(when (eq (cdr return) list)
   (setq list return))
 Modifies LIST."
   (let ((previous (if previous
                       previous
-                    (torus--duo-before elem list 1 test-equal)))
+                    (duo-before elem list 1 test-equal)))
         (cons-elem (if (eq elem (car list))
                        list
                      (cdr previous)))
         (cons-new (list new)))
-    (torus--duo-insert-cons-previous cons-elem cons-new list previous)))
+    (duo-insert-cons-previous cons-elem cons-new list previous)))
 
-(defun torus--duo-insert-after (elem new list &optional test-equal)
+(defun duo-insert-after (elem new list &optional test-equal)
   "Insert NEW after ELEM in LIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (let ((cons-elem (torus--duo-member elem list test-equal))
+  (let ((cons-elem (duo-member elem list test-equal))
         (cons-new (list new)))
-    (torus--duo-insert-cons-next cons-elem cons-new)))
+    (duo-insert-cons-next cons-elem cons-new)))
 
 ;;; Reference
 ;;; ---------------
@@ -718,28 +739,28 @@ Modifies LIST."
 ;;; Cons Cons
 ;;; ----------
 
-(defun torus--duo-ref-insert-cons-previous (cons new reflist &optional previous)
+(defun duo-ref-insert-cons-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return NEW.
 CONS must reference a cons in LIST.
 NEW is the cons inserted.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS inserted is used to speed up the process.
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
+See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Insert
-\(torus--duo-ref-insert-cons-previous cons new reflist)
+\(duo-ref-insert-cons-previous cons new reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
   (let ((list (car reflist)))
     (if (eq cons list)
-        (car (torus--duo-ref-push-cons new reflist))
+        (car (duo-ref-push-cons new reflist))
       (let ((previous (if previous
                         previous
-                      (torus--duo-previous cons list))))
+                      (duo-previous cons list))))
         (if previous
             (progn
               (setcdr new (cdr previous))
@@ -750,116 +771,116 @@ Modifies LIST."
 ;;; Cons Elem
 ;;; ----------
 
-(defun torus--duo-ref-insert-previous (cons new reflist &optional previous)
+(defun duo-ref-insert-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
 CONS must reference a cons in LIST.
 NEW is the value of the element inserted.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS inserted is used to speed up the process.
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
+See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Insert
-\(torus--duo-ref-insert-previous cons new reflist)
+\(duo-ref-insert-previous cons new reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
   (let ((duo (list new)))
-    (torus--duo-ref-insert-cons-previous cons duo reflist previous)))
+    (duo-ref-insert-cons-previous cons duo reflist previous)))
 
 ;;; Elem Cons
 ;;; ----------
 
-(defun torus--duo-ref-insert-cons-before (elem new reflist &optional previous test-equal)
+(defun duo-ref-insert-cons-before (elem new reflist &optional previous test-equal)
   "Insert NEW before ELEM in car of REFLIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
+See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Insert
-\(torus--duo-ref-insert-cons-before elem new reflist)
+\(duo-ref-insert-cons-before elem new reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
   (let* ((list (car reflist))
          (previous (if previous
                        previous
-                     (torus--duo-before elem list 1 test-equal)))
+                     (duo-before elem list 1 test-equal)))
          (duo (if (eq elem (car list))
                   list
                 (cdr previous))))
-    (torus--duo-ref-insert-cons-previous duo new reflist previous)))
+    (duo-ref-insert-cons-previous duo new reflist previous)))
 
 ;;; Elem Elem
 ;;; ----------
 
-(defun torus--duo-ref-insert-before (elem new reflist &optional previous test-equal)
+(defun duo-ref-insert-before (elem new reflist &optional previous test-equal)
   "Insert NEW before ELEM in car of REFLIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
+See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Insert
-\(torus--duo-ref-insert-before elem new reflist)
+\(duo-ref-insert-before elem new reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
   (let* ((list (car reflist))
          (previous (if previous
                        previous
-                     (torus--duo-before elem list 1 test-equal)))
+                     (duo-before elem list 1 test-equal)))
          (cons-elem (if (eq elem (car list))
                         list
                       (cdr previous)))
          (cons-new (list new)))
-    (torus--duo-ref-insert-cons-previous cons-elem cons-new reflist previous)))
+    (duo-ref-insert-cons-previous cons-elem cons-new reflist previous)))
 
 ;;; Remove
 ;;; ------------------------------
 
-(defun torus--duo-remove (cons list &optional previous)
+(defun duo-remove (cons list &optional previous)
   "Remove CONS from LIST. Return (CONS . LIST).
 CONS must reference a cons in LIST.
 If non nil, PREVIOUS removed is used to speed up the process.
 The actual new list must be recovered using the returned structure.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-remove cons list))
+\(setq pair (duo-remove cons list))
 \(setq removed (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (if (eq cons list)
-      (torus--duo-pop list)
+      (duo-pop list)
     (let ((previous (if previous
                         previous
-                      (torus--duo-previous cons list))))
+                      (duo-previous cons list))))
       (when previous
         (setcdr previous (cdr cons))
         (setcdr cons nil))
       (cons cons list))))
 
-(defun torus--duo-delete (elem list &optional test-equal)
+(defun duo-delete (elem list &optional test-equal)
   "Delete ELEM from LIST. Return (removed-cons . LIST).
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned structure.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-delete elem list))
+\(setq pair (duo-delete elem list))
 \(setq removed (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
@@ -867,23 +888,23 @@ Modifies LIST."
                         test-equal
                       #'equal)))
     (if (funcall test-equal (car list) elem)
-        (torus--duo-pop list)
-      (let* ((previous (torus--duo-before elem list 1 test-equal))
+        (duo-pop list)
+      (let* ((previous (duo-before elem list 1 test-equal))
              (duo (cdr previous)))
         (when previous
           (setcdr previous (cdr duo))
           (setcdr duo nil))
         (cons duo list)))))
 
-(defun torus--duo-delete-all (elem list &optional test-equal)
+(defun duo-delete-all (elem list &optional test-equal)
   "Delete all elements equals to ELEM from LIST.
 Return (list-of-removed-cons . LIST).
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned structure.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-delete-all elem list))
+\(setq pair (duo-delete-all elem list))
 \(setq removed-list (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
@@ -898,21 +919,21 @@ Modifies LIST."
                         test-equal
                       #'equal)))
     (while (funcall test-equal (car newlist) elem)
-      (setq pair (torus--duo-pop newlist))
+      (setq pair (duo-pop newlist))
       (setq removed (car pair))
       (setq newlist (cdr pair))
       (if removed-list
-          (setq last (torus--duo-add-cons removed removed-list last))
+          (setq last (duo-add-cons removed removed-list last))
         (setq removed-list removed)
         (setq last removed)))
     (setq duo newlist)
     (while duo
       (setq next (cdr duo))
       (when (funcall test-equal (car duo) elem)
-        (setq newlist (cdr (torus--duo-remove duo newlist)))
+        (setq newlist (cdr (duo-remove duo newlist)))
         (setq removed duo)
         (if removed-list
-            (setq last (torus--duo-add-cons removed removed-list last))
+            (setq last (duo-add-cons removed removed-list last))
           (setq removed-list removed)
           (setq last removed)))
       (setq duo next))
@@ -921,41 +942,41 @@ Modifies LIST."
 ;;; Reference
 ;;; ---------------
 
-(defun torus--duo-ref-remove (cons reflist)
+(defun duo-ref-remove (cons reflist)
   "Remove CONS from car of REFLIST. Return CONS.
 CONS must reference a cons in LIST.
 REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Insert
-\(torus--duo-ref-remove cons reflist)
+\(duo-ref-remove cons reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
   (let ((list (car reflist)))
     (if (eq cons list)
-        (torus--duo-ref-pop reflist)
-      (let* ((previous (torus--duo-previous cons list)))
+        (duo-ref-pop reflist)
+      (let* ((previous (duo-previous cons list)))
         (when previous
           (setcdr previous (cdr cons))
           (setcdr cons nil))
         cons))))
 
-(defun torus--duo-ref-delete (elem reflist &optional test-equal)
+(defun duo-ref-delete (elem reflist &optional test-equal)
   "Delete ELEM from car of REFLIST. Return removed cons.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Insert
-\(torus--duo-ref-delete elem reflist)
+\(duo-ref-delete elem reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
@@ -964,27 +985,27 @@ Modifies LIST."
                         test-equal
                       #'equal)))
     (if (funcall test-equal (car list) elem)
-        (torus--duo-ref-pop reflist)
-      (let* ((previous (torus--duo-before elem list 1 test-equal))
+        (duo-ref-pop reflist)
+      (let* ((previous (duo-before elem list 1 test-equal))
              (duo (cdr previous)))
         (when previous
           (setcdr previous (cdr duo))
           (setcdr duo nil))
         duo))))
 
-(defun torus--duo-ref-delete-all (elem reflist &optional test-equal)
+(defun duo-ref-delete-all (elem reflist &optional test-equal)
   "Delete all elements equals to ELEM from car of REFLIST.
 Return list of removed cons.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-pop' to know why it doesn’t
+See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Insert
-\(torus--duo-ref-delete-all elem reflist)
+\(duo-ref-delete-all elem reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
@@ -998,9 +1019,9 @@ Modifies LIST."
                         test-equal
                       #'equal)))
     (while (funcall test-equal (car (car reflist)) elem)
-      (setq removed (torus--duo-ref-pop reflist))
+      (setq removed (duo-ref-pop reflist))
       (if removed-list
-          (setq last (torus--duo-add-cons removed removed-list last))
+          (setq last (duo-add-cons removed removed-list last))
         (setq removed-list removed)
         (setq last removed)))
     (setq list (car reflist))
@@ -1008,10 +1029,10 @@ Modifies LIST."
     (while duo
       (setq next (cdr duo))
       (when (funcall test-equal (car duo) elem)
-        (setq list (car (torus--duo-ref-remove duo reflist)))
+        (setq list (car (duo-ref-remove duo reflist)))
         (setq removed duo)
         (if removed-list
-            (setq last (torus--duo-add-cons removed removed-list last))
+            (setq last (duo-add-cons removed removed-list last))
           (setq removed-list removed)
           (setq last removed)))
       (setq duo next))
@@ -1023,20 +1044,20 @@ Modifies LIST."
 ;;; Step
 ;;; ---------------
 
-(defun torus--duo-move-previous (cons list)
+(defun duo-move-previous (cons list)
   "Move CONS to previous place in LIST. Return (CONS . LIST).
 CONS must reference a cons in LIST.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (torus--duo-move-previous cons list))
+\(setq list (duo-move-previous cons list))
 Modifies LIST."
   (if (eq cons (cdr list))
       (let ((newlist cons))
         (setcdr list (cdr newlist))
         (setcdr newlist list)
         (cons cons newlist))
-    (let* ((before (torus--duo-previous cons list 2))
+    (let* ((before (duo-previous cons list 2))
            (after (cdr before)))
       (when before
         (setcdr after (cdr cons))
@@ -1044,34 +1065,34 @@ Modifies LIST."
         (setcdr before cons))
       (cons cons list))))
 
-(defun torus--duo-move-next (cons list)
+(defun duo-move-next (cons list)
   "Move CONS to next place in LIST.")
 
-(defun torus--duo-move-before (elem list)
+(defun duo-move-before (elem list)
   "Move ELEM to next place in LIST.")
 
-(defun torus--duo-move-after (elem list)
+(defun duo-move-after (elem list)
   "Move ELEM to next place in LIST.")
 
 ;;; Circular
 ;;; ---------------
 
-(defun torus--duo-move-circ-previous (cons list)
+(defun duo-move-circ-previous (cons list)
   "Move CONS to previous place in LIST.
 Circular : if in beginning of list, go to the end."
   )
 
-(defun torus--duo-move-circ-next (cons list)
+(defun duo-move-circ-next (cons list)
   "Move CONS to next place in LIST.
 Circular : if in end of list, go to the beginning."
   )
 
-(defun torus--duo-move-circ-before (elem list)
+(defun duo-move-circ-before (elem list)
   "Move ELEM to next place in LIST.
 Circular : if in beginning of list, go to the end."
   )
 
-(defun torus--duo-move-circ-after (elem list)
+(defun duo-move-circ-after (elem list)
   "Move ELEM to next place in LIST.
 Circular : if in end of list, go to the beginning."
   )
@@ -1085,154 +1106,154 @@ Circular : if in end of list, go to the beginning."
 ;;; Cons Cons
 ;;; ---------------
 
-(defun torus--duo-teleport-cons-previous (cons moved list)
+(defun duo-teleport-cons-previous (cons moved list)
   "Move MOVED before CONS in LIST. Return (MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the cons of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq pair (torus--duo-teleport-cons-previous cons moved list))
+\(setq pair (duo-teleport-cons-previous cons moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (let ((newlist list)
         (return))
     (unless (eq cons moved)
-      (setq newlist (cdr (torus--duo-remove moved list)))
-      (setq return (torus--duo-insert-cons-previous cons moved newlist))
+      (setq newlist (cdr (duo-remove moved list)))
+      (setq return (duo-insert-cons-previous cons moved newlist))
       (when (eq (cdr return) newlist)
         (setq newlist return)))
     (cons moved newlist)))
 
-(defun torus--duo-teleport-cons-next (cons moved list)
+(defun duo-teleport-cons-next (cons moved list)
   "Move MOVED after CONS in LIST. Return (MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the cons of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-teleport-cons-next cons moved list))
+\(setq pair (duo-teleport-cons-next cons moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (let ((newlist list)
         (return))
     (unless (eq cons moved)
-      (setq newlist (cdr (torus--duo-remove moved list)))
-      (torus--duo-insert-cons-next cons moved))
+      (setq newlist (cdr (duo-remove moved list)))
+      (duo-insert-cons-next cons moved))
     (cons moved newlist)))
 
 ;;; Cons Elem
 ;;; ---------------
 
-(defun torus--duo-teleport-previous (cons moved list &optional test-equal)
+(defun duo-teleport-previous (cons moved list &optional test-equal)
   "Move MOVED before CONS in LIST. Return (cons of MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq pair (torus--duo-teleport-previous cons moved list))
+\(setq pair (duo-teleport-previous cons moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
-  (let ((duo (torus--duo-member moved list test-equal)))
-    (torus--duo-teleport-cons-previous cons duo list)))
+  (let ((duo (duo-member moved list test-equal)))
+    (duo-teleport-cons-previous cons duo list)))
 
-(defun torus--duo-teleport-next (cons moved list &optional test-equal)
+(defun duo-teleport-next (cons moved list &optional test-equal)
   "Move MOVED after CONS in LIST. Return (cons of MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-teleport-next cons moved list))
+\(setq pair (duo-teleport-next cons moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
-  (let ((duo (torus--duo-member moved list test-equal)))
-    (torus--duo-teleport-cons-next cons duo list)))
+  (let ((duo (duo-member moved list test-equal)))
+    (duo-teleport-cons-next cons duo list)))
 
 ;;; Elem Cons
 ;;; ---------------
 
-(defun torus--duo-teleport-cons-before (elem moved list &optional test-equal)
+(defun duo-teleport-cons-before (elem moved list &optional test-equal)
   "Move MOVED before ELEM in LIST. Return (MOVED . LIST).
 ELEM must be present in list.
 MOVED is the cons of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq pair (torus--duo-teleport-before elem moved list))
+\(setq pair (duo-teleport-before elem moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
-  (let ((duo (torus--duo-member elem list test-equal)))
-    (torus--duo-teleport-cons-previous duo moved list)))
+  (let ((duo (duo-member elem list test-equal)))
+    (duo-teleport-cons-previous duo moved list)))
 
-(defun torus--duo-teleport-cons-after (elem moved list &optional test-equal)
+(defun duo-teleport-cons-after (elem moved list &optional test-equal)
   "Move MOVED after ELEM in LIST. Return (MOVED . LIST).
 ELEM must be present in list.
 MOVED is the cons of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-teleport-after elem moved list))
+\(setq pair (duo-teleport-after elem moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
-  (let ((duo (torus--duo-member elem list test-equal)))
-    (torus--duo-teleport-cons-next duo moved list)))
+  (let ((duo (duo-member elem list test-equal)))
+    (duo-teleport-cons-next duo moved list)))
 
 ;;; Elem Elem
 ;;; ---------------
 
-(defun torus--duo-teleport-before (elem moved list &optional test-equal)
+(defun duo-teleport-before (elem moved list &optional test-equal)
   "Move MOVED before ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq pair (torus--duo-teleport-before elem moved list))
+\(setq pair (duo-teleport-before elem moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
-  (let ((elem-cons (torus--duo-member elem list test-equal))
-        (moved-cons (torus--duo-member moved list test-equal)))
-    (torus--duo-teleport-cons-previous elem-cons moved-cons list)))
+  (let ((elem-cons (duo-member elem list test-equal))
+        (moved-cons (duo-member moved list test-equal)))
+    (duo-teleport-cons-previous elem-cons moved-cons list)))
 
-(defun torus--duo-teleport-after (elem moved list &optional test-equal)
+(defun duo-teleport-after (elem moved list &optional test-equal)
   "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq pair (torus--duo-teleport-after elem moved list))
+\(setq pair (duo-teleport-after elem moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
-  (let ((elem-cons (torus--duo-member elem list test-equal))
-        (moved-cons (torus--duo-member moved list test-equal)))
-    (torus--duo-teleport-cons-next elem-cons moved-cons list)))
+  (let ((elem-cons (duo-member elem list test-equal))
+        (moved-cons (duo-member moved list test-equal)))
+    (duo-teleport-cons-next elem-cons moved-cons list)))
 
 ;;; Reference
 ;;; ---------------
@@ -1252,49 +1273,49 @@ Modifies LIST."
 ;;; Group
 ;;; ------------------------------
 
-(defun torus--duo-insert-at-group-beg (new list &optional test-group)
+(defun duo-insert-at-group-beg (new list &optional test-group)
   "Insert NEW in LIST, at the beginning of a group determined by TEST-GROUP.
 Return LIST.
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-insert-at-group-beg new list))
+\(setq list (duo-insert-at-group-beg new list))
 Modifies LIST."
   (let ((newlist list)
         (return))
-    (setq return (torus--duo-insert-before new new list test-group))
+    (setq return (duo-insert-before new new list test-group))
     (when (eq (cdr return) newlist)
       (setq newlist return))
     newlist))
 
-(defun torus--duo-insert-at-group-end (new list &optional test-group)
+(defun duo-insert-at-group-end (new list &optional test-group)
   "Insert NEW in LIST, at the end of a group determined by TEST-GROUP.
 Return LIST.
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
 The actual new list must be recovered using the returned list.
-See the docstring of `torus--duo-naive-pop' to know why.
+See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq list (torus--duo-insert-at-group-end new list))
+\(setq list (duo-insert-at-group-end new list))
 Modifies LIST."
   (let ((newlist list)
-        (previous (torus--duo-member new list test-group))
+        (previous (duo-member new list test-group))
         (return))
     (while (and previous
                 (funcall test-group (car (cdr previous)) new))
       (setq previous (cdr previous)))
     (when previous
-      (torus--duo-insert-next previous new))
+      (duo-insert-next previous new))
     newlist))
 
 ;;; Filter
 ;;; ------------------------------
 
-(defun torus--duo-filter (test-filter list)
+(defun duo-filter (test-filter list)
   "Return list of references to elements of LIST matching TEST-FILTER.
 LIST is not modified.
 TEST-FILTER takes one argument and return t if it must belong
@@ -1316,7 +1337,7 @@ to the list of references."
 ;;; Next / Previous
 ;;; ---------------
 
-(defun torus--duo-filter-previous (test-filter cons list)
+(defun duo-filter-previous (test-filter cons list)
   "Return reference of previous element of CONS in LIST matching TEST-FILTER."
   (let ((duo list)
         (previous))
@@ -1327,7 +1348,7 @@ to the list of references."
       (setq duo (cdr duo)))
     previous))
 
-(defun torus--duo-filter-next (test-filter cons)
+(defun duo-filter-next (test-filter cons)
   "Return reference of next element of CONS in list matching TEST-FILTER."
   (let ((next (cdr cons)))
     (while (and next
@@ -1335,26 +1356,26 @@ to the list of references."
       (setq next (cdr next)))
     next))
 
-(defun torus--duo-filter-before (test-filter elem list &optional test-equal)
+(defun duo-filter-before (test-filter elem list &optional test-equal)
   "Return reference of element before ELEM in LIST matching TEST-FILTER.
 TEST-EQUAL tests equality of two elements, defaults to `equal'."
-  (let ((duo (torus--duo-member elem list test-equal)))
-    (torus--duo-filter-previous test-filter duo list)))
+  (let ((duo (duo-member elem list test-equal)))
+    (duo-filter-previous test-filter duo list)))
 
-(defun torus--duo-filter-after (test-filter elem list &optional test-equal)
+(defun duo-filter-after (test-filter elem list &optional test-equal)
   "Return reference of element after ELEM in LIST matching TEST-FILTER.
 TEST-EQUAL tests equality of two elements, defaults to `equal'."
-  (let ((duo (torus--duo-member elem list test-equal)))
-    (torus--duo-filter-next test-filter duo)))
+  (let ((duo (duo-member elem list test-equal)))
+    (duo-filter-next test-filter duo)))
 
 ;;; Circular
 ;;; ---------------
 
-(defun torus--duo-circ-filter-previous (test-filter cons list)
+(defun duo-circ-filter-previous (test-filter cons list)
   "Return reference of previous element of CONS in LIST matching TEST-FILTER."
   (if (eq cons list)
-      (torus--duo-filter-previous test-filter
-                              (torus--duo-last list)
+      (duo-filter-previous test-filter
+                              (duo-last list)
                               list)
     (let ((duo list)
           (previous))
@@ -1371,7 +1392,7 @@ TEST-EQUAL tests equality of two elements, defaults to `equal'."
           (setq duo (cdr duo))))
       previous)))
 
-(defun torus--duo-circ-filter-next (test-filter cons list)
+(defun duo-circ-filter-next (test-filter cons list)
   "Return reference of next element of CONS in LIST matching TEST-FILTER."
   (let ((next (cdr cons)))
     (while (and next
@@ -1379,19 +1400,19 @@ TEST-EQUAL tests equality of two elements, defaults to `equal'."
       (setq next (cdr next)))
     (if next
         next
-      (torus--duo-filter-next test-filter list))))
+      (duo-filter-next test-filter list))))
 
-(defun torus--duo-circ-filter-before (test-filter elem list &optional test-equal)
+(defun duo-circ-filter-before (test-filter elem list &optional test-equal)
   "Return reference of element before ELEM in LIST matching TEST-FILTER.
 TEST-EQUAL tests equality of two elements, defaults to `equal'."
-  (let ((duo (torus--duo-member elem list test-equal)))
-    (torus--duo-circ-filter-previous test-filter duo list)))
+  (let ((duo (duo-member elem list test-equal)))
+    (duo-circ-filter-previous test-filter duo list)))
 
-(defun torus--duo-circ-filter-after (test-filter elem list &optional test-equal)
+(defun duo-circ-filter-after (test-filter elem list &optional test-equal)
   "Return reference of element after ELEM in LIST matching TEST-FILTER.
 TEST-EQUAL tests equality of two elements, defaults to `equal'."
-  (let ((duo (torus--duo-member elem list test-equal)))
-    (torus--duo-circ-filter-next test-filter duo list)))
+  (let ((duo (duo-member elem list test-equal)))
+    (duo-circ-filter-next test-filter duo list)))
 
 ;;; Alists
 ;;; ------------------------------------------------------------
@@ -1399,7 +1420,7 @@ TEST-EQUAL tests equality of two elements, defaults to `equal'."
 ;;; Find
 ;;; ------------------------------
 
-(defun torus--duo-assoc (key list &optional test-equal)
+(defun duo-assoc (key list &optional test-equal)
   "Return cons of first element in LIST whose car equals KEY.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 Return nil if no matching element is found."
@@ -1412,7 +1433,7 @@ Return nil if no matching element is found."
       (setq duo (cdr duo)))
     duo))
 
-(defun torus--duo-reverse-assoc (value list &optional test-equal)
+(defun duo-reverse-assoc (value list &optional test-equal)
   "Return cons of first element in LIST whose cdr equals VALUE.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 Return nil if no matching element is found."
@@ -1428,7 +1449,7 @@ Return nil if no matching element is found."
 ;;; Partition
 ;;; ------------------------------
 
-(defun torus--duo-partition (funkey list)
+(defun duo-partition (funkey list)
   "Partition LIST using FUNKEY.
 The resut is an alist whose keys are given by the values of FUNKEY
 applied to the elements of LIST.
@@ -1441,11 +1462,11 @@ where all the elem-* verify (FUNKEY elem-?) = key."
         (key-list))
     (while duo
       (setq key (funcall funkey (car duo)))
-      (setq key-list (torus--duo-assoc key assoc-list))
+      (setq key-list (duo-assoc key assoc-list))
       (if key-list
-          (torus--duo-add (car duo) (car key-list))
+          (duo-add (car duo) (car key-list))
         (if assoc-list
-            (torus--duo-add (list key (car duo)) assoc-list)
+            (duo-add (list key (car duo)) assoc-list)
           (setq assoc-list (list (list key (car duo))))))
       (setq duo (cdr duo)))
     assoc-list))

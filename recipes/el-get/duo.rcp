@@ -1,0 +1,7 @@
+(:name duo
+       :website "http://github.com/chimay/duo"
+       :description "In place list operations in Elisp"
+       :branch "master"
+       :depends ()
+       :type github
+       :pkgname "chimay/duo")
