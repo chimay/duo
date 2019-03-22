@@ -1271,10 +1271,14 @@ Modifies LIST."
 ;;; Elem Elem
 ;;; ---------------
 
-(defun duo-teleport-before (elem moved list &optional test-equal)
+(defun duo-teleport-before (elem moved list &optional
+                                 previous-removed previous-inserted
+                                 test-equal)
   "Move MOVED before ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
@@ -1286,12 +1290,14 @@ Common usage :
 Modifies LIST."
   (let ((elem-cons (duo-member elem list test-equal))
         (moved-cons (duo-member moved list test-equal)))
-    (duo-teleport-cons-previous elem-cons moved-cons list)))
+    (duo-teleport-cons-previous elem-cons moved-cons list
+                                previous-removed previous-inserted)))
 
-(defun duo-teleport-after (elem moved list &optional test-equal)
+(defun duo-teleport-after (elem moved list &optional previous test-equal)
   "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
+If non nil, PREVIOUS removed is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
@@ -1303,7 +1309,7 @@ Common usage :
 Modifies LIST."
   (let ((elem-cons (duo-member elem list test-equal))
         (moved-cons (duo-member moved list test-equal)))
-    (duo-teleport-cons-next elem-cons moved-cons list)))
+    (duo-teleport-cons-next elem-cons moved-cons list previous)))
 
 ;;; Reference
 ;;; ---------------
