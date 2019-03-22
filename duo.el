@@ -467,7 +467,7 @@ Common usage :
 \(setq reflist (list mylist))          ; this
 \(setq reflist (cons mylist nil))      ; or that
 \(setq reflist (cons mylist whatever)) ; or that
-;; Push
+;; Modify
 \(duo-ref-push-cons reflist)
 ;; Update list
 \(setq mylist (car reflist))
@@ -484,7 +484,7 @@ use the list itself as argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
-;; Push
+;; Modify
 \(duo-ref-push reflist)
 ;; Update list
 \(setq mylist (car reflist))
@@ -503,7 +503,7 @@ Common usage :
 \(setq reflist (list mylist))          ; this
 \(setq reflist (cons mylist nil))      ; or that
 \(setq reflist (cons mylist whatever)) ; or that
-;; Pop
+;; Modify
 \(setq popped (duo-ref-pop reflist))
 ;; Update list
 \(setq mylist (car reflist))
@@ -559,17 +559,39 @@ use the list itself as argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
-;; Push
+;; Modify
 \(duo-ref-rotate-left reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
-  ;; Length list > 1
-  (if (cdr (car reflist))
-      (let* ((popped (duo-ref-pop reflist)))
-        (duo-add-cons duo newlist)
-        newlist)
-    reflist))
+  (let ((list (car reflist)))
+    ;; Length list > 1
+    (if (cdr list)
+        (let ((popped (duo-ref-pop reflist)))
+          (setq list (car reflist))
+          (duo-add-cons popped list)
+          reflist)
+      reflist)))
+
+(defun duo-ref-rotate-right (reflist)
+  "Rotate car of REFLIST to the right. Return REFLIST.
+Equivalent to drop last element and push it at the beginning.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-rotate-right reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((list (car reflist)))
+    ;; Length list > 1
+    (if (cdr list)
+        (let ((dropped (duo-drop list)))
+          (duo-ref-push-cons dropped reflist))
+      list)))
 
 ;;; Reverse
 ;;; ------------------------------
@@ -750,7 +772,7 @@ use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
-;; Insert
+;; Modify
 \(duo-ref-insert-cons-previous cons new reflist)
 ;; Update list
 \(setq mylist (car reflist))
@@ -782,7 +804,7 @@ use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
-;; Insert
+;; Modify
 \(duo-ref-insert-previous cons new reflist)
 ;; Update list
 \(setq mylist (car reflist))
@@ -805,7 +827,7 @@ use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
-;; Insert
+;; Modify
 \(duo-ref-insert-cons-before elem new reflist)
 ;; Update list
 \(setq mylist (car reflist))
@@ -834,7 +856,7 @@ use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
-;; Insert
+;; Modify
 \(duo-ref-insert-before elem new reflist)
 ;; Update list
 \(setq mylist (car reflist))
@@ -951,7 +973,7 @@ use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
-;; Insert
+;; Modify
 \(duo-ref-remove cons reflist)
 ;; Update list
 \(setq mylist (car reflist))
@@ -975,7 +997,7 @@ use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
-;; Insert
+;; Modify
 \(duo-ref-delete elem reflist)
 ;; Update list
 \(setq mylist (car reflist))
@@ -1004,7 +1026,7 @@ use the list itself in argument.
 Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
-;; Insert
+;; Modify
 \(duo-ref-delete-all elem reflist)
 ;; Update list
 \(setq mylist (car reflist))
