@@ -715,6 +715,9 @@ Modifies LIST."
 ;;; Reference
 ;;; ---------------
 
+;; Cons Cons
+;; __________
+
 (defun torus--duo-ref-insert-cons-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return NEW.
 CONS must reference a cons in LIST.
@@ -743,6 +746,34 @@ Modifies LIST."
               (setcdr previous new)
               new)
           nil)))))
+
+;; Cons Elem
+;; __________
+
+(defun torus--duo-ref-insert-previous (cons new reflist &optional previous)
+  "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
+CONS must reference a cons in LIST.
+NEW is the value of the element inserted.
+REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS inserted is used to speed up the process.
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-insert-previous cons new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let ((duo (list new)))
+    (torus--duo-ref-insert-cons-previous cons duo reflist previous)))
+
+;; Elem Cons
+;; __________
+
+;; Elem Elem
+;; __________
 
 ;;; Remove
 ;;; ------------------------------
