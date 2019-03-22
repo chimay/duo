@@ -1004,9 +1004,10 @@ Modifies LIST."
 
 (defun duo-ref-delete (elem reflist &optional previous test-equal)
   "Delete ELEM from car of REFLIST. Return removed cons.
+REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS deleted is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-REFLIST must be a cons (list . whatever-you-want)
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1142,12 +1143,13 @@ Circular : if in end of list, go to the beginning."
 ;;; Cons Cons
 ;;; ---------------
 
-(defun duo-teleport-cons-previous (cons moved list)
+(defun duo-teleport-cons-previous (cons moved list &optional
+                                        previous-removed previous-inserted)
   "Move MOVED before CONS in LIST. Return (MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the cons of the moved element.
-TEST-EQUAL takes two arguments and return t if they are considered equals.
-TEST-EQUAL defaults do `equal'.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -1158,18 +1160,18 @@ Modifies LIST."
   (let ((newlist list)
         (return))
     (unless (eq cons moved)
-      (setq newlist (cdr (duo-remove moved list)))
-      (setq return (duo-insert-cons-previous cons moved newlist))
+      (setq newlist (cdr (duo-remove moved list previous-removed)))
+      (setq return (duo-insert-cons-previous cons moved newlist
+                                             previous-inserted))
       (when (eq (cdr return) newlist)
         (setq newlist return)))
     (cons moved newlist)))
 
-(defun duo-teleport-cons-next (cons moved list)
+(defun duo-teleport-cons-next (cons moved list &optional previous)
   "Move MOVED after CONS in LIST. Return (MOVED . LIST).
 CONS must reference a cons in LIST.
 MOVED is the cons of the moved element.
-TEST-EQUAL takes two arguments and return t if they are considered equals.
-TEST-EQUAL defaults do `equal'.
+If non nil, PREVIOUS removed is used to speed up the process.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -1180,7 +1182,7 @@ Modifies LIST."
   (let ((newlist list)
         (return))
     (unless (eq cons moved)
-      (setq newlist (cdr (duo-remove moved list)))
+      (setq newlist (cdr (duo-remove moved list previous)))
       (duo-insert-cons-next cons moved))
     (cons moved newlist)))
 
