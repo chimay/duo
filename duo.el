@@ -715,8 +715,8 @@ Modifies LIST."
 ;;; Reference
 ;;; ---------------
 
-;; Cons Cons
-;; __________
+;;; Cons Cons
+;;; ----------
 
 (defun torus--duo-ref-insert-cons-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return NEW.
@@ -747,8 +747,8 @@ Modifies LIST."
               new)
           nil)))))
 
-;; Cons Elem
-;; __________
+;;; Cons Elem
+;;; ----------
 
 (defun torus--duo-ref-insert-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
@@ -769,11 +769,64 @@ Modifies LIST."
   (let ((duo (list new)))
     (torus--duo-ref-insert-cons-previous cons duo reflist previous)))
 
-;; Elem Cons
-;; __________
+;;; Elem Cons
+;;; ----------
 
-;; Elem Elem
-;; __________
+(defun torus--duo-ref-insert-cons-before (elem new reflist &optional previous test-equal)
+  "Insert NEW before ELEM in car of REFLIST. Return NEW.
+ELEM must be present in list.
+NEW is the cons inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-insert-cons-before elem new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (previous (if previous
+                       previous
+                     (torus--duo-before elem list 1 test-equal)))
+         (duo (if (eq elem (car list))
+                  list
+                (cdr previous))))
+    (torus--duo-ref-insert-cons-previous duo new reflist previous)))
+
+;;; Elem Elem
+;;; ----------
+
+(defun torus--duo-ref-insert-before (elem new reflist &optional previous test-equal)
+  "Insert NEW before ELEM in car of REFLIST. Return cons of NEW.
+ELEM must be present in list.
+NEW is the value of the element inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `torus--duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Insert
+\(torus--duo-ref-insert-before elem new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (previous (if previous
+                       previous
+                     (torus--duo-before elem list 1 test-equal)))
+         (cons-elem (if (eq elem (car list))
+                        list
+                      (cdr previous)))
+         (cons-new (list new)))
+    (torus--duo-ref-insert-cons-previous cons-elem cons-new reflist previous)))
 
 ;;; Remove
 ;;; ------------------------------
@@ -1181,17 +1234,17 @@ Modifies LIST."
 ;;; Reference
 ;;; ---------------
 
-;; Cons Cons
-;; __________
+;;; Cons Cons
+;;; ----------
 
-;; Cons Elem
-;; __________
+;;; Cons Elem
+;;; ----------
 
-;; Elem Cons
-;; __________
+;;; Elem Cons
+;;; ----------
 
-;; Elem Elem
-;; __________
+;;; Elem Elem
+;;; ----------
 
 ;;; Group
 ;;; ------------------------------
