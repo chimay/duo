@@ -591,7 +591,7 @@ Modifies LIST."
     (if (cdr list)
         (let ((dropped (duo-drop list)))
           (duo-ref-push-cons dropped reflist))
-      list)))
+      reflist)))
 
 ;;; Reverse
 ;;; ------------------------------
@@ -895,10 +895,11 @@ Modifies LIST."
         (setcdr cons nil))
       (cons cons list))))
 
-(defun duo-delete (elem list &optional test-equal)
+(defun duo-delete (elem list &optional previous test-equal)
   "Delete ELEM from LIST. Return (removed-cons . LIST).
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
+If non nil, PREVIOUS removed is used to speed up the process.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -906,17 +907,16 @@ Common usage :
 \(setq removed (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
-  (let ((test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (if (funcall test-equal (car list) elem)
-        (duo-pop list)
-      (let* ((previous (duo-before elem list 1 test-equal))
-             (duo (cdr previous)))
-        (when previous
-          (setcdr previous (cdr duo))
-          (setcdr duo nil))
-        (cons duo list)))))
+  (let* ((test-equal (if test-equal
+                         test-equal
+                       #'equal))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 test-equal)))
+         (duo (if (funcall test-equal (car list) elem)
+                  list
+                (cdr previous))))
+    (duo-remove duo list previous)))
 
 (defun duo-delete-all (elem list &optional test-equal)
   "Delete all elements equals to ELEM from LIST.
