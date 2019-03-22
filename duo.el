@@ -832,11 +832,14 @@ Common usage :
 ;; Update list
 \(setq mylist (car reflist))
 Modifies LIST."
-  (let* ((list (car reflist))
+  (let* ((test-equal (if test-equal
+                         test-equal
+                       #'equal))
+         (list (car reflist))
          (previous (if previous
                        previous
                      (duo-before elem list 1 test-equal)))
-         (duo (if (eq elem (car list))
+         (duo (if (funcall test-equal (car list) elem)
                   list
                 (cdr previous))))
     (duo-ref-insert-cons-previous duo new reflist previous)))
