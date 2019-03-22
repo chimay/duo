@@ -831,9 +831,10 @@ Modifies LIST."
 ;;; Remove
 ;;; ------------------------------
 
-(defun torus--duo-remove (cons list)
+(defun torus--duo-remove (cons list &optional previous)
   "Remove CONS from LIST. Return (CONS . LIST).
 CONS must reference a cons in LIST.
+If non nil, PREVIOUS removed is used to speed up the process.
 The actual new list must be recovered using the returned structure.
 See the docstring of `torus--duo-naive-pop' to know why.
 Common usage :
@@ -842,8 +843,10 @@ Common usage :
 \(setq list (cdr pair))
 Modifies LIST."
   (if (eq cons list)
-      (cons cons (cdr (torus--duo-pop list)))
-    (let* ((previous (torus--duo-previous cons list)))
+      (torus--duo-pop list)
+    (let ((previous (if previous
+                        previous
+                      (torus--duo-previous cons list))))
       (when previous
         (setcdr previous (cdr cons))
         (setcdr cons nil))
