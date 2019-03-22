@@ -581,7 +581,7 @@ Modifies LIST."
   "Insert NEW before CONS in LIST. Return NEW.
 CONS must reference a cons in LIST.
 NEW is the cons inserted.
-If non nil, PREVIOUS is used to speed up the process.
+If non nil, PREVIOUS inserted is used to speed up the process.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
 See the docstring of `torus--duo-naive-push' to know why.
@@ -618,7 +618,7 @@ Modifies LIST."
   "Insert NEW before CONS in LIST. Return cons of NEW.
 CONS must reference a cons in LIST.
 NEW is the value of the element inserted.
-If non nil, PREVIOUS is used to speed up the process.
+If non nil, PREVIOUS inserted is used to speed up the process.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
 See the docstring of `torus--duo-naive-push' to know why.
@@ -645,7 +645,7 @@ Modifies LIST."
   "Insert NEW before ELEM in LIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
-If non nil, PREVIOUS is used to speed up the process.
+If non nil, PREVIOUS inserted is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 If the new cons is inserted at the beginning of the list,
@@ -681,7 +681,7 @@ Modifies LIST."
   "Insert NEW before ELEM in LIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
-If non nil, PREVIOUS is used to speed up the process.
+If non nil, PREVIOUS inserted is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 If the new cons is inserted at the beginning of the list,
@@ -692,45 +692,35 @@ Common usage :
 \(when (eq (cdr return) list)
   (setq list return))
 Modifies LIST."
-  (let ((test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (if (funcall test-equal (car list) elem)
-        (torus--duo-push new list)
-      (let* ((previous (torus--duo-before elem list 1 test-equal))
-             (duo))
-        (if previous
-            (progn
-              (setq duo (cons new (cdr previous)))
-              (setcdr previous duo)
-              duo)
-          nil)))))
+  (let ((previous (if previous
+                      previous
+                    (torus--duo-before elem list 1 test-equal)))
+        (cons-elem (if (eq elem (car list))
+                       list
+                     (cdr previous)))
+        (cons-new (list new)))
+    (torus--duo-insert-cons-previous cons-elem cons-new list previous)))
 
-(defun torus--duo-insert-after (elem new list &optional previous test-equal)
+(defun torus--duo-insert-after (elem new list &optional test-equal)
   "Insert NEW after ELEM in LIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
-If non nil, PREVIOUS is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (let* ((member (torus--duo-member elem list test-equal))
-         (duo))
-    (if member
-        (progn
-          (setq duo (cons new (cdr member)))
-          (setcdr member duo)
-          duo)
-      nil)))
+  (let ((cons-elem (torus--duo-member elem list test-equal))
+        (cons-new (list new)))
+    (torus--duo-insert-cons-next cons-elem cons-new)))
 
 ;;; Reference
 ;;; ---------------
 
-(defun torus--duo-ref-insert-cons-previous (cons new reflist)
+(defun torus--duo-ref-insert-cons-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return NEW.
 CONS must reference a cons in LIST.
 NEW is the cons inserted.
 REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS inserted is used to speed up the process.
 See the docstring of `torus--duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -750,87 +740,6 @@ Modifies LIST."
               (setcdr new (cdr previous))
               (setcdr previous new)
               new)
-          nil)))))
-
-(defun torus--duo-ref-insert-previous (cons new reflist)
-  "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
-CONS must reference a cons in LIST.
-NEW is the value of the element inserted.
-REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
-use the list itself in argument.
-Common usage :
-;; Create reflist
-\(setq reflist (list mylist))
-;; Insert
-\(torus--duo-ref-insert-previous cons new reflist)
-;; Update list
-\(setq mylist (car reflist))
-Modifies LIST."
-  (let ((duo (list new)))
-    (torus--duo-ref-insert-cons-previous cons duo reflist)))
-
-(defun torus--duo-ref-insert-cons-before (elem new reflist &optional test-equal)
-  "Insert NEW before ELEM in car of REFLIST. Return NEW.
-ELEM must be present in list.
-NEW is the cons inserted.
-TEST-EQUAL takes two arguments and return t if they are considered equals.
-TEST-EQUAL defaults do `equal'.
-REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
-use the list itself in argument.
-Common usage :
-;; Create reflist
-\(setq reflist (list mylist))
-;; Insert
-\(torus--duo-ref-insert-cons-before elem new reflist)
-;; Update list
-\(setq mylist (car reflist))
-Modifies LIST."
-  (let ((list (car reflist))
-        (test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (if (funcall test-equal (car list) elem)
-        (car (torus--duo-ref-push-cons new reflist))
-      (let* ((previous (torus--duo-before elem list 1 test-equal)))
-        (if previous
-            (progn
-              (setcdr new (cdr previous))
-              (setcdr previous new)
-              new)
-          nil)))))
-
-(defun torus--duo-ref-insert-before (elem new reflist &optional test-equal)
-  "Insert NEW before ELEM in car of REFLIST. Return cons of NEW.
-ELEM must be present in list.
-NEW is the value of the element inserted.
-TEST-EQUAL takes two arguments and return t if they are considered equals.
-TEST-EQUAL defaults do `equal'.
-REFLIST must be a cons (list . whatever-you-want)
-See the docstring of `torus--duo-naive-push' to know why it doesn’t
-use the list itself in argument.
-Common usage :
-;; Create reflist
-\(setq reflist (list mylist))
-;; Insert
-\(torus--duo-ref-insert-before elem new reflist)
-;; Update list
-\(setq mylist (car reflist))
-Modifies LIST."
-  (let ((list (car reflist))
-        (test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (if (funcall test-equal (car list) elem)
-        (car (torus--duo-ref-push new reflist))
-      (let* ((previous (torus--duo-before elem list 1 test-equal))
-             (duo))
-        (if previous
-            (progn
-              (setq duo (cons new (cdr previous)))
-              (setcdr previous duo)
-              duo)
           nil)))))
 
 ;;; Remove
