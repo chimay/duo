@@ -1512,12 +1512,40 @@ Modifies LIST."
     (setq pair (duo-teleport-cons-next landmark moved list))
     pair))
 
-(defun duo-move-before (elem list)
-  "Move ELEM to next place in LIST."
-  )
+(defun duo-move-before (elem list &optional num test-equal)
+  "Move ELEM to NUM previous place in LIST. Return (MOVED . LIST).
+If range is exceeded, move ELEM at the beginning of the list.
+MOVED is the moved value.
+NUM defaults to 1.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-previous elem moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Modifies LIST."
+  (let* ((num (if num
+                  num
+                1))
+         (pre-ins (duo-before elem list (1+ num) test-equal))
+         (landmark (if pre-ins
+                       (cdr pre-ins)
+                     list))
+         (pre-rem (if pre-ins
+                      (nthcdr num pre-ins)
+                    (duo-before elem list 1 test-equal)))
+         (moved (if pre-rem
+                    (cdr pre-rem)
+                  (duo-member elem list test-equal)))
+         (mess (message "pins %s lm %s prm %s mv %s" pre-ins landmark pre-rem moved))
+         (pair (duo-teleport-cons-previous landmark moved list
+                                           pre-rem pre-ins)))
+    pair))
 
 (defun duo-move-after (elem list)
-  "Move ELEM to next place in LIST."
+
   )
 
 ;;; Circular
