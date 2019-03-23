@@ -1502,7 +1502,15 @@ Common usage :
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
-  )
+  (let* ((num (if num
+                  num
+                1))
+         (landmark (nthcdr num moved))
+         (pair))
+    (unless landmark
+      (setq landmark (duo-last list)))
+    (setq pair (duo-teleport-cons-next landmark moved list))
+    pair))
 
 (defun duo-move-before (elem list)
   "Move ELEM to next place in LIST."
@@ -1544,43 +1552,57 @@ Circular : if in end of list, go to the beginning."
 (defun duo-insert-at-group-beg (new list &optional test-group)
   "Insert NEW in LIST, at the beginning of a group determined by TEST-GROUP.
 If the group is not found, insert at the beginning of LIST.
-Return (NEW . LIST).
+Return (cons of NEW . LIST).
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq list (duo-insert-at-group-beg new list))
+\(setq pair (duo-insert-at-group-beg new list))
+\(setq cons-new (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (let ((newlist list)
-        (previous (duo-before new list 1 test-group)))
+        (previous (duo-before new list 1 test-group))
+        (duo))
     (if previous
-        (duo-insert-next previous new)
-      (setq newlist (duo-push new list)))
-    (cons new newlist)))
+        (progn
+          (duo-insert-next previous new)
+          (setq duo (cdr previous)))
+      (setq newlist (duo-push new list))
+      (setq duo newlist))
+    (cons duo newlist)))
 
 (defun duo-insert-at-group-end (new list &optional test-group)
   "Insert NEW in LIST, at the end of a group determined by TEST-GROUP.
 If the group is not found, insert at the end of LIST.
-Return (NEW. LIST).
+Return (cons of NEW. LIST).
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
-\(setq list (duo-insert-at-group-end new list))
+\(setq pair (duo-insert-at-group-end new list))
+\(setq cons-new (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
   (let ((newlist list)
-        (previous (duo-member new list test-group)))
+        (previous (duo-member new list test-group))
+        (duo))
     (while (and previous
                 (funcall test-group (car (cdr previous)) new))
       (setq previous (cdr previous)))
     (if previous
-        (duo-insert-next previous new)
-      (duo-add new newlist))
-    (cons new newlist)))
+        (progn
+          (duo-insert-next previous new)
+          (setq duo (cdr previous)))
+      (setq duo (duo-add new newlist)))
+    (cons duo newlist)))
+
+;;; Reference
+;;; ---------------
 
 ;;; Filter
 ;;; ------------------------------
