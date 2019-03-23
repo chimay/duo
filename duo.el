@@ -1464,35 +1464,53 @@ Modifies LIST."
 ;;; Step
 ;;; ---------------
 
-(defun duo-move-previous (cons list)
-  "Move CONS to previous place in LIST. Return (CONS . LIST).
-CONS must reference a cons in LIST.
+(defun duo-move-previous (moved list &optional num)
+  "Move MOVED to NUM previous place in LIST. Return (MOVED . LIST).
+If range is exceeded, move MOVED at the beginning of the list.
+MOVED must reference a cons in LIST.
+NUM defaults to 1.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (duo-move-previous cons list))
+\(setq pair (duo-move-previous elem moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
 Modifies LIST."
-  (if (eq cons (cdr list))
-      (let ((newlist cons))
-        (setcdr list (cdr newlist))
-        (setcdr newlist list)
-        (cons cons newlist))
-    (let* ((before (duo-previous cons list 2))
-           (after (cdr before)))
-      (when before
-        (setcdr after (cdr cons))
-        (setcdr cons after)
-        (setcdr before cons))
-      (cons cons list))))
+  (let* ((num (if num
+                  num
+                1))
+         (pre-ins (duo-previous moved list (1+ num)))
+         (landmark (if pre-ins
+                       (cdr pre-ins)
+                     list))
+         (pre-rem (if pre-ins
+                      (nthcdr num pre-ins)
+                    (duo-previous moved list)))
+         (pair (duo-teleport-cons-previous landmark moved list
+                                           pre-rem pre-ins)))
+    pair))
 
-(defun duo-move-next (cons list)
-  "Move CONS to next place in LIST.")
+(defun duo-move-next (moved list &optional num)
+  "Move MOVED to NUM next place in LIST.
+If range is exceeded, move MOVED at the end of the list.
+MOVED must reference a cons in LIST.
+NUM defaults to 1.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-next elem moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Modifies LIST."
+  )
 
 (defun duo-move-before (elem list)
-  "Move ELEM to next place in LIST.")
+  "Move ELEM to next place in LIST."
+  )
 
 (defun duo-move-after (elem list)
-  "Move ELEM to next place in LIST.")
+  "Move ELEM to next place in LIST."
+  )
 
 ;;; Circular
 ;;; ---------------
