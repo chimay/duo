@@ -1525,7 +1525,7 @@ Modifies LIST."
 
 (defun duo-insert-at-group-beg (new list &optional test-group)
   "Insert NEW in LIST, at the beginning of a group determined by TEST-GROUP.
-Return LIST.
+Return (NEW . LIST).
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
@@ -1536,14 +1536,14 @@ Common usage :
 Modifies LIST."
   (let ((newlist list)
         (return))
-    (setq return (duo-insert-before new new list test-group))
+    (setq return (duo-insert-before new new list nil test-group))
     (when (eq (cdr return) newlist)
       (setq newlist return))
-    newlist))
+    (cons return newlist)))
 
 (defun duo-insert-at-group-end (new list &optional test-group)
   "Insert NEW in LIST, at the end of a group determined by TEST-GROUP.
-Return LIST.
+Return (NEW. LIST).
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
 TEST-GROUP defaults do `equal'.
@@ -1558,9 +1558,10 @@ Modifies LIST."
     (while (and previous
                 (funcall test-group (car (cdr previous)) new))
       (setq previous (cdr previous)))
-    (when previous
-      (duo-insert-next previous new))
-    newlist))
+    (if previous
+        (duo-insert-next previous new)
+      (duo-add new newlist))
+    (cons return newlist)))
 
 ;;; Filter
 ;;; ------------------------------
