@@ -1369,8 +1369,8 @@ Modifies LIST."
 ;;; ----------
 
 (defun duo-ref-teleport-previous (cons moved reflist &optional
-                                   previous-removed previous-inserted
-                                   test-equal)
+                                       previous-removed previous-inserted
+                                       test-equal)
   "Move MOVED before CONS in car of REFLIST. Return MOVED.
 CONS must reference a cons in LIST.
 MOVED is the value of the moved element.
@@ -1392,7 +1392,7 @@ Modifies LIST."
   (let* ((list (car reflist))
          (duo (duo-member moved list test-equal)))
     (duo-ref-teleport-cons-previous cons duo reflist
-                                previous-removed previous-inserted)))
+                                    previous-removed previous-inserted)))
 
 (defun duo-ref-teleport-next (cons moved reflist &optional previous test-equal)
   "Move MOVED after CONS in car of REFLIST. Return MOVED.
@@ -1418,6 +1418,54 @@ Modifies LIST."
 
 ;;; Elem Cons
 ;;; ----------
+
+(defun duo-ref-teleport-cons-before (elem moved reflist &optional
+                                          previous-removed previous-inserted
+                                          test-equal)
+  "Move MOVED before ELEM in car of REFLIST. Return MOVED.
+ELEM must be present in list.
+MOVED is the cons of the moved element.
+REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-cons-before cons moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (duo (duo-member elem list test-equal)))
+    (duo-ref-teleport-cons-previous duo moved reflist
+                                    previous-removed previous-inserted)))
+
+(defun duo-ref-teleport-cons-after (elem moved reflist &optional previous test-equal)
+  "Move MOVED after ELEM in car of REFLIST. Return MOVED.
+ELEM must be present in list.
+MOVED is the cons of the moved element.
+REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS removed is used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-cons-after cons moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (duo (duo-member elem list test-equal)))
+    (duo-ref-teleport-cons-next duo moved reflist previous)))
 
 ;;; Elem Elem
 ;;; ----------
