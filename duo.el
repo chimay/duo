@@ -1470,6 +1470,56 @@ Modifies LIST."
 ;;; Elem Elem
 ;;; ----------
 
+(defun duo-ref-teleport-before (elem moved reflist &optional
+                                     previous-removed previous-inserted
+                                     test-equal)
+  "Move MOVED before ELEM in car of REFLIST. Return MOVED.
+ELEM must be present in list.
+MOVED is the value of the moved element.
+REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-before cons moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (elem-cons (duo-member elem list test-equal))
+         (moved-cons (duo-member moved list test-equal)))
+    (duo-ref-teleport-cons-previous elem-cons moved-cons reflist
+                                    previous-removed previous-inserted)))
+
+(defun duo-ref-teleport-after (elem moved reflist &optional previous test-equal)
+  "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
+ELEM must be present in list.
+MOVED is the value of the moved element.
+REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS removed is used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-after elem moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (elem-cons (duo-member elem list test-equal))
+         (moved-cons (duo-member moved list test-equal)))
+    (duo-ref-teleport-cons-next elem-cons moved-cons reflist previous)))
+
 ;;; Group
 ;;; ------------------------------
 
