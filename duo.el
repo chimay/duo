@@ -1472,7 +1472,7 @@ NUM defaults to 1.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq pair (duo-move-previous elem moved list))
+\(setq pair (duo-move-previous moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
@@ -1491,14 +1491,14 @@ Modifies LIST."
     pair))
 
 (defun duo-move-next (moved list &optional num)
-  "Move MOVED to NUM next place in LIST.
+  "Move MOVED to NUM next place in LIST. Return (MOVED . LIST).
 If range is exceeded, move MOVED at the end of the list.
 MOVED must reference a cons in LIST.
 NUM defaults to 1.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq pair (duo-move-next elem moved list))
+\(setq pair (duo-move-next moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
@@ -1522,7 +1522,7 @@ TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq pair (duo-move-previous elem moved list))
+\(setq pair (duo-move-before elem list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
@@ -1544,9 +1544,30 @@ Modifies LIST."
                                            pre-rem pre-ins)))
     pair))
 
-(defun duo-move-after (elem list)
-
-  )
+(defun duo-move-after (elem list &optional num test-equal)
+  "Move ELEM to NUM next place in LIST. Return (MOVED . LIST).
+If range is exceeded, move MOVED at the end of the list.
+MOVED is the moved value.
+NUM defaults to 1.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-next elem list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Modifies LIST."
+  (let* ((num (if num
+                  num
+                1))
+         (moved (duo-member elem list test-equal))
+         (landmark (nthcdr num moved))
+         (pair))
+    (unless landmark
+      (setq landmark (duo-last list)))
+    (setq pair (duo-teleport-cons-next landmark moved list))
+    pair))
 
 ;;; Circular
 ;;; ---------------
