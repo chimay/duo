@@ -84,7 +84,11 @@ not updated. As a result, you need either :
 
   - to recover the modified list as the returned value of the function
 
-  - to pass a reference to the list as argument : list = car reflist
+    + ~(setq list (function list ...))~
+
+  - to pass a reference to the list as argument
+
+    + ~(setq reflist (cons list nil)) (function reflist ...)~
 
 A common case of this situation is with functions which modify the
 first cons of the list : push, pop, etc.
