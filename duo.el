@@ -553,6 +553,7 @@ Modifies LIST."
 
 (defun duo-ref-rotate-left (reflist)
   "Rotate car of REFLIST to the left. Return REFLIST.
+REFLIST must be a cons (list . whatever-you-want)
 Equivalent to pop first element and add it to the end.
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself as argument.
@@ -575,6 +576,7 @@ Modifies LIST."
 
 (defun duo-ref-rotate-right (reflist)
   "Rotate car of REFLIST to the right. Return REFLIST.
+REFLIST must be a cons (list . whatever-you-want)
 Equivalent to drop last element and push it at the beginning.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
@@ -825,6 +827,7 @@ Modifies LIST."
   "Insert NEW before ELEM in car of REFLIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
+REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS inserted is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
@@ -857,6 +860,7 @@ Modifies LIST."
   "Insert NEW before ELEM in car of REFLIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
+REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS inserted is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
@@ -1033,9 +1037,9 @@ Modifies LIST."
 (defun duo-ref-delete-all (elem reflist &optional test-equal)
   "Delete all elements equals to ELEM from car of REFLIST.
 Return list of removed cons.
+REFLIST must be a cons (list . whatever-you-want)
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-REFLIST must be a cons (list . whatever-you-want)
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1316,6 +1320,50 @@ Modifies LIST."
 
 ;;; Cons Cons
 ;;; ----------
+
+(defun duo-ref-teleport-cons-previous (cons moved reflist &optional
+                                            previous-removed previous-inserted)
+  "Move MOVED before CONS in car of REFLIST. Return MOVED.
+CONS must reference a cons in LIST.
+MOVED is the cons of the moved element.
+REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-cons-previous cons moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (unless (eq cons moved)
+    (duo-ref-remove moved reflist previous-removed)
+    (duo-ref-insert-cons-previous cons moved reflist previous-inserted))
+  moved)
+
+(defun duo-ref-teleport-cons-next (cons moved reflist &optional previous)
+  "Move MOVED after CONS in car of REFLIST. Return MOVED.
+CONS must reference a cons in LIST.
+MOVED is the cons of the moved element.
+REFLIST must be a cons (list . whatever-you-want)
+If non nil, PREVIOUS removed is used to speed up the process.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-cons-next cons moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (unless (eq cons moved)
+    (duo-ref-remove moved reflist previous)
+    (duo-insert-cons-next cons moved))
+  moved)
 
 ;;; Cons Elem
 ;;; ----------
