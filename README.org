@@ -80,7 +80,7 @@ When you pass a list as argument of a function, the calling scope
 argument =arg-list-var= holds a copy of it. Using ~(setq list ...)~
 inside the definition of the function changes the argument list
 reference, not the calling scope one. So, the calling scope address is
-not updated. As a result, you need to either :
+not updated. As a result, you need either :
 
   - to recover the modified list as the returned value of the function
 
