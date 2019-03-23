@@ -6,7 +6,7 @@
 ;; Name: Duo
 ;; Package-Version: 1.0
 ;; Package-requires: ((emacs "26"))
-;; Keywords: list, in-place, operation
+;; Keywords: lisp, extensions, list, in-place, operation
 ;; URL: https://github.com/chimay/duo
 
 ;;; Commentary:
@@ -1079,68 +1079,6 @@ Modifies LIST."
       (setq duo next))
     removed-list))
 
-;;; Move
-;;; ------------------------------
-
-;;; Step
-;;; ---------------
-
-(defun duo-move-previous (cons list)
-  "Move CONS to previous place in LIST. Return (CONS . LIST).
-CONS must reference a cons in LIST.
-The actual new list must be recovered using the returned list.
-See the docstring of `duo-naive-push' to know why.
-Common usage :
-\(setq list (duo-move-previous cons list))
-Modifies LIST."
-  (if (eq cons (cdr list))
-      (let ((newlist cons))
-        (setcdr list (cdr newlist))
-        (setcdr newlist list)
-        (cons cons newlist))
-    (let* ((before (duo-previous cons list 2))
-           (after (cdr before)))
-      (when before
-        (setcdr after (cdr cons))
-        (setcdr cons after)
-        (setcdr before cons))
-      (cons cons list))))
-
-(defun duo-move-next (cons list)
-  "Move CONS to next place in LIST.")
-
-(defun duo-move-before (elem list)
-  "Move ELEM to next place in LIST.")
-
-(defun duo-move-after (elem list)
-  "Move ELEM to next place in LIST.")
-
-;;; Circular
-;;; ---------------
-
-(defun duo-move-circ-previous (cons list)
-  "Move CONS to previous place in LIST.
-Circular : if in beginning of list, go to the end."
-  )
-
-(defun duo-move-circ-next (cons list)
-  "Move CONS to next place in LIST.
-Circular : if in end of list, go to the beginning."
-  )
-
-(defun duo-move-circ-before (elem list)
-  "Move ELEM to next place in LIST.
-Circular : if in beginning of list, go to the end."
-  )
-
-(defun duo-move-circ-after (elem list)
-  "Move ELEM to next place in LIST.
-Circular : if in end of list, go to the beginning."
-  )
-
-;;; Reference
-;;; ---------------
-
 ;;; Teleport
 ;;; ------------------------------
 
@@ -1520,11 +1458,74 @@ Modifies LIST."
          (moved-cons (duo-member moved list test-equal)))
     (duo-ref-teleport-cons-next elem-cons moved-cons reflist previous)))
 
+;;; Move
+;;; ------------------------------
+
+;;; Step
+;;; ---------------
+
+(defun duo-move-previous (cons list)
+  "Move CONS to previous place in LIST. Return (CONS . LIST).
+CONS must reference a cons in LIST.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-move-previous cons list))
+Modifies LIST."
+  (if (eq cons (cdr list))
+      (let ((newlist cons))
+        (setcdr list (cdr newlist))
+        (setcdr newlist list)
+        (cons cons newlist))
+    (let* ((before (duo-previous cons list 2))
+           (after (cdr before)))
+      (when before
+        (setcdr after (cdr cons))
+        (setcdr cons after)
+        (setcdr before cons))
+      (cons cons list))))
+
+(defun duo-move-next (cons list)
+  "Move CONS to next place in LIST.")
+
+(defun duo-move-before (elem list)
+  "Move ELEM to next place in LIST.")
+
+(defun duo-move-after (elem list)
+  "Move ELEM to next place in LIST.")
+
+;;; Circular
+;;; ---------------
+
+(defun duo-move-circ-previous (cons list)
+  "Move CONS to previous place in LIST.
+Circular : if in beginning of list, go to the end."
+  )
+
+(defun duo-move-circ-next (cons list)
+  "Move CONS to next place in LIST.
+Circular : if in end of list, go to the beginning."
+  )
+
+(defun duo-move-circ-before (elem list)
+  "Move ELEM to next place in LIST.
+Circular : if in beginning of list, go to the end."
+  )
+
+(defun duo-move-circ-after (elem list)
+  "Move ELEM to next place in LIST.
+Circular : if in end of list, go to the beginning."
+  )
+
+;;; Reference
+;;; ---------------
+
 ;;; Group
 ;;; ------------------------------
 
 (defun duo-insert-at-group-beg (new list &optional test-group)
   "Insert NEW in LIST, at the beginning of a group determined by TEST-GROUP.
+If the group is not found, insert at the beginning of LIST.
 Return (NEW . LIST).
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
@@ -1535,14 +1536,15 @@ Common usage :
 \(setq list (duo-insert-at-group-beg new list))
 Modifies LIST."
   (let ((newlist list)
-        (return))
-    (setq return (duo-insert-before new new list nil test-group))
-    (when (eq (cdr return) newlist)
-      (setq newlist return))
-    (cons return newlist)))
+        (previous (duo-before new list 1 test-group)))
+    (if previous
+        (duo-insert-next previous new)
+      (setq newlist (duo-push new list)))
+    (cons new newlist)))
 
 (defun duo-insert-at-group-end (new list &optional test-group)
   "Insert NEW in LIST, at the end of a group determined by TEST-GROUP.
+If the group is not found, insert at the end of LIST.
 Return (NEW. LIST).
 NEW is the value of the element inserted.
 TEST-GROUP takes two arguments and returns t if they belongs to the same group.
@@ -1553,15 +1555,14 @@ Common usage :
 \(setq list (duo-insert-at-group-end new list))
 Modifies LIST."
   (let ((newlist list)
-        (previous (duo-member new list test-group))
-        (return))
+        (previous (duo-member new list test-group)))
     (while (and previous
                 (funcall test-group (car (cdr previous)) new))
       (setq previous (cdr previous)))
     (if previous
         (duo-insert-next previous new)
       (duo-add new newlist))
-    (cons return newlist)))
+    (cons new newlist)))
 
 ;;; Filter
 ;;; ------------------------------
