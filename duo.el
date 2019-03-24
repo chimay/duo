@@ -90,11 +90,8 @@ OBJECT must be a cons or a list."
   (setcdr ptr (cdr object))
   ptr)
 
-;;; Lists
-;;; ------------------------------------------------------------
-
 ;;; Find
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-member (elem list &optional test-equal)
   "Return cons of ELEM in LIST or nil if ELEM is not in list.
@@ -132,7 +129,7 @@ TEST-EQUAL defaults do `equal'."
   (- (length list) (length (duo-member elem list test-equal))))
 
 ;;; Next / Previous
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-previous (cons list &optional num)
   "Return cons of NUM elements before CONS in LIST.
@@ -196,7 +193,7 @@ TEST-EQUAL defaults do `equal'."
     (nthcdr num (duo-member elem list test-equal))))
 
 ;;; Circular
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-circ-previous (cons list &optional num)
   "Return cons of NUM elements before CONS in LIST.
@@ -291,7 +288,7 @@ TEST-EQUAL defaults do `equal'."
   (duo-circ-next (duo-member elem list test-equal) list num))
 
 ;;; Change
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-update (old new list &optional test-equal)
   "Replace OLD by NEW in LIST. Return cons of NEW.
@@ -304,7 +301,7 @@ Modifies LIST."
     duo))
 
 ;;; Add / Remove at Beg / End
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-naive-push ()
   "Do not use it on any LIST !
@@ -455,7 +452,7 @@ Modifies LIST."
     newlist))
 
 ;;; Reference
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-ref-push-cons (cons reflist)
   "Add CONS at the beginning of the car of REFLIST. Return REFLIST.
@@ -515,7 +512,7 @@ That’s all folks."
     popped))
 
 ;;; Rotate <- ->
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-rotate-left (list)
   "Rotate LIST to the left. Return LIST.
@@ -549,7 +546,7 @@ Modifies LIST."
     list))
 
 ;;; Reference
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-ref-rotate-left (reflist)
   "Rotate car of REFLIST to the left. Return REFLIST.
@@ -596,7 +593,7 @@ Modifies LIST."
       reflist)))
 
 ;;; Reverse
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-reverse (list)
   "Reverse LIST. Return LIST.
@@ -617,10 +614,10 @@ Modifies LIST."
   list)
 
 ;;; Insert
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 ;;; Cons Cons
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-insert-cons-previous (cons new list &optional previous)
   "Insert NEW before CONS in LIST. Return NEW.
@@ -657,7 +654,7 @@ Modifies LIST."
     new)
 
 ;;; Cons Elem
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-insert-previous (cons new list &optional previous)
   "Insert NEW before CONS in LIST. Return cons of NEW.
@@ -684,7 +681,7 @@ Modifies LIST."
     (duo-insert-cons-next cons duo)))
 
 ;;; Elem Cons
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-insert-cons-before (elem new list &optional previous test-equal)
   "Insert NEW before ELEM in LIST. Return NEW.
@@ -723,7 +720,7 @@ Modifies LIST."
     (duo-insert-cons-next duo new)))
 
 ;;; Elem Elem
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-insert-before (elem new list &optional previous test-equal)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
@@ -764,10 +761,10 @@ Modifies LIST."
     (duo-insert-cons-next cons-elem cons-new)))
 
 ;;; Reference
-;;; ---------------
+;;; ------------------------------
 
 ;;; Cons Cons
-;;; ----------
+;;; ---------------
 
 (defun duo-ref-insert-cons-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return NEW.
@@ -799,7 +796,7 @@ Modifies LIST."
           nil)))))
 
 ;;; Cons Elem
-;;; ----------
+;;; ---------------
 
 (defun duo-ref-insert-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
@@ -821,7 +818,7 @@ Modifies LIST."
     (duo-ref-insert-cons-previous cons duo reflist previous)))
 
 ;;; Elem Cons
-;;; ----------
+;;; ---------------
 
 (defun duo-ref-insert-cons-before (elem new reflist &optional previous test-equal)
   "Insert NEW before ELEM in car of REFLIST. Return NEW.
@@ -854,7 +851,7 @@ Modifies LIST."
     (duo-ref-insert-cons-previous duo new reflist previous)))
 
 ;;; Elem Elem
-;;; ----------
+;;; ---------------
 
 (defun duo-ref-insert-before (elem new reflist &optional previous test-equal)
   "Insert NEW before ELEM in car of REFLIST. Return cons of NEW.
@@ -888,7 +885,7 @@ Modifies LIST."
     (duo-ref-insert-cons-previous cons-elem cons-new reflist previous)))
 
 ;;; Remove
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-remove (cons list &optional previous)
   "Remove CONS from LIST. Return (CONS . LIST).
@@ -978,7 +975,7 @@ Modifies LIST."
     (cons removed-list newlist)))
 
 ;;; Reference
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-ref-remove (cons reflist &optional previous)
   "Remove CONS from car of REFLIST. Return CONS.
@@ -1080,10 +1077,10 @@ Modifies LIST."
     removed-list))
 
 ;;; Teleport
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 ;;; Cons Cons
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-teleport-cons-previous (cons moved list &optional
                                         previous-removed previous-inserted)
@@ -1129,7 +1126,7 @@ Modifies LIST."
     (cons moved newlist)))
 
 ;;; Cons Elem
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-teleport-previous (cons moved list &optional
                                    previous-removed previous-inserted
@@ -1170,7 +1167,7 @@ Modifies LIST."
     (duo-teleport-cons-next cons duo list previous)))
 
 ;;; Elem Cons
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-teleport-cons-before (elem moved list &optional
                                    previous-removed previous-inserted
@@ -1211,7 +1208,7 @@ Modifies LIST."
     (duo-teleport-cons-next duo moved list previous)))
 
 ;;; Elem Elem
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-teleport-before (elem moved list &optional
                                  previous-removed previous-inserted
@@ -1254,10 +1251,10 @@ Modifies LIST."
     (duo-teleport-cons-next elem-cons moved-cons list previous)))
 
 ;;; Reference
-;;; ---------------
+;;; ------------------------------
 
 ;;; Cons Cons
-;;; ----------
+;;; ---------------
 
 (defun duo-ref-teleport-cons-previous (cons moved reflist &optional
                                             previous-removed previous-inserted)
@@ -1304,7 +1301,7 @@ Modifies LIST."
   moved)
 
 ;;; Cons Elem
-;;; ----------
+;;; ---------------
 
 (defun duo-ref-teleport-previous (cons moved reflist &optional
                                        previous-removed previous-inserted
@@ -1355,7 +1352,7 @@ Modifies LIST."
     (duo-ref-teleport-cons-next cons duo reflist previous)))
 
 ;;; Elem Cons
-;;; ----------
+;;; ---------------
 
 (defun duo-ref-teleport-cons-before (elem moved reflist &optional
                                           previous-removed previous-inserted
@@ -1406,7 +1403,7 @@ Modifies LIST."
     (duo-ref-teleport-cons-next duo moved reflist previous)))
 
 ;;; Elem Elem
-;;; ----------
+;;; ---------------
 
 (defun duo-ref-teleport-before (elem moved reflist &optional
                                      previous-removed previous-inserted
@@ -1459,10 +1456,10 @@ Modifies LIST."
     (duo-ref-teleport-cons-next elem-cons moved-cons reflist previous)))
 
 ;;; Move
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 ;;; Step
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-move-previous (moved list &optional num)
   "Move MOVED to NUM previous place in LIST. Return (MOVED . LIST).
@@ -1539,7 +1536,6 @@ Modifies LIST."
          (moved (if pre-rem
                     (cdr pre-rem)
                   (duo-member elem list test-equal)))
-         (mess (message "pins %s lm %s prm %s mv %s" pre-ins landmark pre-rem moved))
          (pair (duo-teleport-cons-previous landmark moved list
                                            pre-rem pre-ins)))
     pair))
@@ -1570,7 +1566,7 @@ Modifies LIST."
     pair))
 
 ;;; Circular
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-move-circ-previous (cons list)
   "Move CONS to previous place in LIST.
@@ -1593,10 +1589,16 @@ Circular : if in end of list, go to the beginning."
   )
 
 ;;; Reference
+;;; ------------------------------
+
+;;; Linear
+;;; ---------------
+
+;;; Circular
 ;;; ---------------
 
 ;;; Group
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-insert-at-group-beg (new list &optional test-group)
   "Insert NEW in LIST, at the beginning of a group determined by TEST-GROUP.
@@ -1651,10 +1653,10 @@ Modifies LIST."
     (cons duo newlist)))
 
 ;;; Reference
-;;; ---------------
+;;; ------------------------------
 
 ;;; Filter
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-filter (test-filter list)
   "Return list of references to elements of LIST matching TEST-FILTER.
@@ -1676,7 +1678,7 @@ to the list of references."
     filtered))
 
 ;;; Next / Previous
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-filter-previous (test-filter cons list)
   "Return reference of previous element of CONS in LIST matching TEST-FILTER."
@@ -1710,7 +1712,7 @@ TEST-EQUAL tests equality of two elements, defaults to `equal'."
     (duo-filter-next test-filter duo)))
 
 ;;; Circular
-;;; ---------------
+;;; ------------------------------
 
 (defun duo-circ-filter-previous (test-filter cons list)
   "Return reference of previous element of CONS in LIST matching TEST-FILTER."
@@ -1755,11 +1757,8 @@ TEST-EQUAL tests equality of two elements, defaults to `equal'."
   (let ((duo (duo-member elem list test-equal)))
     (duo-circ-filter-next test-filter duo list)))
 
-;;; Alists
-;;; ------------------------------------------------------------
-
 ;;; Find
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-assoc (key list &optional test-equal)
   "Return cons of first element in LIST whose car equals KEY.
@@ -1788,7 +1787,7 @@ Return nil if no matching element is found."
     duo))
 
 ;;; Partition
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-partition (funkey list)
   "Partition LIST using FUNKEY.
