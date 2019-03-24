@@ -390,10 +390,8 @@ See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-push-cons cons list))
 Modifies LIST."
-  (let* ((newlist))
-    (setcdr cons list)
-    (setq newlist cons)
-    newlist))
+  (setcdr cons list)
+  cons)
 
 (defun duo-add-cons (cons list &optional last)
   "Store CONS at the end of LIST. Return CONS.
@@ -413,9 +411,7 @@ See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-push elem list))
 Modifies LIST."
-  (let* ((duo (cons elem list))
-         (newlist duo))
-    newlist))
+  (cons elem list))
 
 (defun duo-add (elem list &optional last)
   "Add ELEM at the end of LIST. Return the new LAST.
@@ -446,22 +442,27 @@ Modifies LIST."
   (unless (duo-inside cons list)
     (duo-add-cons cons list last)))
 
-(defun duo-push-new (elem list)
+(defun duo-push-new (elem list &optional test-equal)
   "Add ELEM at the beginning of LIST if not already there. Return LIST.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-push-new elem list))
 Modifies LIST."
-  (if (member elem list)
+  (if (duo-member elem list test-equal)
       list
     (duo-push elem list)))
 
-(defun duo-add-new (elem list &optional last)
-  "Add ELEM at the end of LIST if not already there. Return the new LAST.
+(defun duo-add-new (elem list &optional last test-equal)
+  "Add ELEM at the end of LIST if not already there.
+Return the new LAST or the member found.
 If non nil, LAST is used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
 Modifies LIST."
-  (unless (member elem list)
+  (unless (duo-member elem list test-equal)
     (duo-add elem list last)))
 
 (defun duo-pop (list)
