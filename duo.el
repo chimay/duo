@@ -1613,11 +1613,10 @@ Modifies LIST."
                   num
                 1))
          (pre-ins (duo-circ-previous moved list (1+ num)))
-         (landmark (cdr pre-ins))
+         (landmark (duo-circ-next pre-ins list))
          (pre-rem (duo-circ-next pre-ins list num))
          (pair))
-    (unless landmark
-      (setq landmark list)
+    (when (eq landmark list)
       (setq pre-ins nil))
     (when (eq moved pre-ins)
       (setq pre-ins nil))
