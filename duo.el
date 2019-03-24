@@ -1147,8 +1147,7 @@ Common usage :
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
-  (let ((newlist list)
-        (return))
+  (let ((newlist list))
     (unless (eq cons moved)
       (setq newlist (cdr (duo-remove moved list previous)))
       (duo-insert-cons-next cons moved))
@@ -1597,31 +1596,68 @@ Modifies LIST."
 ;;; Circular
 ;;; ------------------------------
 
-(defun duo-move-circ-previous (cons list)
-  "Move CONS to previous place in LIST.
-Circular : if in beginning of list, go to the end."
-  )
-
-(defun duo-move-circ-next (cons list)
-  "Move CONS to next place in LIST.
-Circular : if in end of list, go to the beginning."
-  )
-
-(defun duo-move-circ-before (elem list)
-  "Move ELEM to next place in LIST.
-Circular : if in beginning of list, go to the end."
-  )
-
-(defun duo-move-circ-after (elem list)
-  "Move ELEM to next place in LIST.
-Circular : if in end of list, go to the beginning."
-  )
-
 ;;; Reference
 ;;; ------------------------------
 
 ;;; Linear
 ;;; ---------------
+
+(defun duo-ref-move-previous (moved reflist &optional num)
+  "Move MOVED to NUM previous place in car of REFLIST. Return MOVED.
+If range is exceeded, move MOVED at the beginning of the list.
+MOVED must reference a cons in LIST.
+REFLIST must be a cons (list . whatever-you-want)
+NUM defaults to 1.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-move-previous moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (num (if num
+                  num
+                1))
+         (pre-ins (duo-previous moved list (1+ num)))
+         (landmark (if pre-ins
+                       (cdr pre-ins)
+                     list))
+         (pre-rem (if pre-ins
+                      (nthcdr num pre-ins)
+                    (duo-previous moved list))))
+    (duo-ref-teleport-cons-previous landmark moved reflist pre-rem pre-ins)
+    moved))
+
+(defun duo-ref-move-next (moved reflist &optional num)
+  "Move MOVED to NUM next place in car of REFLIST. Return MOVED.
+If range is exceeded, move MOVED at the end of the list.
+MOVED must reference a cons in LIST.
+REFLIST must be a cons (list . whatever-you-want)
+NUM defaults to 1.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-move-next moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (num (if num
+                  num
+                1))
+         (landmark (nthcdr num moved))
+         (pair))
+    (unless landmark
+      (setq landmark (duo-last list)))
+    (duo-ref-teleport-cons-next landmark moved reflist)
+    moved))
 
 ;;; Circular
 ;;; ---------------
