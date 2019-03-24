@@ -104,6 +104,14 @@ OBJECT must be a cons or a list."
 ;;; Find
 ;;; ------------------------------------------------------------
 
+(defun duo-inside (cons list)
+  "Return CONS if CONS is in LIST or nil otherwise."
+  (let ((duo list))
+    (while (and duo
+                (not (eq duo cons)))
+      (setq duo (cdr duo)))
+    duo))
+
 (defun duo-member (elem list &optional test-equal)
   "Return cons of ELEM in LIST or nil if ELEM is not in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -419,6 +427,24 @@ Modifies LIST."
         (duo (cons elem nil)))
     (setcdr last duo)
     duo))
+
+(defun duo-push-new-cons (cons list)
+  "Add CONS at the beginning of LIST if not already there. Return LIST.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-push-new elem list))
+Modifies LIST."
+  (if (duo-inside cons list)
+      list
+    (duo-push-cons cons list)))
+
+(defun duo-add-new-cons (cons list &optional last)
+  "Add CONS at the end of LIST if not already there. Return the new LAST.
+If non nil, LAST is used to speed up the process.
+Modifies LIST."
+  (unless (duo-inside cons list)
+    (duo-add-cons cons list last)))
 
 (defun duo-push-new (elem list)
   "Add ELEM at the beginning of LIST if not already there. Return LIST.
