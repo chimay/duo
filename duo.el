@@ -1599,7 +1599,6 @@ Modifies LIST."
 (defun duo-circ-move-previous (moved list &optional num)
   "Move MOVED to NUM previous place in LIST. Return (MOVED . LIST).
 Circular : if in beginning of list, go to the end.
-If range is exceeded, move MOVED at the beginning of the list.
 MOVED must reference a cons in LIST.
 NUM defaults to 1.
 The actual new list must be recovered using the returned list.
@@ -1621,6 +1620,26 @@ Modifies LIST."
     (when (eq moved pre-ins)
       (setq pre-ins nil))
     (setq pair (duo-teleport-cons-previous landmark moved list pre-rem pre-ins))
+    pair))
+
+(defun duo-circ-move-next (moved list &optional num)
+  "Move MOVED to NUM next place in LIST. Return (MOVED . LIST).
+Circular : if in end of list, go to the beginning.
+MOVED must reference a cons in LIST.
+NUM defaults to 1.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-circ-move-next moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Modifies LIST."
+  (let* ((num (if num
+                  num
+                1))
+         (landmark (duo-circ-next moved list num))
+         (pair))
+    (setq pair (duo-teleport-cons-next landmark moved list))
     pair))
 
 ;;; Reference
