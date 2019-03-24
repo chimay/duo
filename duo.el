@@ -1818,6 +1818,35 @@ Modifies LIST."
 ;;; Circular
 ;;; ---------------
 
+(defun duo-ref-circ-move-previous (moved reflist &optional num)
+  "Move MOVED to NUM previous place in car of REFLIST. Return MOVED.
+Circular : if in beginning of list, go to the end.
+MOVED must reference a cons in LIST.
+REFLIST must be a cons (list . whatever-you-want)
+NUM defaults to 1.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-circ-move-previous moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (num (if num
+                  num
+                1))
+         (pre-ins (duo-circ-previous moved list (1+ num)))
+         (landmark (duo-circ-next pre-ins list))
+         (pre-rem (duo-circ-next pre-ins list num)))
+    (when (eq landmark list)
+      (setq pre-ins nil))
+    (when (eq moved pre-ins)
+      (setq pre-ins nil))
+    (duo-ref-teleport-cons-previous landmark moved reflist pre-rem pre-ins)))
+
 ;;; Group
 ;;; ------------------------------------------------------------
 
