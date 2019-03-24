@@ -1517,10 +1517,8 @@ Modifies LIST."
                      list))
          (pre-rem (if pre-ins
                       (nthcdr num pre-ins)
-                    (duo-previous moved list)))
-         (pair (duo-teleport-cons-previous landmark moved list
-                                           pre-rem pre-ins)))
-    pair))
+                    (duo-previous moved list))))
+    (duo-teleport-cons-previous landmark moved list pre-rem pre-ins)))
 
 (defun duo-move-next (moved list &optional num)
   "Move MOVED to NUM next place in LIST. Return (MOVED . LIST).
@@ -1541,8 +1539,7 @@ Modifies LIST."
          (pair))
     (unless landmark
       (setq landmark (duo-last list)))
-    (setq pair (duo-teleport-cons-next landmark moved list))
-    pair))
+    (duo-teleport-cons-next landmark moved list)))
 
 (defun duo-move-before (elem list &optional num test-equal)
   "Move ELEM to NUM previous place in LIST. Return (MOVED . LIST).
@@ -1570,10 +1567,8 @@ Modifies LIST."
                     (duo-before elem list 1 test-equal)))
          (moved (if pre-rem
                     (cdr pre-rem)
-                  (duo-member elem list test-equal)))
-         (pair (duo-teleport-cons-previous landmark moved list
-                                           pre-rem pre-ins)))
-    pair))
+                  (duo-member elem list test-equal))))
+    (duo-teleport-cons-previous landmark moved list pre-rem pre-ins)))
 
 (defun duo-move-after (elem list &optional num test-equal)
   "Move ELEM to NUM next place in LIST. Return (MOVED . LIST).
@@ -1593,12 +1588,10 @@ Modifies LIST."
                   num
                 1))
          (moved (duo-member elem list test-equal))
-         (landmark (nthcdr num moved))
-         (pair))
+         (landmark (nthcdr num moved)))
     (unless landmark
       (setq landmark (duo-last list)))
-    (setq pair (duo-teleport-cons-next landmark moved list))
-    pair))
+    (duo-teleport-cons-next landmark moved list)))
 
 ;;; Circular
 ;;; ------------------------------
@@ -1666,7 +1659,6 @@ Modifies LIST."
          (landmark (duo-circ-next pre-ins list))
          (pre-rem (duo-circ-next pre-ins list num))
          (moved (cdr pre-rem)))
-    (message "pins %s lm %s prm %s mv %s" pre-ins landmark pre-rem moved)
     (unless moved
       (setq moved (duo-member elem list test-equal))
       (setq pre-rem nil))
@@ -1675,6 +1667,27 @@ Modifies LIST."
     (when (eq moved pre-ins)
       (setq pre-ins nil))
     (duo-teleport-cons-previous landmark moved list pre-rem pre-ins)))
+
+(defun duo-circ-move-after (elem list &optional num test-equal)
+  "Move ELEM to NUM next place in LIST. Return (MOVED . LIST).
+Circular : if in end of list, go to the beginning.
+MOVED is the moved value.
+NUM defaults to 1.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-after elem list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Modifies LIST."
+  (let* ((num (if num
+                  num
+                1))
+         (moved (duo-member elem list test-equal))
+         (landmark (duo-circ-next moved list num)))
+    (duo-teleport-cons-next landmark moved list)))
 
 ;;; Reference
 ;;; ------------------------------
