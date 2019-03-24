@@ -1578,7 +1578,7 @@ TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq pair (duo-move-next elem list))
+\(setq pair (duo-move-after elem list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
@@ -1605,27 +1605,23 @@ NUM defaults to 1.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq pair (duo-move-previous moved list))
+\(setq pair (duo-circ-move-previous moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (let* ((num (if num
                   num
                 1))
-         (pre-ins (duo-previous moved list (1+ num)))
+         (pre-ins (duo-circ-previous moved list (1+ num)))
          (landmark (cdr pre-ins))
-         (pre-rem (if pre-ins
-                      (nthcdr num pre-ins)
-                    (duo-previous moved list)))
-         (pair (cons moved list)))
-    (unless pre-ins
-      (setq pre-ins (duo-circ-previous moved list (1+ num)))
-      (setq landmark (cdr pre-ins))
-      (unless landmark
-        (setq landmark list)
-        (setq pre-ins nil)))
-    (unless (eq moved pre-ins)
-      (setq pair (duo-teleport-cons-previous landmark moved list pre-rem pre-ins)))
+         (pre-rem (duo-circ-next pre-ins list num))
+         (pair))
+    (unless landmark
+      (setq landmark list)
+      (setq pre-ins nil))
+    (when (eq moved pre-ins)
+      (setq pre-ins nil))
+    (setq pair (duo-teleport-cons-previous landmark moved list pre-rem pre-ins))
     pair))
 
 ;;; Reference
