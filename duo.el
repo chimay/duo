@@ -90,6 +90,17 @@ OBJECT must be a cons or a list."
   (setcdr ptr (cdr object))
   ptr)
 
+;;; Predicates
+;;; ------------------------------------------------------------
+
+(defun duo-equal-car-p (one two)
+  "Whether the car of ONE and TWO are equal."
+  (equal (car one) (car two)))
+
+(defun duo-equal-cdr-p (one two)
+  "Whether the cdr of ONE and TWO are equal."
+  (equal (cdr one) (cdr two)))
+
 ;;; Find
 ;;; ------------------------------------------------------------
 
