@@ -128,6 +128,35 @@ TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (- (length list) (length (duo-member elem list test-equal))))
 
+;;; Assoc
+;;; ------------------------------
+
+(defun duo-assoc (key list &optional test-equal)
+  "Return cons of first element in LIST whose car equals KEY.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+Return nil if no matching element is found."
+  (let ((duo list)
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (while (and duo
+                (not (funcall test-equal (car (car duo)) key)))
+      (setq duo (cdr duo)))
+    duo))
+
+(defun duo-reverse-assoc (value list &optional test-equal)
+  "Return cons of first element in LIST whose cdr equals VALUE.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+Return nil if no matching element is found."
+  (let ((duo list)
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal)))
+    (while (and duo
+                (not (funcall test-equal (cdr (car duo)) value)))
+      (setq duo (cdr duo)))
+    duo))
+
 ;;; Next / Previous
 ;;; ------------------------------------------------------------
 
@@ -1756,35 +1785,6 @@ TEST-EQUAL tests equality of two elements, defaults to `equal'."
 TEST-EQUAL tests equality of two elements, defaults to `equal'."
   (let ((duo (duo-member elem list test-equal)))
     (duo-circ-filter-next test-filter duo list)))
-
-;;; Find
-;;; ------------------------------------------------------------
-
-(defun duo-assoc (key list &optional test-equal)
-  "Return cons of first element in LIST whose car equals KEY.
-TEST-EQUAL takes two arguments and return t if they are considered equals.
-Return nil if no matching element is found."
-  (let ((duo list)
-        (test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (while (and duo
-                (not (funcall test-equal (car (car duo)) key)))
-      (setq duo (cdr duo)))
-    duo))
-
-(defun duo-reverse-assoc (value list &optional test-equal)
-  "Return cons of first element in LIST whose cdr equals VALUE.
-TEST-EQUAL takes two arguments and return t if they are considered equals.
-Return nil if no matching element is found."
-  (let ((duo list)
-        (test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (while (and duo
-                (not (funcall test-equal (cdr (car duo)) value)))
-      (setq duo (cdr duo)))
-    duo))
 
 ;;; Partition
 ;;; ------------------------------------------------------------
