@@ -484,7 +484,7 @@ Modifies LIST."
 ;;; ------------------------------
 
 (defun duo-ref-push-cons (cons reflist)
-  "Add CONS at the beginning of the car of REFLIST. Return REFLIST.
+  "Add CONS at the beginning of the car of REFLIST. Return car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
@@ -500,10 +500,10 @@ Common usage :
 Modifies LIST."
   (setcdr cons (car reflist))
   (setcar reflist cons)
-  reflist)
+  (car reflist))
 
 (defun duo-ref-push (elem reflist)
-  "Add ELEM at the beginning of the car of REFLIST. Return REFLIST.
+  "Add ELEM at the beginning of the car of REFLIST. Return car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
@@ -517,7 +517,7 @@ Common usage :
 Modifies LIST."
   (let ((duo (cons elem (car reflist))))
     (setcar reflist duo)
-    reflist))
+    (car reflist)))
 
 (defun duo-ref-pop (reflist)
   "Remove first element in the car of REFLIST. Return popped cons.
@@ -663,7 +663,8 @@ Common usage :
 Modifies LIST."
   (if (eq cons list)
       (duo-push-cons new list)
-    (let ((previous (if previous
+    (let ((previous (if (and previous
+                             (not (eq previous new)))
                         previous
                       (duo-previous cons list))))
       (if previous
@@ -813,10 +814,11 @@ Common usage :
 Modifies LIST."
   (let ((list (car reflist)))
     (if (eq cons list)
-        (car (duo-ref-push-cons new reflist))
-      (let ((previous (if previous
-                        previous
-                      (duo-previous cons list))))
+        (duo-ref-push-cons new reflist)
+      (let ((previous (if (and previous
+                               (not (eq previous new)))
+                          previous
+                        (duo-previous cons list))))
         (if previous
             (progn
               (setcdr new (cdr previous))
@@ -929,7 +931,8 @@ Common usage :
 Modifies LIST."
   (if (eq cons list)
       (duo-pop list)
-    (let ((previous (if previous
+    (let ((previous (if (and previous
+                             (not (eq previous cons)))
                         previous
                       (duo-previous cons list))))
       (when previous
@@ -1024,7 +1027,8 @@ Modifies LIST."
   (let ((list (car reflist)))
     (if (eq cons list)
         (duo-ref-pop reflist)
-      (let ((previous (if previous
+      (let ((previous (if (and previous
+                               (not (eq previous cons)))
                           previous
                         (duo-previous cons list))))
         (when previous
