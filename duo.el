@@ -1847,6 +1847,90 @@ Modifies LIST."
       (setq pre-ins nil))
     (duo-ref-teleport-cons-previous landmark moved reflist pre-rem pre-ins)))
 
+(defun duo-ref-circ-move-next (moved reflist &optional num)
+  "Move MOVED to NUM next place in car of REFLIST. Return MOVED.
+Circular : if in end of list, go to the beginning.
+MOVED must reference a cons in LIST.
+REFLIST must be a cons (list . whatever-you-want)
+NUM defaults to 1.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-circ-move-next moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (num (if num
+                  num
+                1))
+         (landmark (duo-circ-next moved list num)))
+    (duo-ref-teleport-cons-next landmark moved reflist)))
+
+(defun duo-ref-circ-move-before (elem reflist &optional num test-equal)
+  "Move ELEM to NUM previous place in LIST. Return MOVED.
+Circular : if in beginning of list, go to the end.
+MOVED is the moved value.
+REFLIST must be a cons (list . whatever-you-want)
+NUM defaults to 1.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-circ-move-before moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (num (if num
+                  num
+                1))
+         (pre-ins (duo-circ-before elem list (1+ num) test-equal))
+         (landmark (duo-circ-next pre-ins list))
+         (pre-rem (duo-circ-next pre-ins list num))
+         (moved (cdr pre-rem)))
+    (unless moved
+      (setq moved (duo-member elem list test-equal))
+      (setq pre-rem nil))
+    (when (eq landmark list)
+      (setq pre-ins nil))
+    (when (eq moved pre-ins)
+      (setq pre-ins nil))
+    (duo-ref-teleport-cons-previous landmark moved reflist pre-rem pre-ins)))
+
+(defun duo-ref-circ-move-after (elem reflist &optional num test-equal)
+  "Move ELEM to NUM next place in LIST. Return MOVED.
+Circular : if in end of list, go to the beginning.
+MOVED is the moved value.
+REFLIST must be a cons (list . whatever-you-want)
+NUM defaults to 1.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-circ-move-after moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (num (if num
+                  num
+                1))
+         (moved (duo-member elem list test-equal))
+         (landmark (duo-circ-next moved list num)))
+    (duo-ref-teleport-cons-next landmark moved reflist)))
+
 ;;; Group
 ;;; ------------------------------------------------------------
 
