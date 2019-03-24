@@ -1652,8 +1652,71 @@ Modifies LIST."
          (num (if num
                   num
                 1))
-         (landmark (nthcdr num moved))
-         (pair))
+         (landmark (nthcdr num moved)))
+    (unless landmark
+      (setq landmark (duo-last list)))
+    (duo-ref-teleport-cons-next landmark moved reflist)
+    moved))
+
+(defun duo-ref-move-before (elem reflist &optional num test-equal)
+  "Move ELEM to NUM previous place in car of REFLIST. Return MOVED.
+If range is exceeded, move ELEM at the beginning of the list.
+MOVED is the moved value.
+REFLIST must be a cons (list . whatever-you-want)
+NUM defaults to 1.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-move-before moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (num (if num
+                  num
+                1))
+         (pre-ins (duo-before elem list (1+ num) test-equal))
+         (landmark (if pre-ins
+                       (cdr pre-ins)
+                     list))
+         (pre-rem (if pre-ins
+                      (nthcdr num pre-ins)
+                    (duo-before elem list 1 test-equal)))
+         (moved (if pre-rem
+                    (cdr pre-rem)
+                  (duo-member elem list test-equal))))
+    (duo-ref-teleport-cons-previous landmark moved reflist pre-rem pre-ins)
+    moved))
+
+(defun duo-ref-move-after (elem reflist &optional num test-equal)
+  "Move ELEM to NUM next place in car of REFLIST. Return MOVED.
+If range is exceeded, move MOVED at the end of the list.
+MOVED is the moved value.
+REFLIST must be a cons (list . whatever-you-want)
+NUM defaults to 1.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-move-after moved reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies LIST."
+  (let* ((list (car reflist))
+         (num (if num
+                  num
+                1))
+         (moved (duo-member elem list test-equal))
+         (landmark (nthcdr num moved)))
     (unless landmark
       (setq landmark (duo-last list)))
     (duo-ref-teleport-cons-next landmark moved reflist)
