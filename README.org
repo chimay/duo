@@ -86,7 +86,7 @@ not updated. As a result, you need either :
 
     + ~(setq list (function list ...))~
 
-  - to pass a reference to the list as argument
+  - to pass a reference to the list as argument (=*-ref-*= functions)
 
     + ~(setq reflist (cons list nil)) (function reflist ...)~
 
