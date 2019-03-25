@@ -3,12 +3,14 @@
 
 * Table of contents                                                     :TOC_2_gh:
 - [[#introduction][Introduction]]
+  - [[#keep-it-simple][Keep It Simple]]
+- [[#summary-of-available-functions][Summary of available functions]]
+- [[#technical-details][Technical details]]
   - [[#circular-lists][Circular lists]]
   - [[#next--previous-vs-after--before][Next / Previous vs After / Before]]
   - [[#remove-vs-delete][Remove vs Delete]]
   - [[#returned-objects][Returned objects]]
   - [[#assoc][Assoc]]
-- [[#summary-of-available-functions][Summary of available functions]]
 
 * Introduction
 
@@ -46,9 +48,96 @@ When a =duo= has to be modified, it’s generally by =setcar= and
 =setcdr= built-in.
 
 
+** Keep It Simple
+
+Primarily use Elisp C source code :
+
+  - Built-ins :
+
+    + car
+
+    + cdr
+
+    + nthcdr
+
+    + setcar
+
+    + setcdr
+
+    + etc
+
+  - Special forms :
+
+    + if
+
+    + cond
+
+    + while
+
+    + etc
+
+
+* Summary of available functions
+
+  - Finding cons in list
+
+  - Finding previous / next cons
+
+    + In plain list
+
+    + In virtual circular list
+
+  - Change element
+
+  - Push, Add
+
+    + Anytime
+
+    + Only if new element
+
+  - Pop, Drop
+
+  - Truncate
+
+  - Rotate <- or ->
+
+  - Roll until a cons is first or last
+
+  - Reverse
+
+  - Insert
+
+  - Remove, Delete
+
+    + One occurence
+
+    + All occurence of a value
+
+  - Teleport : move after or before another cons or element
+
+  - Move previous or next
+
+    + In plain list
+
+    + In virtual circular list
+
+  - Exchange cons or elements
+
+  - Insert at group beginning or end
+
+  - Filter
+
+    + Next / Previous in same filter
+
+  - Partition with a key function
+
+
+* Technical details
+
+
 ** Circular lists
 
-Caution : apply some of these functions to circular lists would
+Caution : applying some of these functions to circular lists would
 produce infinite loops.
 
 However, some functions, like =*-circ-*= or =*-rotate-*=, simulate
@@ -107,58 +196,3 @@ The classic =assoc= function return the cons =(key . value)=, which is
 the /content/ of the Alist element, whereas the =duo-assoc= function
 return the duo =((key . value) . next-member-in-alist)=, real member of
 the Alist.
-
-
-* Summary of available functions
-
-  - Finding cons in list
-
-  - Finding previous / next cons
-
-    + In plain list
-
-    + In virtual circular list
-
-  - Change element
-
-  - Push, Add
-
-    + Anytime
-
-    + Only if new element
-
-  - Pop, Drop
-
-  - Truncate
-
-  - Rotate <- or ->
-
-  - Roll until a cons is first or last
-
-  - Reverse
-
-  - Insert
-
-  - Remove, Delete
-
-    + One occurence
-
-    + All occurence of a value
-
-  - Teleport : move after or before another cons or element
-
-  - Move previous or next
-
-    + In plain list
-
-    + In virtual circular list
-
-  - Exchange cons or elements
-
-  - Insert at group beginning or end
-
-  - Filter
-
-    + Next / Previous in same filter
-
-  - Partition with a key function
