@@ -2218,9 +2218,11 @@ Modifies LIST."
         (setq newlist (cdr pair))
         (cons (cons one two) newlist)))))
 
-(defun duo-exchange (one two list)
+(defun duo-exchange (one two list &optional test-equal)
   "Exchange elements ONE and TWO in LIST. Return ((ONE . TWO) . LIST).
 ONE and TWO must be present in LIST.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -2229,7 +2231,9 @@ Common usage :
 \(setq two (cdr (car structure)))
 \(setq list (cdr structure))
 Modifies LIST."
-  )
+  (let ((cons-one (duo-member one list test-equal))
+        (cons-two (duo-member two list test-equal)))
+    (duo-exchange-cons cons-one cons-two list)))
 
 ;;; Reference
 ;;; ------------------------------
