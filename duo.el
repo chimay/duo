@@ -2218,9 +2218,10 @@ Modifies LIST."
         (setq newlist (cdr pair))
         (cons (cons one two) newlist)))))
 
-(defun duo-exchange (one two list &optional test-equal)
+(defun duo-exchange (one two list &optional pre-one pre-two test-equal)
   "Exchange elements ONE and TWO in LIST. Return ((ONE . TWO) . LIST).
 ONE and TWO must be present in LIST.
+If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
@@ -2233,10 +2234,70 @@ Common usage :
 Modifies LIST."
   (let ((cons-one (duo-member one list test-equal))
         (cons-two (duo-member two list test-equal)))
-    (duo-exchange-cons cons-one cons-two list)))
+    (duo-exchange-cons cons-one cons-two list pre-one pre-two)))
 
 ;;; Reference
 ;;; ------------------------------
+
+(defun duo-ref-exchange-cons (one two reflist &optional pre-one pre-two)
+  "Exchange cons ONE and TWO in car of REFLIST. Return (ONE . TWO).
+ONE and TWO must be cons in car of REFLIST.
+If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-exchange-cons one two reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies car of REFLIST."
+  (unless (eq one two)
+    (if (eq two (car reflist))
+        (let ((return)
+              (swap))
+          (setq return (duo-ref-exchange-cons two one reflist))
+          (setq swap (car return))
+          (setcar return (cdr return))
+          (setcdr return swap)
+          return)
+      (let* ((list (car reflist))
+             (pre-one (if pre-one
+                          pre-one
+                        (duo-previous one list)))
+             (pre-two (if pre-two
+                          pre-two
+                        (duo-previous two list))))
+        (cond ((eq (cdr one) two)
+               (duo-ref-teleport-cons-next two one reflist pre-one))
+              ((eq (cdr two) one)
+               (duo-ref-teleport-cons-next one two reflist pre-two))
+              (t
+               (duo-ref-teleport-cons-next one two reflist pre-two)
+               (duo-ref-teleport-cons-next pre-two one reflist pre-one)))
+        (cons one two)))))
+
+(defun duo-ref-exchange (one two reflist &optional pre-one pre-two test-equal)
+  "Exchange elements ONE and TWO in car of REFLIST. Return (ONE . TWO).
+ONE and TWO must be present in car of REFLIST.
+If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-exchange one two reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies car of REFLIST."
+  (let* ((list (car reflist))
+         (cons-one (duo-member one list test-equal))
+         (cons-two (duo-member two list test-equal)))
+    (duo-ref-exchange-cons cons-one cons-two reflist pre-one pre-two)))
 
 ;;; Group
 ;;; ------------------------------------------------------------
