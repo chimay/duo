@@ -2178,36 +2178,58 @@ Modifies REFLIST."
 ;;; Exchange
 ;;; ------------------------------------------------------------
 
-(defun duo-exchange-cons (one two list)
+(defun duo-exchange-cons (one two list &optional pre-one pre-two)
   "Exchange cons ONE and TWO in LIST. Return ((ONE . TWO) . LIST).
 ONE and TWO must be cons in LIST.
-The actual new list must be recovered using the returned list.
+If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (duo-exchange-cons one two list))
+\(setq structure (duo-exchange-cons one two list))
+\(setq one (car (car structure)))
+\(setq two (cdr (car structure)))
+\(setq list (cdr structure))
 Modifies LIST."
   (unless (eq one two)
-    (if (and (eq two list)
-             (not (eq one two)))
-        (duo-exchange-cons two one list)
+    (if (eq two list)
+        (let ((return)
+              (swap))
+          (setq return (duo-exchange-cons two one list))
+          (setq swap (car (car return)))
+          (setcar (car return) (cdr (car return)))
+          (setcdr (car return) swap)
+          return)
       (let ((newlist list)
-            (pre-two)
-            (pair)
-            (return))
+            (pre-one (if pre-one
+                         pre-one
+                       (duo-previous one list)))
+            (pre-two (if pre-two
+                         pre-two
+                       (duo-previous two list)))
+            (pair))
         (cond ((eq (cdr one) two)
-               (setq pair (duo-teleport-cons-next two one newlist)))
+               (setq pair (duo-teleport-cons-next two one newlist pre-one)))
               ((eq (cdr two) one)
-               (setq pair (duo-teleport-cons-next one two newlist)))
+               (setq pair (duo-teleport-cons-next one two newlist pre-two)))
               (t
-               (setq pre-two (duo-previous two list))
                (setq pair (duo-teleport-cons-next one two newlist pre-two))
                (setq newlist (cdr pair))
-               (setq pair (duo-teleport-cons-next pre-two one newlist))))
+               (setq pair (duo-teleport-cons-next pre-two one newlist pre-one))))
         (setq newlist (cdr pair))
         (cons (cons one two) newlist)))))
 
 (defun duo-exchange (one two list)
-  "Exchange elements ONE and TWO in LIST.")
+  "Exchange elements ONE and TWO in LIST. Return ((ONE . TWO) . LIST).
+ONE and TWO must be present in LIST.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq structure (duo-exchange-cons one two list))
+\(setq one (car (car structure)))
+\(setq two (cdr (car structure)))
+\(setq list (cdr structure))
+Modifies LIST."
+  )
 
 ;;; Reference
 ;;; ------------------------------
