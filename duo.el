@@ -1780,8 +1780,7 @@ Modifies LIST."
   (let* ((num (if num
                   num
                 1))
-         (landmark (nthcdr num moved))
-         (pair))
+         (landmark (nthcdr num moved)))
     (unless landmark
       (setq landmark (duo-last list)))
     (duo-teleport-cons-next landmark moved list)))
