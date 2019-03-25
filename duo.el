@@ -2179,7 +2179,7 @@ Modifies REFLIST."
 ;;; ------------------------------------------------------------
 
 (defun duo-exchange-cons (one two list)
-  "Exchange cons ONE and TWO in LIST. Return (ONE TWO LIST).
+  "Exchange cons ONE and TWO in LIST. Return ((ONE . TWO) . LIST).
 ONE and TWO must be cons in LIST.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
@@ -2190,19 +2190,21 @@ Modifies LIST."
     (if (and (eq two list)
              (not (eq one two)))
         (duo-exchange-cons two one list)
-      (let ((pre-one (duo-previous one list))
-            (pre-two (duo-previous two list))
-            (newlist list)
-            (pair))
+      (let ((newlist list)
+            (pre-two)
+            (pair)
+            (return))
         (cond ((eq (cdr one) two)
-               (setq pair (duo-teleport-cons-next two one newlist pre-one)))
+               (setq pair (duo-teleport-cons-next two one newlist)))
               ((eq (cdr two) one)
-               (setq pair (duo-teleport-cons-next one two newlist pre-two)))
+               (setq pair (duo-teleport-cons-next one two newlist)))
               (t
+               (setq pre-two (duo-previous two list))
                (setq pair (duo-teleport-cons-next one two newlist pre-two))
                (setq newlist (cdr pair))
-               (setq pair (duo-teleport-cons-next pre-two one newlist pre-one))))
-        (setq newlist (cdr pair))))))
+               (setq pair (duo-teleport-cons-next pre-two one newlist))))
+        (setq newlist (cdr pair))
+        (cons (cons one two) newlist)))))
 
 (defun duo-exchange (one two list)
   "Exchange elements ONE and TWO in LIST.")
