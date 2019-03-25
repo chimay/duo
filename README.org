@@ -3,6 +3,8 @@
 
 * Table of contents                                                     :TOC_2_gh:
 - [[#introduction][Introduction]]
+- [[#goal][Goal]]
+  - [[#use-cons-as-double-pointers][Use Cons as double pointers]]
   - [[#keep-it-simple][Keep It Simple]]
 - [[#summary-of-available-functions][Summary of available functions]]
 - [[#technical-details][Technical details]]
@@ -33,47 +35,38 @@ instance :
 
 If in doubt, check their doc.
 
-In fact, the functions use and return references whenever possible.
-It’s implemented with =(CAR . CDR)= =cons=, which are called =duo=,
-hence the name of the library. These cons are everywhere in Elisp,
-either explicitely created or as brick components in lists. A list
-variable =list= is itself the cons at the beginning of the list.
-=(cdr list)= is the second cons in the list. And so one with
-=(cddr list)=, =(nthcdr N list)=. Generally speaking, a member
-of a list is a cons =(value . next-member-in-list)=. Most of Elisp
-is built around these =(CAR . CDR)= double pointers. You can even
-construct binary trees with it.
 
-When a =duo= has to be modified, it’s generally by =setcar= and
-=setcdr= built-in.
+* Goal
 
+
+** Use Cons as double pointers
+
+The functions use and return references whenever possible. It’s
+implemented with =(CAR . CDR)= =cons=, which are called =duo=, hence
+the name of the library. These cons are everywhere in Elisp, either
+explicitely created or as brick components in lists. A list variable
+=list= is itself the cons at the beginning of the list. =(cdr list)=
+is the second cons in the list. And so one with =(cddr list)=,
+=(nthcdr N list)=. Generally speaking, a member of a list is a cons
+=(value . next-member-in-list)=. Most of Elisp is built around these
+=(CAR . CDR)= double pointers. You can even construct binary trees
+with it.
 
 ** Keep It Simple
 
 Primarily use Elisp C source code :
 
   - Built-ins :
-
-    + car
-
-    + cdr
-
-    + nthcdr
-
-    + setcar
-
-    + setcdr
-
+    + =car=
+    + =cdr=
+    + =nthcdr=
+    + =setcar=
+    + =setcdr=
     + etc
-
   - Special forms :
-
-    + if
-
-    + cond
-
-    + while
-
+    + =if=
+    + =cond=
+    + =while=
     + etc
 
 
