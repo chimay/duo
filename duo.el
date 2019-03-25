@@ -182,7 +182,7 @@ Return nil if no matching element is found."
 (defun duo-previous (cons list &optional num)
   "Return cons of NUM elements before CONS in LIST.
 NUM defaults to 1.
-CONS must reference a cons in LIST."
+CONS must be a cons in LIST."
   (let* ((num (if num
                   num
                 1))
@@ -200,7 +200,7 @@ CONS must reference a cons in LIST."
 (defun duo-next (cons &optional num)
   "Return cons of NUM elements after CONS in list.
 NUM defaults to 1.
-CONS must reference a cons in the list."
+CONS must be a cons in the list."
   (let ((num (if num
                  num
                1)))
@@ -247,7 +247,7 @@ TEST-EQUAL defaults do `equal'."
   "Return cons of NUM elements before CONS in LIST.
 Circular : if in beginning of list, go to the end.
 NUM defaults to 1.
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 Test with eq."
   (let* ((num (if num
                   num
@@ -278,7 +278,7 @@ Test with eq."
   "Return cons of NUM elements after CONS in LIST.
 Circular : if in end of list, go to the beginning.
 NUM defaults to 1.
-CONS must reference a cons in LIST."
+CONS must be a cons in LIST."
   (let ((num (if num
                  num
                1))
@@ -666,7 +666,7 @@ Modifies REFLIST."
 
 (defun duo-roll-cons-to-beg (cons list &optional previous)
   "Roll LIST to the left until CONS is at the beginning. Return LIST.
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 If non nil, PREVIOUS is used to speed up the process.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
@@ -689,7 +689,7 @@ Modifies LIST."
 
 (defun duo-roll-cons-to-end (cons list)
   "Roll LIST to the right until CONS is at the end. Return LIST.
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -745,7 +745,7 @@ Modifies LIST."
 (defun duo-ref-roll-cons-to-beg (cons reflist &optional previous)
   "Roll car of REFLIST to the left until CONS is at the beginning.
 Return car of REFLIST.
-CONS must reference a cons in car of REFLIST.
+CONS must be a cons in car of REFLIST.
 If non nil, PREVIOUS is used to speed up the process.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
@@ -774,7 +774,7 @@ Modifies car of REFLIST."
 (defun duo-ref-roll-cons-to-end (cons reflist)
   "Roll car of REFLIST to the right until CONS is at the end.
 Return car of REFLIST.
-CONS must reference a cons in car of REFLIST.
+CONS must be a cons in car of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -898,7 +898,7 @@ Modifies REFLIST."
 
 (defun duo-insert-cons-previous (cons new list &optional previous)
   "Insert NEW before CONS in LIST. Return NEW.
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 NEW is the cons inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 If the new cons is inserted at the beginning of the list,
@@ -924,7 +924,7 @@ Modifies LIST."
 
 (defun duo-insert-cons-next (cons new)
   "Insert NEW after CONS in list. Return NEW.
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 NEW is the cons inserted.
 Modifies LIST."
     (setcdr new (cdr cons))
@@ -936,7 +936,7 @@ Modifies LIST."
 
 (defun duo-insert-previous (cons new list &optional previous)
   "Insert NEW before CONS in LIST. Return cons of NEW.
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 NEW is the value of the element inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 If the new cons is inserted at the beginning of the list,
@@ -952,7 +952,7 @@ Modifies LIST."
 
 (defun duo-insert-next (cons new)
   "Insert NEW after CONS in list. Return cons of NEW.
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 NEW is the value of the element inserted.
 Modifies LIST."
   (let ((duo (list new)))
@@ -1046,7 +1046,7 @@ Modifies LIST."
 
 (defun duo-ref-insert-cons-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return NEW.
-CONS must reference a cons in car of REFLIST.
+CONS must be a cons in car of REFLIST.
 NEW is the cons inserted.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS inserted is used to speed up the process.
@@ -1079,7 +1079,7 @@ Modifies REFLIST."
 
 (defun duo-ref-insert-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
-CONS must reference a cons in car of REFLIST.
+CONS must be a cons in car of REFLIST.
 NEW is the value of the element inserted.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS inserted is used to speed up the process.
@@ -1168,7 +1168,7 @@ Modifies REFLIST."
 
 (defun duo-remove (cons list &optional previous)
   "Remove CONS from LIST. Return (CONS . LIST).
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 If non nil, PREVIOUS removed is used to speed up the process.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
@@ -1259,7 +1259,7 @@ Modifies LIST."
 
 (defun duo-ref-remove (cons reflist &optional previous)
   "Remove CONS from car of REFLIST. Return CONS.
-CONS must reference a cons in car of REFLIST.
+CONS must be a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS removed is used to speed up the process.
 See the docstring of `duo-naive-pop' to know why it doesn’t
@@ -1366,7 +1366,7 @@ Modifies REFLIST."
 (defun duo-teleport-cons-previous (cons moved list &optional
                                         previous-removed previous-inserted)
   "Move MOVED before CONS in LIST. Return (MOVED . LIST).
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 MOVED is the cons of the moved element.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
@@ -1389,7 +1389,7 @@ Modifies LIST."
 
 (defun duo-teleport-cons-next (cons moved list &optional previous)
   "Move MOVED after CONS in LIST. Return (MOVED . LIST).
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 MOVED is the cons of the moved element.
 If non nil, PREVIOUS removed is used to speed up the process.
 The actual new list must be recovered using the returned list.
@@ -1412,7 +1412,7 @@ Modifies LIST."
                                    previous-removed previous-inserted
                                    test-equal)
   "Move MOVED before CONS in LIST. Return (cons of MOVED . LIST).
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 MOVED is the value of the moved element.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
@@ -1431,7 +1431,7 @@ Modifies LIST."
 
 (defun duo-teleport-next (cons moved list &optional previous test-equal)
   "Move MOVED after CONS in LIST. Return (cons of MOVED . LIST).
-CONS must reference a cons in LIST.
+CONS must be a cons in LIST.
 MOVED is the value of the moved element.
 If non nil, PREVIOUS removed is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -1539,7 +1539,7 @@ Modifies LIST."
 (defun duo-ref-teleport-cons-previous (cons moved reflist &optional
                                             previous-removed previous-inserted)
   "Move MOVED before CONS in car of REFLIST. Return MOVED.
-CONS must reference a cons in car of REFLIST.
+CONS must be a cons in car of REFLIST.
 MOVED is the cons of the moved element.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
@@ -1561,7 +1561,7 @@ Modifies REFLIST."
 
 (defun duo-ref-teleport-cons-next (cons moved reflist &optional previous)
   "Move MOVED after CONS in car of REFLIST. Return MOVED.
-CONS must reference a cons in car of REFLIST.
+CONS must be a cons in car of REFLIST.
 MOVED is the cons of the moved element.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS removed is used to speed up the process.
@@ -1587,7 +1587,7 @@ Modifies REFLIST."
                                        previous-removed previous-inserted
                                        test-equal)
   "Move MOVED before CONS in car of REFLIST. Return MOVED.
-CONS must reference a cons in car of REFLIST.
+CONS must be a cons in car of REFLIST.
 MOVED is the value of the moved element.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
@@ -1611,7 +1611,7 @@ Modifies REFLIST."
 
 (defun duo-ref-teleport-next (cons moved reflist &optional previous test-equal)
   "Move MOVED after CONS in car of REFLIST. Return MOVED.
-CONS must reference a cons in car of REFLIST.
+CONS must be a cons in car of REFLIST.
 MOVED is the value of the moved element.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS removed is used to speed up the process.
@@ -1744,7 +1744,7 @@ Modifies REFLIST."
 (defun duo-move-previous (moved list &optional num)
   "Move MOVED to NUM previous place in LIST. Return (MOVED . LIST).
 If range is exceeded, move MOVED at the beginning of the list.
-MOVED must reference a cons in LIST.
+MOVED must be a cons in LIST.
 NUM defaults to 1.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
@@ -1768,7 +1768,7 @@ Modifies LIST."
 (defun duo-move-next (moved list &optional num)
   "Move MOVED to NUM next place in LIST. Return (MOVED . LIST).
 If range is exceeded, move MOVED at the end of the list.
-MOVED must reference a cons in LIST.
+MOVED must be a cons in LIST.
 NUM defaults to 1.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
@@ -1843,7 +1843,7 @@ Modifies LIST."
 (defun duo-circ-move-previous (moved list &optional num)
   "Move MOVED to NUM previous place in LIST. Return (MOVED . LIST).
 Circular : if in beginning of list, go to the end.
-MOVED must reference a cons in LIST.
+MOVED must be a cons in LIST.
 NUM defaults to 1.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
@@ -1867,7 +1867,7 @@ Modifies LIST."
 (defun duo-circ-move-next (moved list &optional num)
   "Move MOVED to NUM next place in LIST. Return (MOVED . LIST).
 Circular : if in end of list, go to the beginning.
-MOVED must reference a cons in LIST.
+MOVED must be a cons in LIST.
 NUM defaults to 1.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
@@ -1942,7 +1942,7 @@ Modifies LIST."
 (defun duo-ref-move-previous (moved reflist &optional num)
   "Move MOVED to NUM previous place in car of REFLIST. Return MOVED.
 If range is exceeded, move MOVED at the beginning of the list.
-MOVED must reference a cons in car of REFLIST.
+MOVED must be a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 NUM defaults to 1.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -1972,7 +1972,7 @@ Modifies REFLIST."
 (defun duo-ref-move-next (moved reflist &optional num)
   "Move MOVED to NUM next place in car of REFLIST. Return MOVED.
 If range is exceeded, move MOVED at the end of the list.
-MOVED must reference a cons in car of REFLIST.
+MOVED must be a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 NUM defaults to 1.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -2065,7 +2065,7 @@ Modifies REFLIST."
 (defun duo-ref-circ-move-previous (moved reflist &optional num)
   "Move MOVED to NUM previous place in car of REFLIST. Return MOVED.
 Circular : if in beginning of list, go to the end.
-MOVED must reference a cons in car of REFLIST.
+MOVED must be a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 NUM defaults to 1.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -2094,7 +2094,7 @@ Modifies REFLIST."
 (defun duo-ref-circ-move-next (moved reflist &optional num)
   "Move MOVED to NUM next place in car of REFLIST. Return MOVED.
 Circular : if in end of list, go to the beginning.
-MOVED must reference a cons in car of REFLIST.
+MOVED must be a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 NUM defaults to 1.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -2180,6 +2180,7 @@ Modifies REFLIST."
 
 (defun duo-exchange-cons (one two list)
   "Exchange cons ONE and TWO in LIST.
+ONE and TWO must be cons in LIST.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
