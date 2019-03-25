@@ -31,7 +31,7 @@
 ;; list when possible. For instance :
 ;;
 ;;   - filter
-;;   - filter-{previous,next,before,after}
+;;   - partition
 ;;
 ;; If in doubt, check their doc.
 ;;
@@ -538,7 +538,7 @@ Common usage :
 \(duo-ref-push-cons reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (setcdr cons (car reflist))
   (setcar reflist cons)
   (car reflist))
@@ -555,7 +555,7 @@ Common usage :
 \(duo-ref-push reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let ((duo (cons elem (car reflist))))
     (setcar reflist duo)
     (car reflist)))
@@ -619,7 +619,7 @@ Modifies LIST."
 ;;; ------------------------------
 
 (defun duo-ref-rotate-left (reflist)
-  "Rotate car of REFLIST to the left. Return REFLIST.
+  "Rotate car of REFLIST to the left. Return car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 Equivalent to pop first element and add it to the end.
 See the docstring of `duo-naive-pop' to know why it doesn’t
@@ -631,18 +631,18 @@ Common usage :
 \(duo-ref-rotate-left reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let ((list (car reflist)))
     ;; Length list > 1
     (if (cdr list)
         (let ((popped (duo-ref-pop reflist)))
           (setq list (car reflist))
           (duo-add-cons popped list)
-          reflist)
-      reflist)))
+          (car reflist))
+      (car reflist))))
 
 (defun duo-ref-rotate-right (reflist)
-  "Rotate car of REFLIST to the right. Return REFLIST.
+  "Rotate car of REFLIST to the right. Return car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 Equivalent to drop last element and push it at the beginning.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -654,34 +654,79 @@ Common usage :
 \(duo-ref-rotate-right reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let ((list (car reflist)))
     ;; Length list > 1
     (if (cdr list)
         (let ((dropped (duo-drop list)))
           (duo-ref-push-cons dropped reflist))
-      reflist)))
+      (car reflist))))
+
+;;; Roll
+;;; ------------------------------------------------------------
+
+(defun duo-roll-cons-to-beg (cons list)
+  "Roll LIST to the left until CONS is at the beginning.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-roll-cons-to-beg list))
+Modifies LIST."
+  )
+
+(defun duo-roll-cons-to-end (cons list)
+  "Roll LIST to the right until CONS is at the end.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-roll-cons-to-end list))
+Modifies LIST."
+  )
+
+;;; Reference
+;;; ------------------------------
 
 ;;; Reverse
 ;;; ------------------------------------------------------------
 
 (defun duo-reverse (list)
   "Reverse LIST. Return LIST.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-reverse list))
 Modifies LIST."
-  (let* ((begin list)
-         (end (duo-last list))
-         (value)
-         (middle))
-    (while (not middle)
-      (if (or (eq begin end)
-              (eq begin (cdr end)))
-          (setq middle t)
-        (setq value (car begin))
-        (setcar begin (car end))
-        (setcar end value)
-        (setq begin (cdr begin))
-        (setq end (duo-previous end list)))))
-  list)
+  (let* ((newlist (duo-last list))
+         (current newlist)
+         (previous (duo-previous current list)))
+    (while previous
+      (setcdr current previous)
+      (setq current previous)
+      (setq previous (duo-previous current list)))
+    (setcdr current nil)
+    newlist))
+
+;;; Reference
+;;; ------------------------------
+
+(defun duo-ref-reverse (reflist)
+  "Reverse car of REFLIST. Return car of REFLIST.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-reverse list))
+Modifies REFLIST."
+  (let* ((list (car reflist))
+         (newlist (duo-last list))
+         (current newlist)
+         (previous (duo-previous current list)))
+    (while previous
+      (setcdr current previous)
+      (setq current previous)
+      (setq previous (duo-previous current list)))
+    (setcdr current nil)
+    (setcar reflist newlist)
+    newlist))
 
 ;;; Insert
 ;;; ------------------------------------------------------------
@@ -852,7 +897,7 @@ Common usage :
 \(duo-ref-insert-cons-previous cons new reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let ((list (car reflist)))
     (if (eq cons list)
         (duo-ref-push-cons new reflist)
@@ -885,7 +930,7 @@ Common usage :
 \(duo-ref-insert-previous cons new reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let ((duo (list new)))
     (duo-ref-insert-cons-previous cons duo reflist previous)))
 
@@ -909,7 +954,7 @@ Common usage :
 \(duo-ref-insert-cons-before elem new reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((test-equal (if test-equal
                          test-equal
                        #'equal))
@@ -942,7 +987,7 @@ Common usage :
 \(duo-ref-insert-before elem new reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((test-equal (if test-equal
                          test-equal
                        #'equal))
@@ -1064,7 +1109,7 @@ Common usage :
 \(duo-ref-remove cons reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let ((list (car reflist)))
     (if (eq cons list)
         (duo-ref-pop reflist)
@@ -1092,7 +1137,7 @@ Common usage :
 \(duo-ref-delete elem reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (test-equal (if test-equal
                          test-equal
@@ -1120,7 +1165,7 @@ Common usage :
 \(duo-ref-delete-all elem reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let ((removed)
         (removed-list)
         (last)
@@ -1332,7 +1377,7 @@ Modifies LIST."
 (defun duo-ref-teleport-cons-previous (cons moved reflist &optional
                                             previous-removed previous-inserted)
   "Move MOVED before CONS in car of REFLIST. Return MOVED.
-CONS must reference a cons in LIST.
+CONS must reference a cons in car of REFLIST.
 MOVED is the cons of the moved element.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
@@ -1346,7 +1391,7 @@ Common usage :
 \(duo-ref-teleport-cons-previous cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (unless (eq cons moved)
     (duo-ref-remove moved reflist previous-removed)
     (duo-ref-insert-cons-previous cons moved reflist previous-inserted))
@@ -1354,7 +1399,7 @@ Modifies LIST."
 
 (defun duo-ref-teleport-cons-next (cons moved reflist &optional previous)
   "Move MOVED after CONS in car of REFLIST. Return MOVED.
-CONS must reference a cons in LIST.
+CONS must reference a cons in car of REFLIST.
 MOVED is the cons of the moved element.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS removed is used to speed up the process.
@@ -1367,7 +1412,7 @@ Common usage :
 \(duo-ref-teleport-cons-next cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (unless (eq cons moved)
     (duo-ref-remove moved reflist previous)
     (duo-insert-cons-next cons moved))
@@ -1380,7 +1425,7 @@ Modifies LIST."
                                        previous-removed previous-inserted
                                        test-equal)
   "Move MOVED before CONS in car of REFLIST. Return MOVED.
-CONS must reference a cons in LIST.
+CONS must reference a cons in car of REFLIST.
 MOVED is the value of the moved element.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
@@ -1396,7 +1441,7 @@ Common usage :
 \(duo-ref-teleport-previous cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (duo (duo-member moved list test-equal)))
     (duo-ref-teleport-cons-previous cons duo reflist
@@ -1404,7 +1449,7 @@ Modifies LIST."
 
 (defun duo-ref-teleport-next (cons moved reflist &optional previous test-equal)
   "Move MOVED after CONS in car of REFLIST. Return MOVED.
-CONS must reference a cons in LIST.
+CONS must reference a cons in car of REFLIST.
 MOVED is the value of the moved element.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS removed is used to speed up the process.
@@ -1419,7 +1464,7 @@ Common usage :
 \(duo-ref-teleport-next cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (duo (duo-member moved list test-equal)))
     (duo-ref-teleport-cons-next cons duo reflist previous)))
@@ -1447,7 +1492,7 @@ Common usage :
 \(duo-ref-teleport-cons-before cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (duo (duo-member elem list test-equal)))
     (duo-ref-teleport-cons-previous duo moved reflist
@@ -1470,7 +1515,7 @@ Common usage :
 \(duo-ref-teleport-cons-after cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (duo (duo-member elem list test-equal)))
     (duo-ref-teleport-cons-next duo moved reflist previous)))
@@ -1498,7 +1543,7 @@ Common usage :
 \(duo-ref-teleport-before cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (elem-cons (duo-member elem list test-equal))
          (moved-cons (duo-member moved list test-equal)))
@@ -1522,7 +1567,7 @@ Common usage :
 \(duo-ref-teleport-after elem moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (elem-cons (duo-member elem list test-equal))
          (moved-cons (duo-member moved list test-equal)))
@@ -1736,7 +1781,7 @@ Modifies LIST."
 (defun duo-ref-move-previous (moved reflist &optional num)
   "Move MOVED to NUM previous place in car of REFLIST. Return MOVED.
 If range is exceeded, move MOVED at the beginning of the list.
-MOVED must reference a cons in LIST.
+MOVED must reference a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 NUM defaults to 1.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -1748,7 +1793,7 @@ Common usage :
 \(duo-ref-move-previous moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -1766,7 +1811,7 @@ Modifies LIST."
 (defun duo-ref-move-next (moved reflist &optional num)
   "Move MOVED to NUM next place in car of REFLIST. Return MOVED.
 If range is exceeded, move MOVED at the end of the list.
-MOVED must reference a cons in LIST.
+MOVED must reference a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 NUM defaults to 1.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -1778,7 +1823,7 @@ Common usage :
 \(duo-ref-move-next moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -1806,7 +1851,7 @@ Common usage :
 \(duo-ref-move-before moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -1841,7 +1886,7 @@ Common usage :
 \(duo-ref-move-after moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -1859,7 +1904,7 @@ Modifies LIST."
 (defun duo-ref-circ-move-previous (moved reflist &optional num)
   "Move MOVED to NUM previous place in car of REFLIST. Return MOVED.
 Circular : if in beginning of list, go to the end.
-MOVED must reference a cons in LIST.
+MOVED must reference a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 NUM defaults to 1.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -1871,7 +1916,7 @@ Common usage :
 \(duo-ref-circ-move-previous moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -1888,7 +1933,7 @@ Modifies LIST."
 (defun duo-ref-circ-move-next (moved reflist &optional num)
   "Move MOVED to NUM next place in car of REFLIST. Return MOVED.
 Circular : if in end of list, go to the beginning.
-MOVED must reference a cons in LIST.
+MOVED must reference a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 NUM defaults to 1.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -1900,7 +1945,7 @@ Common usage :
 \(duo-ref-circ-move-next moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -1925,7 +1970,7 @@ Common usage :
 \(duo-ref-circ-move-before moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -1960,7 +2005,7 @@ Common usage :
 \(duo-ref-circ-move-after moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies LIST."
+Modifies REFLIST."
   (let* ((list (car reflist))
          (num (if num
                   num
