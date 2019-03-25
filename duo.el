@@ -1463,7 +1463,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-teleport-before elem moved list))
-\(setq cons-moved (car pair))
+\(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (let ((duo (duo-member elem list test-equal)))
@@ -1481,7 +1481,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
 \(setq pair (duo-teleport-after elem moved list))
-\(setq cons-moved (car pair))
+\(setq moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (let ((duo (duo-member elem list test-equal)))
@@ -1796,7 +1796,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-before elem list))
-\(setq moved (car pair))
+\(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (let* ((num (if num
@@ -1825,7 +1825,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-after elem list))
-\(setq moved (car pair))
+\(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (let* ((num (if num
@@ -1893,7 +1893,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-before elem list))
-\(setq moved (car pair))
+\(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (let* ((num (if num
@@ -1923,7 +1923,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-after elem list))
-\(setq moved (car pair))
+\(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Modifies LIST."
   (let* ((num (if num
@@ -2174,6 +2174,27 @@ Modifies REFLIST."
          (moved (duo-member elem list test-equal))
          (landmark (duo-circ-next moved list num)))
     (duo-ref-teleport-cons-next landmark moved reflist)))
+
+;;; Exchange
+;;; ------------------------------------------------------------
+
+(defun duo-exchange-cons (one two list)
+  "Exchange cons ONE and TWO in LIST.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-exchange-cons one two list))
+Modifies LIST."
+  (unless (eq one two)
+    (if (eq one list)
+        (duo-exchange-cons two one list)
+      )))
+
+(defun duo-exchange (one two list)
+  "Exchange elements ONE and TWO in LIST.")
+
+;;; Reference
+;;; ------------------------------
 
 ;;; Group
 ;;; ------------------------------------------------------------
