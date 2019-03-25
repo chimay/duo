@@ -665,13 +665,13 @@ Modifies REFLIST."
 ;;; ------------------------------------------------------------
 
 (defun duo-roll-cons-to-beg (cons list &optional previous)
-  "Roll LIST to the left until CONS is at the beginning.
+  "Roll LIST to the left until CONS is at the beginning. Return LIST.
 CONS must reference a cons in LIST.
 If non nil, PREVIOUS is used to speed up the process.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (duo-roll-cons-to-beg list))
+\(setq list (duo-roll-cons-to-beg cons list))
 Modifies LIST."
   (let* ((previous (if previous
                        previous
@@ -688,12 +688,12 @@ Modifies LIST."
       list)))
 
 (defun duo-roll-cons-to-end (cons list)
-  "Roll LIST to the right until CONS is at the end.
+  "Roll LIST to the right until CONS is at the end. Return LIST.
 CONS must reference a cons in LIST.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (duo-roll-cons-to-end list))
+\(setq list (duo-roll-cons-to-end cons list))
 Modifies LIST."
   (let* ((next (cdr cons))
          (last next))
@@ -708,7 +708,7 @@ Modifies LIST."
       list)))
 
 (defun duo-roll-to-beg (elem list &optional previous test-equal)
-  "Roll LIST to the left until ELEM is at the beginning.
+  "Roll LIST to the left until ELEM is at the beginning. Return LIST.
 ELEM must be present in LIST.
 If non nil, PREVIOUS is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
@@ -716,7 +716,7 @@ TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (duo-roll-cons-to-beg list))
+\(setq list (duo-roll-to-beg elem list))
 Modifies LIST."
   (let* ((previous (if previous
                        previous
@@ -727,20 +727,121 @@ Modifies LIST."
     (duo-roll-cons-to-beg duo list previous)))
 
 (defun duo-roll-to-end (elem list &optional test-equal)
-  "Roll LIST to the right until ELEM is at the end.
+  "Roll LIST to the right until ELEM is at the end. Return LIST.
 ELEM must be present in LIST.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (duo-roll-cons-to-end list))
+\(setq list (duo-roll-to-end elem list))
 Modifies LIST."
   (let ((duo (duo-member elem list test-equal)))
     (duo-roll-cons-to-end duo list)))
 
 ;;; Reference
 ;;; ------------------------------
+
+(defun duo-ref-roll-cons-to-beg (cons reflist &optional previous)
+  "Roll car of REFLIST to the left until CONS is at the beginning.
+Return car of REFLIST.
+CONS must reference a cons in car of REFLIST.
+If non nil, PREVIOUS is used to speed up the process.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-roll-cons-to-beg cons reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies car of REFLIST."
+  (let* ((list (car reflist))
+         (previous (if previous
+                       previous
+                     (duo-previous cons list)))
+         (last previous))
+    (when (and (cdr list)
+               previous)
+      (while (cdr last)
+        (setq last (cdr last)))
+      (setcdr previous nil)
+      (setcdr last list)
+      (setcar reflist cons)))
+  (car reflist))
+
+(defun duo-ref-roll-cons-to-end (cons reflist)
+  "Roll car of REFLIST to the right until CONS is at the end.
+Return car of REFLIST.
+CONS must reference a cons in car of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-roll-cons-to-end cons reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies car of REFLIST."
+  (let* ((list (car reflist))
+         (next (cdr cons))
+         (last next))
+    (when (and (cdr list)
+               next)
+      (while (cdr last)
+        (setq last (cdr last)))
+      (setcdr cons nil)
+      (setcdr last list)
+      (setcar reflist next)))
+  (car reflist))
+
+(defun duo-ref-roll-to-beg (elem reflist &optional previous test-equal)
+  "Roll car of REFLIST to the left until ELEM is at the beginning.
+Return car of REFLIST.
+ELEM must be present in car of REFLIST.
+If non nil, PREVIOUS is used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-roll-to-beg elem reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies car of REFLIST."
+  (let* ((list (car reflist))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 test-equal)))
+         (duo (if previous
+                  (cdr previous)
+                list)))
+    (duo-ref-roll-cons-to-beg duo reflist previous)))
+
+(defun duo-ref-roll-to-end (elem reflist &optional test-equal)
+  "Roll car of REFLIST to the right until ELEM is at the end.
+Return car of REFLIST.
+ELEM must be present in car of REFLIST.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-roll-to-end elem reflist)
+;; Update list
+\(setq mylist (car reflist))
+Modifies car of REFLIST."
+  (let* ((list (car reflist))
+         (duo (duo-member elem list test-equal)))
+    (duo-ref-roll-cons-to-end duo reflist)))
 
 ;;; Reverse
 ;;; ------------------------------------------------------------
