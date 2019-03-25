@@ -634,12 +634,11 @@ Common usage :
 Modifies REFLIST."
   (let ((list (car reflist)))
     ;; Length list > 1
-    (if (cdr list)
-        (let ((popped (duo-ref-pop reflist)))
-          (setq list (car reflist))
-          (duo-add-cons popped list)
-          (car reflist))
-      (car reflist))))
+    (when (cdr list)
+      (let ((popped (duo-ref-pop reflist)))
+        (setq list (car reflist))
+        (duo-add-cons popped list))))
+  (car reflist))
 
 (defun duo-ref-rotate-right (reflist)
   "Rotate car of REFLIST to the right. Return car of REFLIST.
@@ -657,10 +656,10 @@ Common usage :
 Modifies REFLIST."
   (let ((list (car reflist)))
     ;; Length list > 1
-    (if (cdr list)
-        (let ((dropped (duo-drop list)))
-          (duo-ref-push-cons dropped reflist))
-      (car reflist))))
+    (when (cdr list)
+      (let ((dropped (duo-drop list)))
+        (duo-ref-push-cons dropped reflist))))
+  (car reflist))
 
 ;;; Roll
 ;;; ------------------------------------------------------------
@@ -672,7 +671,17 @@ See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-roll-cons-to-beg list))
 Modifies LIST."
-  )
+  (let* ((previous (duo-previous cons list))
+         (last previous))
+    (if (and (cdr list)
+             previous)
+        (progn
+          (while (cdr last)
+            (setq last (cdr last)))
+          (setcdr previous nil)
+          (setcdr last list)
+          cons)
+      list)))
 
 (defun duo-roll-cons-to-end (cons list)
   "Roll LIST to the right until CONS is at the end.
@@ -711,10 +720,15 @@ Modifies LIST."
 
 (defun duo-ref-reverse (reflist)
   "Reverse car of REFLIST. Return car of REFLIST.
-The actual new list must be recovered using the returned list.
-See the docstring of `duo-naive-push' to know why.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
 Common usage :
-\(setq list (duo-reverse list))
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-reverse reflist)
+;; Update list
+\(setq mylist (car reflist))
 Modifies REFLIST."
   (let* ((list (car reflist))
          (newlist (duo-last list))
