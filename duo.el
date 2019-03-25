@@ -4,7 +4,7 @@
 
 ;; Author : Chimay
 ;; Name: Duo
-;; Package-Version: 1.1
+;; Package-Version: 1.2
 ;; Package-requires: ((emacs "26"))
 ;; Keywords: lisp, extensions, list, in-place, operation
 ;; URL: https://github.com/chimay/duo
