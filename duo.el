@@ -690,7 +690,17 @@ See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-roll-cons-to-end list))
 Modifies LIST."
-  )
+  (let* ((next (cdr cons))
+         (last next))
+    (if (and (cdr list)
+             next)
+        (progn
+          (while (cdr last)
+            (setq last (cdr last)))
+          (setcdr cons nil)
+          (setcdr last list)
+          next)
+      list)))
 
 ;;; Reference
 ;;; ------------------------------
