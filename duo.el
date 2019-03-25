@@ -182,7 +182,7 @@ Return nil if no matching element is found."
 (defun duo-previous (cons list &optional num)
   "Return cons of NUM elements before CONS in LIST.
 NUM defaults to 1.
-CONS must reference a cons in list."
+CONS must reference a cons in LIST."
   (let* ((num (if num
                   num
                 1))
@@ -247,7 +247,7 @@ TEST-EQUAL defaults do `equal'."
   "Return cons of NUM elements before CONS in LIST.
 Circular : if in beginning of list, go to the end.
 NUM defaults to 1.
-CONS must reference a cons in list.
+CONS must reference a cons in LIST.
 Test with eq."
   (let* ((num (if num
                   num
@@ -664,14 +664,18 @@ Modifies REFLIST."
 ;;; Roll
 ;;; ------------------------------------------------------------
 
-(defun duo-roll-cons-to-beg (cons list)
+(defun duo-roll-cons-to-beg (cons list &optional previous)
   "Roll LIST to the left until CONS is at the beginning.
+CONS must reference a cons in LIST.
+If non nil, PREVIOUS is used to speed up the process.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-roll-cons-to-beg list))
 Modifies LIST."
-  (let* ((previous (duo-previous cons list))
+  (let* ((previous (if previous
+                       previous
+                     (duo-previous cons list)))
          (last previous))
     (if (and (cdr list)
              previous)
@@ -685,6 +689,7 @@ Modifies LIST."
 
 (defun duo-roll-cons-to-end (cons list)
   "Roll LIST to the right until CONS is at the end.
+CONS must reference a cons in LIST.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -701,6 +706,38 @@ Modifies LIST."
           (setcdr last list)
           next)
       list)))
+
+(defun duo-roll-to-beg (elem list &optional previous test-equal)
+  "Roll LIST to the left until ELEM is at the beginning.
+ELEM must be present in LIST.
+If non nil, PREVIOUS is used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-roll-cons-to-beg list))
+Modifies LIST."
+  (let* ((previous (if previous
+                       previous
+                     (duo-before elem list 1 test-equal)))
+         (duo (if previous
+                  (cdr previous)
+                list)))
+    (duo-roll-cons-to-beg duo list previous)))
+
+(defun duo-roll-to-end (elem list &optional test-equal)
+  "Roll LIST to the right until ELEM is at the end.
+ELEM must be present in LIST.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-roll-cons-to-end list))
+Modifies LIST."
+  (let ((duo (duo-member elem list test-equal)))
+    (duo-roll-cons-to-end duo list)))
 
 ;;; Reference
 ;;; ------------------------------
@@ -908,7 +945,7 @@ Modifies LIST."
 
 (defun duo-ref-insert-cons-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return NEW.
-CONS must reference a cons in LIST.
+CONS must reference a cons in car of REFLIST.
 NEW is the cons inserted.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS inserted is used to speed up the process.
@@ -941,7 +978,7 @@ Modifies REFLIST."
 
 (defun duo-ref-insert-previous (cons new reflist &optional previous)
   "Insert NEW before CONS in car of REFLIST. Return cons of NEW.
-CONS must reference a cons in LIST.
+CONS must reference a cons in car of REFLIST.
 NEW is the value of the element inserted.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS inserted is used to speed up the process.
@@ -1121,7 +1158,7 @@ Modifies LIST."
 
 (defun duo-ref-remove (cons reflist &optional previous)
   "Remove CONS from car of REFLIST. Return CONS.
-CONS must reference a cons in LIST.
+CONS must reference a cons in car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
 If non nil, PREVIOUS removed is used to speed up the process.
 See the docstring of `duo-naive-pop' to know why it doesn’t
