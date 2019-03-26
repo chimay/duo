@@ -345,7 +345,7 @@ TEST-EQUAL defaults do `equal'."
   "Replace OLD by NEW in LIST. Return cons of NEW.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-Modifies LIST."
+Destructive."
   (let ((duo (duo-member old list test-equal)))
     (when duo
       (setcar duo new))
@@ -389,14 +389,14 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-push-cons cons list))
-Modifies LIST."
+Destructive."
   (setcdr cons list)
   cons)
 
 (defun duo-add-cons (cons list &optional last)
   "Store CONS at the end of LIST. Return CONS.
 If non nil, LAST is used to speed up the process.
-Modifies LIST."
+Destructive."
   (let ((last (if last
                   last
                 (duo-last list))))
@@ -410,13 +410,13 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-push elem list))
-Modifies LIST."
+Destructive."
   (cons elem list))
 
 (defun duo-add (elem list &optional last)
   "Add ELEM at the end of LIST. Return the new LAST.
 If non nil, LAST is used to speed up the process.
-Modifies LIST."
+Destructive."
   (let ((last (if last
                   last
                 (duo-last list)))
@@ -430,7 +430,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-push-new elem list))
-Modifies LIST."
+Destructive."
   (if (duo-inside cons list)
       list
     (duo-push-cons cons list)))
@@ -438,7 +438,7 @@ Modifies LIST."
 (defun duo-add-new-cons (cons list &optional last)
   "Add CONS at the end of LIST if not already there. Return the new LAST.
 If non nil, LAST is used to speed up the process.
-Modifies LIST."
+Destructive."
   (unless (duo-inside cons list)
     (duo-add-cons cons list last)))
 
@@ -450,7 +450,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-push-new elem list))
-Modifies LIST."
+Destructive."
   (if (duo-member elem list test-equal)
       list
     (duo-push elem list)))
@@ -461,7 +461,7 @@ Return the new LAST or the member found.
 If non nil, LAST is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-Modifies LIST."
+Destructive."
   (unless (duo-member elem list test-equal)
     (duo-add elem list last)))
 
@@ -481,7 +481,7 @@ That’s all folks."
 
 (defun duo-drop (list)
   "Remove last element of LIST. Return cons of removed element.
-Modifies LIST."
+Destructive."
   (let* ((before-last (duo-last list 2))
          (last (cdr before-last)))
     (if last
@@ -493,7 +493,7 @@ Modifies LIST."
 
 (defun duo-truncate (list &optional num)
   "Truncate LIST to its first NUM elements. Return removed part.
-Modifies LIST."
+Destructive."
   (let* ((num (if num
                   num
                 nil))
@@ -515,7 +515,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-push-and-truncate elem list))
-Modifies LIST."
+Destructive."
   (let ((newlist list))
     (setq newlist (duo-push elem list))
     (duo-truncate newlist num)
@@ -538,7 +538,7 @@ Common usage :
 \(duo-ref-push-cons reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (setcdr cons (car reflist))
   (setcar reflist cons)
   (car reflist))
@@ -555,7 +555,7 @@ Common usage :
 \(duo-ref-push reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let ((duo (cons elem (car reflist))))
     (setcar reflist duo)
     (car reflist)))
@@ -591,7 +591,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
 \(setq list (duo-rotate-left list))
-Modifies LIST."
+Destructive."
   ;; Length list > 1
   (if (cdr list)
       (let* ((pair (duo-pop list))
@@ -608,7 +608,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-rotate-right list))
-Modifies LIST."
+Destructive."
   ;; Length list > 1
   (if (cdr list)
       (let ((duo (duo-drop list)))
@@ -631,7 +631,7 @@ Common usage :
 \(duo-ref-rotate-left reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let ((list (car reflist)))
     ;; Length list > 1
     (when (cdr list)
@@ -653,7 +653,7 @@ Common usage :
 \(duo-ref-rotate-right reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let ((list (car reflist)))
     ;; Length list > 1
     (when (cdr list)
@@ -672,7 +672,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-roll-cons-to-beg cons list))
-Modifies LIST."
+Destructive."
   (let* ((previous (if previous
                        previous
                      (duo-previous cons list)))
@@ -694,7 +694,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-roll-cons-to-end cons list))
-Modifies LIST."
+Destructive."
   (let* ((next (cdr cons))
          (last next))
     (if (and (cdr list)
@@ -717,7 +717,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-roll-to-beg elem list))
-Modifies LIST."
+Destructive."
   (let* ((previous (if previous
                        previous
                      (duo-before elem list 1 test-equal)))
@@ -735,7 +735,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-roll-to-end elem list))
-Modifies LIST."
+Destructive."
   (let ((duo (duo-member elem list test-equal)))
     (duo-roll-cons-to-end duo list)))
 
@@ -852,7 +852,7 @@ The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-reverse list))
-Modifies LIST."
+Destructive."
   (let* ((newlist (duo-last list))
          (current newlist)
          (previous (duo-previous current list)))
@@ -877,7 +877,7 @@ Common usage :
 \(duo-ref-reverse reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (newlist (duo-last list))
          (current newlist)
@@ -908,7 +908,7 @@ Common usage :
 \(setq return (duo-insert-cons-previous cons new list))
 \(when (eq (cdr return) list)
   (setq list return))
-Modifies LIST."
+Destructive."
   (if (eq cons list)
       (duo-push-cons new list)
     (let ((previous (if (and previous
@@ -926,7 +926,7 @@ Modifies LIST."
   "Insert NEW after CONS in list. Return NEW.
 CONS must be a cons in LIST.
 NEW is the cons inserted.
-Modifies LIST."
+Destructive."
     (setcdr new (cdr cons))
     (setcdr cons new)
     new)
@@ -946,7 +946,7 @@ Common usage :
 \(setq return (duo-insert-previous cons new list))
 \(when (eq (cdr return) list)
   (setq list return))
-Modifies LIST."
+Destructive."
   (let ((duo (list new)))
     (duo-insert-cons-previous cons duo list previous)))
 
@@ -954,7 +954,7 @@ Modifies LIST."
   "Insert NEW after CONS in list. Return cons of NEW.
 CONS must be a cons in LIST.
 NEW is the value of the element inserted.
-Modifies LIST."
+Destructive."
   (let ((duo (list new)))
     (duo-insert-cons-next cons duo)))
 
@@ -975,7 +975,7 @@ Common usage :
 \(setq return (duo-insert-cons-before cons new list))
 \(when (eq (cdr return) list)
   (setq list return))
-Modifies LIST."
+Destructive."
   (let* ((test-equal (if test-equal
                          test-equal
                        #'equal))
@@ -993,7 +993,7 @@ ELEM must be present in list.
 NEW is the cons inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-Modifies LIST."
+Destructive."
   (let ((duo (duo-member elem list test-equal)))
     (duo-insert-cons-next duo new)))
 
@@ -1014,7 +1014,7 @@ Common usage :
 \(setq return (duo-insert-before cons new list))
 \(when (eq (cdr return) list)
   (setq list return))
-Modifies LIST."
+Destructive."
   (let* ((test-equal (if test-equal
                          test-equal
                        #'equal))
@@ -1033,7 +1033,7 @@ ELEM must be present in list.
 NEW is the value of the element inserted.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
-Modifies LIST."
+Destructive."
   (let ((cons-elem (duo-member elem list test-equal))
         (cons-new (list new)))
     (duo-insert-cons-next cons-elem cons-new)))
@@ -1059,7 +1059,7 @@ Common usage :
 \(duo-ref-insert-cons-previous cons new reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let ((list (car reflist)))
     (if (eq cons list)
         (duo-ref-push-cons new reflist)
@@ -1092,7 +1092,7 @@ Common usage :
 \(duo-ref-insert-previous cons new reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let ((duo (list new)))
     (duo-ref-insert-cons-previous cons duo reflist previous)))
 
@@ -1116,7 +1116,7 @@ Common usage :
 \(duo-ref-insert-cons-before elem new reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((test-equal (if test-equal
                          test-equal
                        #'equal))
@@ -1149,7 +1149,7 @@ Common usage :
 \(duo-ref-insert-before elem new reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((test-equal (if test-equal
                          test-equal
                        #'equal))
@@ -1176,7 +1176,7 @@ Common usage :
 \(setq pair (duo-remove cons list))
 \(setq removed (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (if (eq cons list)
       (duo-pop list)
     (let ((previous (if (and previous
@@ -1199,7 +1199,7 @@ Common usage :
 \(setq pair (duo-delete elem list))
 \(setq removed (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let* ((test-equal (if test-equal
                          test-equal
                        #'equal))
@@ -1222,7 +1222,7 @@ Common usage :
 \(setq pair (duo-delete-all elem list))
 \(setq removed-list (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((newlist list)
         (pair)
         (removed)
@@ -1271,7 +1271,7 @@ Common usage :
 \(duo-ref-remove cons reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let ((list (car reflist)))
     (if (eq cons list)
         (duo-ref-pop reflist)
@@ -1299,7 +1299,7 @@ Common usage :
 \(duo-ref-delete elem reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (test-equal (if test-equal
                          test-equal
@@ -1327,7 +1327,7 @@ Common usage :
 \(duo-ref-delete-all elem reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let ((removed)
         (removed-list)
         (last)
@@ -1376,7 +1376,7 @@ Common usage :
 \(setq pair (duo-teleport-cons-previous cons moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((newlist list)
         (return))
     (unless (eq cons moved)
@@ -1398,7 +1398,7 @@ Common usage :
 \(setq pair (duo-teleport-cons-next cons moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((newlist list))
     (unless (eq cons moved)
       (setq newlist (cdr (duo-remove moved list previous)))
@@ -1424,7 +1424,7 @@ Common usage :
 \(setq pair (duo-teleport-previous cons moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((duo (duo-member moved list test-equal)))
     (duo-teleport-cons-previous cons duo list
                                 previous-removed previous-inserted)))
@@ -1442,7 +1442,7 @@ Common usage :
 \(setq pair (duo-teleport-next cons moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((duo (duo-member moved list test-equal)))
     (duo-teleport-cons-next cons duo list previous)))
 
@@ -1465,7 +1465,7 @@ Common usage :
 \(setq pair (duo-teleport-before elem moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((duo (duo-member elem list test-equal)))
     (duo-teleport-cons-previous duo moved list
                                 previous-removed previous-inserted)))
@@ -1483,7 +1483,7 @@ Common usage :
 \(setq pair (duo-teleport-after elem moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((duo (duo-member elem list test-equal)))
     (duo-teleport-cons-next duo moved list previous)))
 
@@ -1506,7 +1506,7 @@ Common usage :
 \(setq pair (duo-teleport-before elem moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((elem-cons (duo-member elem list test-equal))
         (moved-cons (duo-member moved list test-equal)))
     (duo-teleport-cons-previous elem-cons moved-cons list
@@ -1525,7 +1525,7 @@ Common usage :
 \(setq pair (duo-teleport-after elem moved list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((elem-cons (duo-member elem list test-equal))
         (moved-cons (duo-member moved list test-equal)))
     (duo-teleport-cons-next elem-cons moved-cons list previous)))
@@ -1553,7 +1553,7 @@ Common usage :
 \(duo-ref-teleport-cons-previous cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (unless (eq cons moved)
     (duo-ref-remove moved reflist previous-removed)
     (duo-ref-insert-cons-previous cons moved reflist previous-inserted))
@@ -1574,7 +1574,7 @@ Common usage :
 \(duo-ref-teleport-cons-next cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (unless (eq cons moved)
     (duo-ref-remove moved reflist previous)
     (duo-insert-cons-next cons moved))
@@ -1603,7 +1603,7 @@ Common usage :
 \(duo-ref-teleport-previous cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (duo (duo-member moved list test-equal)))
     (duo-ref-teleport-cons-previous cons duo reflist
@@ -1626,7 +1626,7 @@ Common usage :
 \(duo-ref-teleport-next cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (duo (duo-member moved list test-equal)))
     (duo-ref-teleport-cons-next cons duo reflist previous)))
@@ -1654,7 +1654,7 @@ Common usage :
 \(duo-ref-teleport-cons-before cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (duo (duo-member elem list test-equal)))
     (duo-ref-teleport-cons-previous duo moved reflist
@@ -1677,7 +1677,7 @@ Common usage :
 \(duo-ref-teleport-cons-after cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (duo (duo-member elem list test-equal)))
     (duo-ref-teleport-cons-next duo moved reflist previous)))
@@ -1705,7 +1705,7 @@ Common usage :
 \(duo-ref-teleport-before cons moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (elem-cons (duo-member elem list test-equal))
          (moved-cons (duo-member moved list test-equal)))
@@ -1729,7 +1729,7 @@ Common usage :
 \(duo-ref-teleport-after elem moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (elem-cons (duo-member elem list test-equal))
          (moved-cons (duo-member moved list test-equal)))
@@ -1752,7 +1752,7 @@ Common usage :
 \(setq pair (duo-move-previous moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let* ((num (if num
                   num
                 1))
@@ -1776,7 +1776,7 @@ Common usage :
 \(setq pair (duo-move-next moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let* ((num (if num
                   num
                 1))
@@ -1798,7 +1798,7 @@ Common usage :
 \(setq pair (duo-move-before elem list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let* ((num (if num
                   num
                 1))
@@ -1827,7 +1827,7 @@ Common usage :
 \(setq pair (duo-move-after elem list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let* ((num (if num
                   num
                 1))
@@ -1851,7 +1851,7 @@ Common usage :
 \(setq pair (duo-circ-move-previous moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let* ((num (if num
                   num
                 1))
@@ -1875,7 +1875,7 @@ Common usage :
 \(setq pair (duo-circ-move-next moved list))
 \(setq moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let* ((num (if num
                   num
                 1))
@@ -1895,7 +1895,7 @@ Common usage :
 \(setq pair (duo-move-before elem list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let* ((num (if num
                   num
                 1))
@@ -1925,7 +1925,7 @@ Common usage :
 \(setq pair (duo-move-after elem list))
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let* ((num (if num
                   num
                 1))
@@ -1954,7 +1954,7 @@ Common usage :
 \(duo-ref-move-previous moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -1984,7 +1984,7 @@ Common usage :
 \(duo-ref-move-next moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -2012,7 +2012,7 @@ Common usage :
 \(duo-ref-move-before moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -2047,7 +2047,7 @@ Common usage :
 \(duo-ref-move-after moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -2077,7 +2077,7 @@ Common usage :
 \(duo-ref-circ-move-previous moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -2106,7 +2106,7 @@ Common usage :
 \(duo-ref-circ-move-next moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -2131,7 +2131,7 @@ Common usage :
 \(duo-ref-circ-move-before moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -2166,7 +2166,7 @@ Common usage :
 \(duo-ref-circ-move-after moved reflist)
 ;; Update list
 \(setq mylist (car reflist))
-Modifies REFLIST."
+Destructive."
   (let* ((list (car reflist))
          (num (if num
                   num
@@ -2189,7 +2189,7 @@ Common usage :
 \(setq one (car (car structure)))
 \(setq two (cdr (car structure)))
 \(setq list (cdr structure))
-Modifies LIST."
+Destructive."
   (unless (eq one two)
     (if (eq two list)
         (let ((return)
@@ -2231,7 +2231,7 @@ Common usage :
 \(setq one (car (car structure)))
 \(setq two (cdr (car structure)))
 \(setq list (cdr structure))
-Modifies LIST."
+Destructive."
   (let ((cons-one (duo-member one list test-equal))
         (cons-two (duo-member two list test-equal)))
     (duo-exchange-cons cons-one cons-two list pre-one pre-two)))
@@ -2315,7 +2315,7 @@ Common usage :
 \(setq pair (duo-insert-at-group-beg new list))
 \(setq cons-new (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((newlist list)
         (previous (duo-before new list 1 test-group))
         (duo))
@@ -2340,7 +2340,7 @@ Common usage :
 \(setq pair (duo-insert-at-group-end new list))
 \(setq cons-new (car pair))
 \(setq list (cdr pair))
-Modifies LIST."
+Destructive."
   (let ((newlist list)
         (previous (duo-member new list test-group))
         (duo))
