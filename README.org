@@ -52,22 +52,36 @@ is the second cons in the list. And so one with =(cddr list)=,
 =(CAR . CDR)= double pointers. You can even construct binary trees
 with it.
 
+
 ** Keep It Simple
 
 Primarily use Elisp C source code :
 
   - Built-ins :
+
     + =car=
+
     + =cdr=
+
     + =nthcdr=
+
     + =setcar=
+
     + =setcdr=
+
     + etc
+
   - Special forms :
+
     + =if=
+
     + =cond=
+
     + =while=
+
     + etc
+
+Some functions defined in =subr.el= are also used.
 
 
 * Summary of available functions
