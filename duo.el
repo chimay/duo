@@ -581,6 +581,21 @@ Destructive."
   (setcar reflist cons)
   (car reflist))
 
+(defun duo-ref-add-cons (cons reflist &optional last)
+  "Store CONS at the end of car of REFLIST. Return CONS.
+If non nil, LAST is used to speed up the process.
+Destructive."
+  (let* ((list (car reflist))
+         (last (if last
+                   last
+                 (duo-last list))))
+    (when last
+      (setcdr last cons))
+    (setcdr cons nil)
+    (unless list
+      (setcar reflist cons))
+    cons))
+
 (defun duo-ref-push (elem reflist)
   "Add ELEM at the beginning of the car of REFLIST. Return car of REFLIST.
 REFLIST must be a cons (list . whatever-you-want)
@@ -597,6 +612,21 @@ Destructive."
   (let ((duo (cons elem (car reflist))))
     (setcar reflist duo)
     (car reflist)))
+
+(defun duo-ref-add (elem reflist &optional last)
+  "Add ELEM at the end of car of REFLIST. Return the new LAST.
+If non nil, LAST is used to speed up the process.
+Destructive."
+  (let* ((list (car reflist))
+         (last (if last
+                   last
+                 (duo-last list)))
+         (duo (cons elem nil)))
+    (when last
+      (setcdr last duo))
+    (unless list
+      (setcar reflist duo))
+    duo))
 
 (defun duo-ref-pop (reflist)
   "Remove first element in the car of REFLIST. Return popped cons.
