@@ -126,6 +126,10 @@ OBJECT must be a cons or a list."
 ;;; Find
 ;;; ------------------------------------------------------------
 
+(defun duo-at-index (index list)
+  "Element at INDEX in LIST."
+  (nthcdr index list))
+
 (defun duo-inside (cons list)
   "Return CONS if CONS is in LIST or nil otherwise."
   (let ((duo list))
@@ -147,6 +151,24 @@ TEST-EQUAL defaults do `equal'."
       (setq duo (cdr duo)))
     duo))
 
+(defun duo-index-member (elem list &optional test-equal)
+  "Return (index . cons) of ELEM in LIST.
+ELEM must be present in list.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
+  (let ((duo list)
+        (test-equal (if test-equal
+                        test-equal
+                      #'equal))
+        (index 0))
+    (while (and duo
+                (not (funcall test-equal (car duo) elem)))
+      (setq duo (cdr duo))
+      (setq index (1+ index)))
+    (if duo
+        (cons index duo)
+      nil)))
+
 (defun duo-last (list &optional num)
   "Return cons starting a sublist of NUM elements at the end of LIST.
 NUM defaults to 1 : NUM nil means return cons of last element in LIST."
@@ -157,17 +179,6 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
     (while (nthcdr num last)
       (setq last (cdr last)))
     last))
-
-(defun duo-at-index (index list)
-  "Element at INDEX in LIST."
-  (nthcdr index list))
-
-(defun duo-index (elem list &optional test-equal)
-  "Index of ELEM in LIST.
-ELEM must be present in list.
-TEST-EQUAL takes two arguments and return t if they are considered equals.
-TEST-EQUAL defaults do `equal'."
-  (- (length list) (length (duo-member elem list test-equal))))
 
 ;;; Assoc
 ;;; ------------------------------
