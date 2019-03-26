@@ -153,7 +153,6 @@ TEST-EQUAL defaults do `equal'."
 
 (defun duo-index-member (elem list &optional test-equal)
   "Return (index . cons) of ELEM in LIST or nil if not present.
-ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
   (let ((duo list)
