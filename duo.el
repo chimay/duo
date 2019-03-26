@@ -2377,7 +2377,10 @@ Common usage :
 \(setq cons-new (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let ((newlist list)
+  (let ((test-group (if test-group
+                        test-group
+                      #'equal))
+        (newlist list)
         (previous (duo-member new list test-group))
         (duo))
     (while (and previous

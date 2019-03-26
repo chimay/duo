@@ -203,3 +203,8 @@ The classic =assoc= function return the cons =(key . value)=, which is
 the /content/ of the Alist element, whereas the =duo-assoc= function
 return the duo =((key . value) . next-member-in-alist)=, real member of
 the Alist.
+
+
+# Local Variables:
+# indent-tabs-mode: nil
+# End:
