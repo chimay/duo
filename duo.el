@@ -2437,13 +2437,15 @@ to the list of references."
 
 (defun duo-filter-before (test-filter elem list &optional test-equal)
   "Return reference of element before ELEM in LIST matching TEST-FILTER.
-TEST-EQUAL tests equality of two elements, defaults to `equal'."
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
   (let ((duo (duo-member elem list test-equal)))
     (duo-filter-previous test-filter duo list)))
 
 (defun duo-filter-after (test-filter elem list &optional test-equal)
   "Return reference of element after ELEM in LIST matching TEST-FILTER.
-TEST-EQUAL tests equality of two elements, defaults to `equal'."
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'."
   (let ((duo (duo-member elem list test-equal)))
     (duo-filter-next test-filter duo)))
 
