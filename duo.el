@@ -127,7 +127,7 @@ OBJECT must be a cons or a list."
 ;;; ------------------------------------------------------------
 
 (defun duo-at-index (index list)
-  "Element at INDEX in LIST."
+  "Cons at INDEX in LIST."
   (nthcdr index list))
 
 (defun duo-inside (cons list)
