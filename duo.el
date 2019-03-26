@@ -433,12 +433,13 @@ Destructive."
   "Store CONS at the end of LIST. Return CONS.
 If non nil, LAST is used to speed up the process.
 Destructive."
-  (let ((last (if last
-                  last
-                (duo-last list))))
-    (setcdr last cons)
-    (setcdr cons nil)
-    cons))
+  (when list
+    (let ((last (if last
+                    last
+                  (duo-last list))))
+      (setcdr last cons)
+      (setcdr cons nil)))
+    cons)
 
 (defun duo-push (elem list)
   "Add ELEM at the beginning of LIST. Return LIST.
