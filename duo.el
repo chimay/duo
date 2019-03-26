@@ -93,6 +93,9 @@ OBJECT must be a cons or a list."
 ;;; Predicates
 ;;; ------------------------------------------------------------
 
+;;; Level 1
+;;; ------------------------------
+
 (defun duo-equal-car-p (one two)
   "Whether the car of ONE and TWO are equal."
   (equal (car one) (car two)))
@@ -100,6 +103,25 @@ OBJECT must be a cons or a list."
 (defun duo-equal-cdr-p (one two)
   "Whether the cdr of ONE and TWO are equal."
   (equal (cdr one) (cdr two)))
+
+;;; Level 2
+;;; ------------------------------
+
+(defun duo-equal-caar-p (one two)
+  "Whether the caar of ONE and TWO are equal."
+  (equal (caar one) (caar two)))
+
+(defun duo-equal-cdar-p (one two)
+  "Whether the cdar of ONE and TWO are equal."
+  (equal (cdar one) (cdar two)))
+
+(defun duo-equal-cadr-p (one two)
+  "Whether the cadr of ONE and TWO are equal."
+  (equal (cadr one) (cadr two)))
+
+(defun duo-equal-cddr-p (one two)
+  "Whether the cddr of ONE and TWO are equal."
+  (equal (cddr one) (cddr two)))
 
 ;;; Find
 ;;; ------------------------------------------------------------
