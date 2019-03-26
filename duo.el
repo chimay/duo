@@ -495,7 +495,7 @@ Destructive."
 
 (defun duo-add-new (elem list &optional last test-equal)
   "Add ELEM at the end of LIST if not already there.
-Return the new LAST or the member found.
+Return the new LAST.
 If non nil, LAST is used to speed up the process.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'.
@@ -573,7 +573,7 @@ Common usage :
 \(setq reflist (cons mylist nil))      ; or that
 \(setq reflist (cons mylist whatever)) ; or that
 ;; Modify
-\(duo-ref-push-cons reflist)
+\(duo-ref-push-cons cons reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Destructive."
@@ -584,6 +584,15 @@ Destructive."
 (defun duo-ref-add-cons (cons reflist &optional last)
   "Store CONS at the end of car of REFLIST. Return CONS.
 If non nil, LAST is used to speed up the process.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-add-cons cons reflist)
+;; Update list
+\(setq mylist (car reflist))
 Destructive."
   (let* ((list (car reflist))
          (last (if last
@@ -605,7 +614,7 @@ Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Modify
-\(duo-ref-push reflist)
+\(duo-ref-push elem reflist)
 ;; Update list
 \(setq mylist (car reflist))
 Destructive."
@@ -616,6 +625,15 @@ Destructive."
 (defun duo-ref-add (elem reflist &optional last)
   "Add ELEM at the end of car of REFLIST. Return the new LAST.
 If non nil, LAST is used to speed up the process.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-add elem reflist)
+;; Update list
+\(setq mylist (car reflist))
 Destructive."
   (let* ((list (car reflist))
          (last (if last
@@ -627,6 +645,80 @@ Destructive."
     (unless list
       (setcar reflist duo))
     duo))
+
+(defun duo-ref-push-new-cons (cons reflist)
+  "Add CONS at the beginning of car of REFLIST if not already there.
+Return car of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-push-new-cons cons reflist)
+;; Update list
+\(setq mylist (car reflist))
+Destructive."
+  (let ((list (car reflist)))
+    (if (duo-inside cons list)
+        list
+      (duo-ref-push-cons cons reflist))))
+
+(defun duo-ref-add-new-cons (cons reflist &optional last)
+  "Add CONS at the end of car of REFLIST if not already there.
+Return the new LAST.
+If non nil, LAST is used to speed up the process.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-add-new-cons cons reflist)
+;; Update list
+\(setq mylist (car reflist))
+Destructive."
+  (unless (duo-inside cons (car reflist))
+    (duo-ref-add-cons cons reflist last)))
+
+(defun duo-ref-push-new (elem reflist &optional test-equal)
+  "Add ELEM at the beginning of car of REFLIST if not already there.
+Return car of REFLIST.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-push-new elem reflist)
+;; Update list
+\(setq mylist (car reflist))
+Destructive."
+  (let ((list (car reflist)))
+    (if (duo-member elem list test-equal)
+        list
+      (duo-ref-push elem reflist))))
+
+(defun duo-ref-add-new (elem reflist &optional last test-equal)
+  "Add ELEM at the end of car of REFcar of REFLIST if not already there.
+Return the new LAST.
+If non nil, LAST is used to speed up the process.
+TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-add-new elem reflist)
+;; Update list
+\(setq mylist (car reflist))
+Destructive."
+  (unless (duo-member elem (car reflist) test-equal)
+    (duo-ref-add elem reflist last)))
 
 (defun duo-ref-pop (reflist)
   "Remove first element in the car of REFLIST. Return popped cons.
@@ -648,6 +740,45 @@ That’s all folks."
     (setcar reflist (cdr list))
     (setcdr popped nil)
     popped))
+
+(defun duo-ref-drop (reflist)
+  "Remove last element of car of REFLIST. Return cons of removed element.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-drop reflist)
+;; Update list
+\(setq mylist (car reflist))
+Destructive."
+  (let* ((list (car reflist))
+         (before-last (duo-last list 2))
+         (last (cdr before-last)))
+    (if last
+        (setcdr before-last nil)
+      ;; One element list
+      (setq last (cons (car list) nil))
+      (setcar reflist nil))
+    last))
+
+(defun duo-ref-push-and-truncate (elem reflist &optional num)
+  "Add ELEM at the beginning of car of REFLIST.
+Truncate car of REFLIST to NUM elements. Return car of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-push-and-truncate elem reflist)
+;; Update list
+\(setq mylist (car reflist))
+Destructive."
+  (duo-ref-push elem reflist)
+  (duo-truncate (car reflist) num)
+  (car reflist))
 
 ;;; Rotate <- ->
 ;;; ------------------------------------------------------------
