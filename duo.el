@@ -168,6 +168,8 @@ TEST-EQUAL defaults do `equal'."
         (cons index duo)
       nil)))
 
+;; Just for fun
+
 (defun duo-last (list &optional num)
   "Return cons starting a sublist of NUM elements at the end of LIST.
 NUM defaults to 1 : NUM nil means return cons of last element in LIST."
