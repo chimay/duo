@@ -187,6 +187,7 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
 (defun duo-assoc (key list &optional test-equal)
   "Return cons of first element in LIST whose car equals KEY.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
 Return nil if no matching element is found."
   (let ((duo list)
         (test-equal (if test-equal
@@ -200,6 +201,7 @@ Return nil if no matching element is found."
 (defun duo-reverse-assoc (value list &optional test-equal)
   "Return cons of first element in LIST whose cdr equals VALUE.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
+TEST-EQUAL defaults do `equal'.
 Return nil if no matching element is found."
   (let ((duo list)
         (test-equal (if test-equal
