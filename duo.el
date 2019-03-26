@@ -2554,10 +2554,75 @@ Destructive."
           (duo-insert-next previous new)
           (setq duo (cdr previous)))
       (setq duo (duo-add new newlist)))
+    (unless newlist
+      (setq newlist duo))
     (cons duo newlist)))
 
 ;;; Reference
 ;;; ------------------------------
+
+(defun duo-ref-insert-at-group-beg (new reflist &optional test-group)
+  "Insert NEW in car of REFLIST, at the beginning of a group
+determined by TEST-GROUP.
+If the group is not found, insert at the beginning of car of REFLIST.
+Return cons of NEW.
+NEW is the value of the element inserted.
+TEST-GROUP takes two arguments and returns t if they belongs to the same group.
+TEST-GROUP defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-at-group-beg new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Destructive."
+  (let* ((list (car reflist))
+         (previous (duo-before new list 1 test-group))
+         (duo))
+    (if previous
+        (progn
+          (duo-insert-next previous new)
+          (setq duo (cdr previous)))
+      (duo-ref-push new reflist)
+      (setq duo (car reflist)))
+    duo))
+
+(defun duo-ref-insert-at-group-end (new reflist &optional test-group)
+  "Insert NEW in car of REFLIST, at the end of a group determined by TEST-GROUP.
+If the group is not found, insert at the end of car of REFLIST.
+Return (cons of NEW. car of REFLIST).
+NEW is the value of the element inserted.
+TEST-GROUP takes two arguments and returns t if they belongs to the same group.
+TEST-GROUP defaults do `equal'.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-at-group-end new reflist)
+;; Update list
+\(setq mylist (car reflist))
+Destructive."
+  (let* ((list (car reflist))
+         (test-group (if test-group
+                         test-group
+                       #'equal))
+         (previous (duo-member new list test-group))
+         (duo))
+    (while (and previous
+                (funcall test-group (car (cdr previous)) new))
+      (setq previous (cdr previous)))
+    (if previous
+        (progn
+          (duo-insert-next previous new)
+          (setq duo (cdr previous)))
+      (duo-ref-add new reflist)
+      (setq duo new))
+    duo))
 
 ;;; Filter
 ;;; ------------------------------------------------------------
