@@ -392,13 +392,17 @@ Destructive."
 
 (defun duo-naive-push ()
   "Do not use it on any LIST !
-Adding a cons before the first one without returning the updated list
+Adding a cons before the first one without recovering the updated list
 does not work.
 The calling scope list var holds the address of the first cons of the list.
 The argument list var holds a copy of this address.
 Using (setq list ...) inside the defun changes the argument list reference,
 not the calling scope one. So, the calling scope address remains the same,
-which becomes the address of the second cons of the list."
+which becomes the address of the second cons of the list.
+Some problem may also arise when you push the first element to an emtpy list.
+There are two solutions :
+- Recover the list in the returned structure
+- Pass a one element list containing the list as argument (*-ref-* functions)"
 ;; (let* ((newlist))
 ;;     (setcdr cons list)
 ;;     (setq newlist cons)
@@ -412,7 +416,11 @@ The calling scope list var holds the address of the first cons of the list.
 The argument list var holds a copy of this address.
 Using (setq list ...) inside the defun changes the argument list reference,
 not the calling scope one. So, the calling scope address remains the same,
-which becomes the address of the removed cons."
+which becomes the address of the removed cons.
+Some problem may also arise when you pop the last element from a list.
+There are two solutions :
+- Recover the list in the returned structure
+- Pass a one element list containing the list as argument (*-ref-* functions)"
   ;; (let ((popped list))
   ;;   (setq list (cdr list))
   ;;   (setcdr popped nil)
