@@ -402,7 +402,8 @@ which becomes the address of the second cons of the list.
 Some problem may also arise when you push the first element to an emtpy list.
 There are two solutions :
 - Recover the list in the returned structure
-- Pass a one element list containing the list as argument (*-ref-* functions)"
+- Pass a one element list containing the list as argument (*-ref-* functions)
+That’s all folks."
 ;; (let* ((newlist))
 ;;     (setcdr cons list)
 ;;     (setq newlist cons)
@@ -420,7 +421,8 @@ which becomes the address of the removed cons.
 Some problem may also arise when you pop the last element from a list.
 There are two solutions :
 - Recover the list in the returned structure
-- Pass a one element list containing the list as argument (*-ref-* functions)"
+- Pass a one element list containing the list as argument (*-ref-* functions)
+That’s all folks."
   ;; (let ((popped list))
   ;;   (setq list (cdr list))
   ;;   (setcdr popped nil)
@@ -518,8 +520,7 @@ See the docstring of `duo-naive-pop' to know why.
 Common usage :
 \(setq pair (duo-pop list))
 \(setq popped (car pair))
-\(setq list (cdr pair))
-That’s all folks."
+\(setq list (cdr pair))"
   (let ((popped list)
         (newlist (cdr list)))
     (setcdr popped nil)
@@ -527,14 +528,19 @@ That’s all folks."
 
 (defun duo-drop (list)
   "Remove last element of LIST. Return cons of removed element.
+If the list had only one element before the operation,
+it must be manually set to nil after that.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq dropped (duo-drop list))
+\(when (eq dropped list)
+  (setq list nil))
 Destructive."
   (let* ((before-last (duo-last list 2))
          (last (cdr before-last)))
     (if last
         (setcdr before-last nil)
-      ;; One element list
-      (setq last (cons (car list) nil))
-      (setcar list nil))
+      (setq last list))
     last))
 
 (defun duo-truncate (list &optional num)
@@ -741,8 +747,7 @@ Common usage :
 ;; Modify
 \(setq popped (duo-ref-pop reflist))
 ;; Update list
-\(setq mylist (car reflist))
-That’s all folks."
+\(setq mylist (car reflist))"
   (let* ((list (car reflist))
          (popped list))
     (setcar reflist (cdr list))
@@ -767,7 +772,7 @@ Destructive."
     (if last
         (setcdr before-last nil)
       ;; One element list
-      (setq last (cons (car list) nil))
+      (setq last list)
       (setcar reflist nil))
     last))
 
@@ -861,11 +866,10 @@ Common usage :
 ;; Update list
 \(setq mylist (car reflist))
 Destructive."
-  (let ((list (car reflist)))
-    ;; Length list > 1
-    (when (cdr list)
-      (let ((dropped (duo-drop list)))
-        (duo-ref-push-cons dropped reflist))))
+  ;; Length list > 1
+  (when (cdr (car reflist))
+    (let ((dropped (duo-ref-drop reflist)))
+      (duo-ref-push-cons dropped reflist)))
   (car reflist))
 
 ;;; Roll
