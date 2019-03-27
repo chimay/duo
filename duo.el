@@ -4,7 +4,7 @@
 
 ;; Author : Chimay
 ;; Name: Duo
-;; Package-Version: 1.2
+;; Package-Version: 1.3
 ;; Package-requires: ((emacs "26"))
 ;; Keywords: lisp, extensions, list, in-place, operation
 ;; URL: https://github.com/chimay/duo
@@ -93,35 +93,56 @@ OBJECT must be a cons or a list."
 ;;; Predicates
 ;;; ------------------------------------------------------------
 
+;;; Level 0
+;;; ------------------------------
+
+(defun duo-equal-p (one two)
+  "Whether the car of ONE and TWO are equal."
+  (when (and (consp one)
+             (consp two))
+    (equal one two)))
+
 ;;; Level 1
 ;;; ------------------------------
 
 (defun duo-equal-car-p (one two)
   "Whether the car of ONE and TWO are equal."
-  (equal (car one) (car two)))
+  (when (and (consp one)
+             (consp two))
+    (equal (car one) (car two))))
 
 (defun duo-equal-cdr-p (one two)
   "Whether the cdr of ONE and TWO are equal."
-  (equal (cdr one) (cdr two)))
+  (when (and (consp one)
+             (consp two))
+    (equal (cdr one) (cdr two))))
 
 ;;; Level 2
 ;;; ------------------------------
 
 (defun duo-equal-caar-p (one two)
   "Whether the caar of ONE and TWO are equal."
-  (equal (caar one) (caar two)))
+  (when (and (consp one)
+             (consp two))
+    (equal (caar one) (caar two))))
 
 (defun duo-equal-cdar-p (one two)
   "Whether the cdar of ONE and TWO are equal."
-  (equal (cdar one) (cdar two)))
+  (when (and (consp one)
+             (consp two))
+    (equal (cdar one) (cdar two))))
 
 (defun duo-equal-cadr-p (one two)
   "Whether the cadr of ONE and TWO are equal."
-  (equal (cadr one) (cadr two)))
+  (when (and (consp one)
+             (consp two))
+    (equal (cadr one) (cadr two))))
 
 (defun duo-equal-cddr-p (one two)
   "Whether the cddr of ONE and TWO are equal."
-  (equal (cddr one) (cddr two)))
+  (when (and (consp one)
+             (consp two))
+    (equal (cddr one) (cddr two))))
 
 ;;; Find
 ;;; ------------------------------------------------------------
