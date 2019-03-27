@@ -172,6 +172,7 @@ TEST-EQUAL defaults do `equal'."
 
 (defun duo-last (list &optional num)
   "Return cons starting a sublist of NUM elements at the end of LIST.
+If NUM exceeds the length of LIST, return LIST.
 NUM defaults to 1 : NUM nil means return cons of last element in LIST."
   (let ((num (if num
                  num
@@ -255,12 +256,20 @@ TEST-EQUAL defaults do `equal'."
                     num
                   1))
            (duo list)
-           (scout (nthcdr num duo)))
+           (scout (nthcdr num duo))
+           (scan))
       (while (and duo
                   (not (funcall test-equal (car scout) elem))
                   (not (funcall test-equal (car duo) elem)))
         (setq duo (cdr duo))
         (setq scout (cdr scout)))
+      ;; duo -> nil if it’s not the first occurrence
+      (setq scan duo)
+      (while (not (eq scan scout))
+        (when (funcall test-equal (car scan) elem)
+          (setq duo nil))
+        (setq scan (cdr scan)))
+      ;; If it matches, return it
       (if (funcall test-equal (car scout) elem)
           duo
         nil))))

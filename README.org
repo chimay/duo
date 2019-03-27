@@ -55,27 +55,23 @@ with it.
 
 ** Keep It Simple
 
-Primarily use Elisp C source code :
+Primarily use Elisp tools from C source code :
 
   - Built-ins :
 
-    + =car=
+    + =cons=, =list=
 
-    + =cdr=
+    + =car=, =cdr=
 
-    + =nthcdr=
+    + =setcar=, =setcdr=
 
-    + =setcar=
-
-    + =setcdr=
+    + =nth=, =nthcdr=
 
     + etc
 
   - Special forms :
 
-    + =if=
-
-    + =cond=
+    + =if=, =cond=
 
     + =while=
 
