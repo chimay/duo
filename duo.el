@@ -300,8 +300,7 @@ Test with eq."
       (setq duo (cdr duo))
       (setq scout (cdr scout))
       (setq iter (1+ iter)))
-    (if (eq scout cons)
-        duo
+    (unless (eq scout cons)
       (setq duo list)
       (setq scout (nthcdr (- num iter) duo))
       (while (and duo
