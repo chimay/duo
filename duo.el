@@ -225,7 +225,7 @@ CONS must be a cons in LIST."
                 1))
          (duo list)
          (scout (nthcdr num duo)))
-    (while (and duo
+    (while (and scout
                 (not (eq scout cons))
                 (not (eq duo cons)))
       (setq duo (cdr duo))
@@ -249,30 +249,34 @@ NUM defaults to 1.
 ELEM must be present in list.
 TEST-EQUAL takes two arguments and return t if they are considered equals.
 TEST-EQUAL defaults do `equal'."
-  (let ((test-equal (if test-equal
-                        test-equal
-                      #'equal)))
-    (let* ((num (if num
-                    num
-                  1))
-           (duo list)
-           (scout duo)
-           (iter 0))
-      ;; We want the cons before the _first_ occurrence
-      (while (< iter num)
-        (when (funcall test-equal (car scout) elem)
-          (setq duo nil))
-        (setq scout (cdr scout))
-        (setq iter (1+ iter)))
-      ;; If it’ok, we go on
-      (while (and duo
-                  (not (funcall test-equal (car scout) elem))
-                  (not (funcall test-equal (car duo) elem)))
-        (setq duo (cdr duo))
-        (setq scout (cdr scout)))
+  (let* ((num (if num
+                  num
+                1))
+         (test-equal (if test-equal
+                         test-equal
+                       #'equal))
+         (duo list)
+         (scout duo)
+         (iter 0))
+    ;; We want the cons before the _first_ occurrence
+    (while (< iter num)
       (if (funcall test-equal (car scout) elem)
-          duo
-        nil))))
+          (progn
+            (setq duo nil)
+            (setq scout nil)
+            (setq iter num))
+        (setq scout (cdr scout))
+        (setq iter (1+ iter))))
+    ;; If it’ok, we go on
+    (while (and scout
+                (not (funcall test-equal (car scout) elem))
+                (not (funcall test-equal (car duo) elem)))
+      (setq duo (cdr duo))
+      (setq scout (cdr scout)))
+    (if (and scout
+             (funcall test-equal (car scout) elem))
+        duo
+      nil)))
 
 (defun duo-after (elem list &optional num test-equal)
   "Return cons of NUM elements after ELEM in LIST.
@@ -349,22 +353,35 @@ TEST-EQUAL defaults do `equal'."
   (let* ((num (if num
                   num
                 1))
-         (duo list)
-         (scout (nthcdr num duo))
          (test-equal (if test-equal
                          test-equal
                        #'equal))
+         (duo list)
+         (scout duo)
          (iter 0))
-    (unless scout
-      (setq num (mod num (length list)))
-      (setq scout (nthcdr num duo)))
-    (while (and duo
-                (not (funcall test-equal (car scout) elem))
-                (not (funcall test-equal (car duo) elem)))
-      (setq duo (cdr duo))
-      (setq scout (cdr scout))
-      (setq iter (1+ iter)))
-    (unless (funcall test-equal (car scout) elem)
+    ;; We want the cons before the _first_ occurrence
+    (while (and scout
+                (< iter num))
+      (if (funcall test-equal (car scout) elem)
+          (progn
+            (setq duo nil)
+            (setq scout nil))
+        (setq scout (cdr scout))
+        (setq iter (1+ iter))))
+    ;; If it’ok, we go on
+    (when duo
+      (setq iter 0)
+      (when (not scout)
+        (setq num (mod num (length list)))
+        (setq scout (nthcdr num duo)))
+      (while (and duo
+                  (not (funcall test-equal (car scout) elem))
+                  (not (funcall test-equal (car duo) elem)))
+        (setq duo (cdr duo))
+        (setq scout (cdr scout))
+        (setq iter (1+ iter))))
+    (unless (and scout
+                 (funcall test-equal (car scout) elem))
       (setq duo list)
       (setq scout (nthcdr (- num iter) duo))
       (while (and duo
