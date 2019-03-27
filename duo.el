@@ -1532,7 +1532,10 @@ Destructive."
          (duo (if (funcall test-equal (car list) elem)
                   list
                 (cdr previous))))
-    (duo-ref-remove duo reflist previous)))
+    (if (and duo
+             list)
+        (duo-ref-remove duo reflist previous)
+      nil)))
 
 (defun duo-ref-delete-all (elem reflist &optional test-equal)
   "Delete all elements equals to ELEM from car of REFLIST.
