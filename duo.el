@@ -256,20 +256,20 @@ TEST-EQUAL defaults do `equal'."
                     num
                   1))
            (duo list)
-           (scout (nthcdr num duo))
-           (scan))
+           (scout duo)
+           (iter 0))
+      ;; We want the cons before the _first_ occurrence
+      (while (< iter num)
+        (when (funcall test-equal (car scout) elem)
+          (setq duo nil))
+        (setq scout (cdr scout))
+        (setq iter (1+ iter)))
+      ;; If it’ok, we go on
       (while (and duo
                   (not (funcall test-equal (car scout) elem))
                   (not (funcall test-equal (car duo) elem)))
         (setq duo (cdr duo))
         (setq scout (cdr scout)))
-      ;; duo -> nil if it’s not the first occurrence
-      (setq scan duo)
-      (while (not (eq scan scout))
-        (when (funcall test-equal (car scan) elem)
-          (setq duo nil))
-        (setq scan (cdr scan)))
-      ;; If it matches, return it
       (if (funcall test-equal (car scout) elem)
           duo
         nil))))
@@ -1428,7 +1428,10 @@ Destructive."
          (duo (if (funcall test-equal (car list) elem)
                   list
                 (cdr previous))))
-    (duo-remove duo list previous)))
+    (if (and duo
+             list)
+        (duo-remove duo list previous)
+      (cons nil list))))
 
 (defun duo-delete-all (elem list &optional test-equal)
   "Delete all elements equals to ELEM from LIST.
