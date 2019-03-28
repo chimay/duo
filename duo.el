@@ -110,6 +110,13 @@ LIST must be a cons."
             ((eq oldlist (cdr reflist)) (setcdr reflist list))))
     reflist))
 
+(defun duo-ref-frame (reflist &optional list last)
+  "Set car of REFLIST to LIST and cdr of REFLIST to LAST in LIST."
+  (when list
+    (setcar reflist list))
+  (when last
+    (setcdr reflist last)))
+
 ;;; Predicates
 ;;; ------------------------------------------------------------
 
