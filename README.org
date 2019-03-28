@@ -13,6 +13,7 @@
   - [[#remove-vs-delete][Remove vs Delete]]
   - [[#returned-objects][Returned objects]]
   - [[#assoc][Assoc]]
+- [[#warning][Warning]]
 
 * Introduction
 
@@ -200,6 +201,10 @@ the /content/ of the Alist element, whereas the =duo-assoc= function
 return the duo =((key . value) . next-member-in-alist)=, real member of
 the Alist.
 
+
+* Warning
+
+Despite abundant testing, some bugs might remain, so be careful.
 
 # Local Variables:
 # indent-tabs-mode: nil
