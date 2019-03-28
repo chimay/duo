@@ -124,9 +124,9 @@ LIST must be a cons."
 ;;; ------------------------------
 
 (defun duo-equal-p (one two)
-  "Whether the car of ONE and TWO are equal."
-  (when (and (consp one)
-             (consp two))
+  "Whether cons ONE and TWO are equal.
+Return nil if ONE and TWO are distincts or not cons."
+  (when (consp one)
     (equal one two)))
 
 ;;; Level 1
