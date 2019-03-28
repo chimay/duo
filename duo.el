@@ -632,7 +632,7 @@ Destructive."
     tail))
 
 (defun duo-push-and-truncate (elem list &optional num)
-  "Add ELEM at the beginning of LIST. Truncate LIST to NUM elements.
+  "Add ELEM at the beginning of LIST. Truncate LIST to its first NUM elements.
 Return LIST.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
@@ -643,6 +643,28 @@ Destructive."
     (setq newlist (duo-push elem list))
     (duo-truncate newlist num)
     newlist))
+
+(defun duo-add-and-clip (elem list &optional num length last)
+  "Add ELEM at the end of LIST. Truncate LIST to its last NUM elements.
+Return (new LAST . LIST).
+If non nil, LENGTH is used to speed up the process.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-add-and-clip elem list num))
+\(setq added (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((length (if length
+                    length
+                  (length list)))
+        (added (duo-add elem list last)))
+    (when added
+      (setq length (1+ length)))
+    (while (> length num)
+      (setq list (cdr (duo-pop list)))
+      (setq length (1- length)))
+    (cons added list)))
 
 ;;; Reference
 ;;; ------------------------------
@@ -857,7 +879,7 @@ Destructive."
 
 (defun duo-ref-push-and-truncate (elem reflist &optional num)
   "Add ELEM at the beginning of list referenced by REFLIST.
-Truncate list referenced by REFLIST to NUM elements.
+Truncate list referenced by REFLIST to its first NUM elements.
 Return list referenced by REFLIST.
 See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -866,13 +888,41 @@ Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Modify
-\(duo-ref-push-and-truncate elem reflist)
+\(duo-ref-push-and-truncate elem reflist num)
 ;; Update list
 \(setq mylist (duo-deref reflist))
 Destructive."
   (duo-ref-push elem reflist)
   (duo-truncate (duo-deref reflist) num)
   (duo-deref reflist))
+
+(defun duo-ref-add-and-clip (elem reflist &optional num length last)
+  "Add ELEM at the end of list referenced by REFLIST.
+Truncate list referenced by REFLIST to its last NUM elements.
+Return the new LAST.
+If non nil, LENGTH is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-add-and-clip elem reflist num)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (length (if length
+                     length
+                   (length list)))
+         (added (duo-ref-add elem reflist last)))
+    (when added
+      (setq length (1+ length)))
+    (while (> length num)
+      (duo-ref-pop reflist)
+      (setq length (1- length)))
+    added))
 
 ;;; Rotate <- ->
 ;;; ------------------------------------------------------------
