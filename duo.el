@@ -189,7 +189,7 @@ Return nil if ONE and TWO are distincts or not cons."
 (defun duo-member (elem list &optional fn-equal)
   "Return cons of ELEM in LIST or nil if ELEM is not in list.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (let ((duo list)
         (fn-equal (if fn-equal
                         fn-equal
@@ -202,7 +202,7 @@ FN-EQUAL defaults do `equal'."
 (defun duo-index-member (elem list &optional fn-equal)
   "Return (index . cons) of ELEM in LIST or nil if not present.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (let ((duo list)
         (fn-equal (if fn-equal
                         fn-equal
@@ -236,7 +236,7 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
 (defun duo-assoc (key list &optional fn-equal)
   "Return cons of first element in LIST whose car equals KEY.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 Return nil if no matching element is found."
   (let ((duo list)
         (fn-equal (if fn-equal
@@ -250,7 +250,7 @@ Return nil if no matching element is found."
 (defun duo-reverse-assoc (value list &optional fn-equal)
   "Return cons of first element in LIST whose cdr equals VALUE.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 Return nil if no matching element is found."
   (let ((duo list)
         (fn-equal (if fn-equal
@@ -296,7 +296,7 @@ CONS must be a cons in the list."
 NUM defaults to 1.
 ELEM must be present in list.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (let* ((num (if num
                   num
                 1))
@@ -331,7 +331,7 @@ FN-EQUAL defaults do `equal'."
 NUM defaults to 1.
 ELEM must be present in list.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (let ((num (if num
                  num
                1)))
@@ -397,7 +397,7 @@ Circular : if in beginning of list, go to the end.
 NUM defaults to 1.
 ELEM must be present in list.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (let* ((num (if num
                   num
                 1))
@@ -444,7 +444,7 @@ Circular : if in end of list, go to the beginning.
 NUM defaults to 1.
 ELEM must be present in list.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (duo-circ-next (duo-member elem list fn-equal) list num))
 
 ;;; Change
@@ -453,7 +453,7 @@ FN-EQUAL defaults do `equal'."
 (defun duo-change (old new list &optional fn-equal)
   "Replace OLD by NEW in LIST. Return cons of NEW.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((duo (duo-member old list fn-equal)))
     (when duo
@@ -463,7 +463,7 @@ Destructive."
 (defun duo-change-all (old new list &optional fn-equal)
   "Replace all occurences of OLD by NEW in LIST. Return LIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((fn-equal (if fn-equal
                       fn-equal
@@ -579,7 +579,7 @@ Destructive."
 (defun duo-push-new (elem list &optional fn-equal)
   "Add ELEM at the beginning of LIST if not already there. Return LIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -594,7 +594,7 @@ Destructive."
 Return the new LAST.
 If non nil, LAST is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 Destructive."
   (unless (duo-member elem list fn-equal)
     (duo-add elem list last)))
@@ -812,7 +812,7 @@ Destructive."
 Return list referenced by REFLIST.
 See `duo-deref' for the format of REFLIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -835,7 +835,7 @@ Return the new LAST.
 See `duo-deref' for the format of REFLIST.
 If non nil, LAST is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -1071,7 +1071,7 @@ Destructive."
 ELEM must be present in LIST.
 If non nil, PREVIOUS is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -1089,7 +1089,7 @@ Destructive."
   "Roll LIST to the right until ELEM is at the end. Return LIST.
 ELEM must be present in LIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -1165,7 +1165,7 @@ ELEM must be present in list referenced by REFLIST.
 See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1191,7 +1191,7 @@ Return list referenced by REFLIST.
 ELEM must be present in list referenced by REFLIST.
 See `duo-deref' for the format of REFLIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1331,7 +1331,7 @@ ELEM must be present in list.
 NEW is the cons inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
 See the docstring of `duo-naive-push' to know why.
@@ -1356,7 +1356,7 @@ Destructive."
 ELEM must be present in list.
 NEW is the cons inserted.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((duo (duo-member elem list fn-equal)))
     (duo-insert-cons-next duo new)))
@@ -1370,7 +1370,7 @@ ELEM must be present in list.
 NEW is the value of the element inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
 See the docstring of `duo-naive-push' to know why.
@@ -1396,7 +1396,7 @@ Destructive."
 ELEM must be present in list.
 NEW is the value of the element inserted.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((cons-elem (duo-member elem list fn-equal))
         (cons-new (list new)))
@@ -1470,7 +1470,7 @@ NEW is the cons inserted.
 See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS inserted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1503,7 +1503,7 @@ NEW is the value of the element inserted.
 See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS inserted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1555,7 +1555,7 @@ Destructive."
 (defun duo-delete (elem list &optional previous fn-equal)
   "Delete ELEM from LIST. Return (removed-cons . LIST).
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 If non nil, PREVIOUS removed is used to speed up the process.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
@@ -1582,7 +1582,7 @@ Destructive."
   "Delete all elements equals to ELEM from LIST.
 Return (list-of-removed-cons . LIST).
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -1656,7 +1656,7 @@ Destructive."
 See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS deleted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1687,7 +1687,7 @@ Destructive."
 Return list of removed cons.
 See `duo-deref' for the format of REFLIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1787,7 +1787,7 @@ MOVED is the value of the moved element.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -1805,7 +1805,7 @@ CONS must be a cons in LIST.
 MOVED is the value of the moved element.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -1828,7 +1828,7 @@ MOVED is the cons of the moved element.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -1846,7 +1846,7 @@ ELEM must be present in list.
 MOVED is the cons of the moved element.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -1869,7 +1869,7 @@ MOVED is the value of the moved element.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -1888,7 +1888,7 @@ ELEM must be present in list.
 MOVED is the value of the moved element.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -1963,7 +1963,7 @@ See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1986,7 +1986,7 @@ MOVED is the value of the moved element.
 See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2014,7 +2014,7 @@ See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2037,7 +2037,7 @@ MOVED is the cons of the moved element.
 See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2065,7 +2065,7 @@ See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2089,7 +2089,7 @@ MOVED is the value of the moved element.
 See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2161,7 +2161,7 @@ If range is exceeded, move ELEM at the beginning of the list.
 MOVED is the moved value.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -2190,7 +2190,7 @@ If range is exceeded, move MOVED at the end of the list.
 MOVED is the moved value.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -2258,7 +2258,7 @@ Circular : if in beginning of list, go to the end.
 MOVED is the moved value.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -2288,7 +2288,7 @@ Circular : if in end of list, go to the beginning.
 MOVED is the moved value.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -2372,7 +2372,7 @@ MOVED is the moved value.
 See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2407,7 +2407,7 @@ MOVED is the moved value.
 See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2491,7 +2491,7 @@ MOVED is the moved value.
 See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2526,7 +2526,7 @@ MOVED is the moved value.
 See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2593,7 +2593,7 @@ Destructive."
 ONE and TWO must be present in LIST.
 If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -2656,7 +2656,7 @@ ONE and TWO must be present in list referenced by REFLIST.
 See `duo-deref' for the format of REFLIST.
 If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'.
+FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -2675,13 +2675,124 @@ Modifies list referenced by REFLIST."
 ;;; Group
 ;;; ------------------------------------------------------------
 
+;;; Next / Previous
+;;; ------------------------------
+
+(defun duo-previous-in-group (cons list &optional fn-group)
+  "Return cons of previous element of CONS in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((duo list)
+        (previous))
+    (while (and duo
+                (not (eq duo cons)))
+      (when (funcall fn-group (car duo) (car cons))
+        (setq previous duo))
+      (setq duo (cdr duo)))
+    previous))
+
+(defun duo-next-in-group (cons &optional fn-group)
+  "Return cons of next element of CONS in list matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((next (cdr cons)))
+    (while (and next
+                (not (funcall fn-group (car next) (car cons))))
+      (setq next (cdr next)))
+    next))
+
+(defun duo-before-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element before ELEM in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-previous-in-group duo list fn-group)))
+
+(defun duo-after-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element after ELEM in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-next-in-group duo fn-group)))
+
+;;; Circular
+;;; ------------------------------
+
+(defun duo-circ-previous-in-group (cons list &optional fn-group)
+  "Return cons of previous element of CONS in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (if (eq cons list)
+      (duo-previous-in-group (duo-last list)
+                             list
+                             fn-group)
+    (let ((duo list)
+          (previous))
+      (while (and duo
+                  (not (eq duo cons)))
+        (when (funcall fn-group (car duo) (car cons))
+          (setq previous duo))
+        (setq duo (cdr duo)))
+      (unless previous
+        (setq duo (cdr duo))
+        (while duo
+          (when (funcall fn-group (car duo))
+            (setq previous duo))
+          (setq duo (cdr duo))))
+      previous)))
+
+(defun duo-circ-next-in-group (cons list &optional fn-group)
+  "Return cons of next element of CONS in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((next (cdr cons)))
+    (while (and next
+                (not (funcall fn-group (car next) (car cons))))
+      (setq next (cdr next)))
+    (if next
+        next
+      (duo-next-in-group list fn-group))))
+
+(defun duo-circ-before-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element before ELEM in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-circ-previous-in-group duo list fn-group)))
+
+(defun duo-circ-after-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element after ELEM in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-circ-next-in-group duo list fn-group)))
+
+;;; Insert
+;;; ------------------------------
+
 (defun duo-insert-at-group-beg (new list &optional fn-group)
   "Insert NEW in LIST, at the beginning of a group determined by FN-GROUP.
 If the group is not found, insert at the beginning of LIST.
 Return (cons of NEW . LIST).
 NEW is the value of the element inserted.
 FN-GROUP takes two arguments and returns t if they belongs to the same group.
-FN-GROUP defaults do `equal'.
+FN-GROUP defaults to `equal'.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -2706,7 +2817,7 @@ If the group is not found, insert at the end of LIST.
 Return (cons of NEW. LIST).
 NEW is the value of the element inserted.
 FN-GROUP takes two arguments and returns t if they belongs to the same group.
-FN-GROUP defaults do `equal'.
+FN-GROUP defaults to `equal'.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -2744,7 +2855,7 @@ Return cons of NEW.
 NEW is the value of the element inserted.
 See `duo-deref' for the format of REFLIST.
 FN-GROUP takes two arguments and returns t if they belongs to the same group.
-FN-GROUP defaults do `equal'.
+FN-GROUP defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -2774,7 +2885,7 @@ Return (cons of NEW. list referenced by REFLIST).
 NEW is the value of the element inserted.
 See `duo-deref' for the format of REFLIST.
 FN-GROUP takes two arguments and returns t if they belongs to the same group.
-FN-GROUP defaults do `equal'.
+FN-GROUP defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -2806,10 +2917,9 @@ Destructive."
 ;;; ------------------------------------------------------------
 
 (defun duo-filter (fn-filter list)
-  "Return list of references to elements of LIST matching FN-FILTER.
-LIST is not modified.
-FN-FILTER takes one argument and return t if it must belong
-to the list of references."
+  "Return list of elements in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
+LIST is not modified."
   (let ((duo list)
         (new)
         (last)
@@ -2828,7 +2938,8 @@ to the list of references."
 ;;; ------------------------------
 
 (defun duo-filter-previous (fn-filter cons list)
-  "Return reference of previous element of CONS in LIST matching FN-FILTER."
+  "Return cons of previous element of CONS in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter."
   (let ((duo list)
         (previous))
     (while (and duo
@@ -2839,7 +2950,8 @@ to the list of references."
     previous))
 
 (defun duo-filter-next (fn-filter cons)
-  "Return reference of next element of CONS in list matching FN-FILTER."
+  "Return cons of next element of CONS in list matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter."
   (let ((next (cdr cons)))
     (while (and next
                 (not (funcall fn-filter (car next))))
@@ -2847,16 +2959,18 @@ to the list of references."
     next))
 
 (defun duo-filter-before (fn-filter elem list &optional fn-equal)
-  "Return reference of element before ELEM in LIST matching FN-FILTER.
+  "Return cons of element before ELEM in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (let ((duo (duo-member elem list fn-equal)))
     (duo-filter-previous fn-filter duo list)))
 
 (defun duo-filter-after (fn-filter elem list &optional fn-equal)
-  "Return reference of element after ELEM in LIST matching FN-FILTER.
+  "Return cons of element after ELEM in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (let ((duo (duo-member elem list fn-equal)))
     (duo-filter-next fn-filter duo)))
 
@@ -2864,7 +2978,8 @@ FN-EQUAL defaults do `equal'."
 ;;; ------------------------------
 
 (defun duo-circ-filter-previous (fn-filter cons list)
-  "Return reference of previous element of CONS in LIST matching FN-FILTER."
+  "Return cons of previous element of CONS in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter."
   (if (eq cons list)
       (duo-filter-previous fn-filter
                               (duo-last list)
@@ -2885,7 +3000,8 @@ FN-EQUAL defaults do `equal'."
       previous)))
 
 (defun duo-circ-filter-next (fn-filter cons list)
-  "Return reference of next element of CONS in LIST matching FN-FILTER."
+  "Return cons of next element of CONS in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter."
   (let ((next (cdr cons)))
     (while (and next
                 (not (funcall fn-filter (car next))))
@@ -2895,35 +3011,37 @@ FN-EQUAL defaults do `equal'."
       (duo-filter-next fn-filter list))))
 
 (defun duo-circ-filter-before (fn-filter elem list &optional fn-equal)
-  "Return reference of element before ELEM in LIST matching FN-FILTER.
+  "Return cons of element before ELEM in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (let ((duo (duo-member elem list fn-equal)))
     (duo-circ-filter-previous fn-filter duo list)))
 
 (defun duo-circ-filter-after (fn-filter elem list &optional fn-equal)
-  "Return reference of element after ELEM in LIST matching FN-FILTER.
+  "Return cons of element after ELEM in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults do `equal'."
+FN-EQUAL defaults to `equal'."
   (let ((duo (duo-member elem list fn-equal)))
     (duo-circ-filter-next fn-filter duo list)))
 
 ;;; Partition
 ;;; ------------------------------------------------------------
 
-(defun duo-partition (funkey list)
-  "Partition LIST using FUNKEY.
-The resut is an alist whose keys are given by the values of FUNKEY
+(defun duo-partition (fn-key list)
+  "Partition LIST using FN-KEY.
+The result is an alist whose keys are given by the values of FN-KEY
 applied to the elements of LIST.
 Each element of the alist is of the form :
 \(key elem-1 elem-2 ... elem-N)
-where all the elem-* verify (FUNKEY elem-?) = key."
+where all the elem-* verify (FN-KEY elem-?) = key."
   (let ((duo list)
         (assoc-list)
         (key)
         (key-list))
     (while duo
-      (setq key (funcall funkey (car duo)))
+      (setq key (funcall fn-key (car duo)))
       (setq key-list (duo-assoc key assoc-list))
       (if key-list
           (duo-add (car duo) (car key-list))
