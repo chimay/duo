@@ -2916,7 +2916,7 @@ Destructive."
 ;;; Filter
 ;;; ------------------------------------------------------------
 
-(defun duo-filter (fn-filter list)
+(defun duo-filter (list fn-filter)
   "Return list of elements in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
 LIST is not modified."
@@ -2937,7 +2937,7 @@ LIST is not modified."
 ;;; Next / Previous
 ;;; ------------------------------
 
-(defun duo-filter-previous (fn-filter cons list)
+(defun duo-filter-previous (cons list fn-filter)
   "Return cons of previous element of CONS in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
   (let ((duo list)
@@ -2949,7 +2949,7 @@ FN-FILTER takes one argument and return t if the element passes the filter."
       (setq duo (cdr duo)))
     previous))
 
-(defun duo-filter-next (fn-filter cons)
+(defun duo-filter-next (cons fn-filter)
   "Return cons of next element of CONS in list matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
   (let ((next (cdr cons)))
@@ -2958,32 +2958,32 @@ FN-FILTER takes one argument and return t if the element passes the filter."
       (setq next (cdr next)))
     next))
 
-(defun duo-filter-before (fn-filter elem list &optional fn-equal)
+(defun duo-filter-before (elem list fn-filter &optional fn-equal)
   "Return cons of element before ELEM in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
   (let ((duo (duo-member elem list fn-equal)))
-    (duo-filter-previous fn-filter duo list)))
+    (duo-filter-previous duo list fn-filter)))
 
-(defun duo-filter-after (fn-filter elem list &optional fn-equal)
+(defun duo-filter-after (elem list fn-filter &optional fn-equal)
   "Return cons of element after ELEM in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
   (let ((duo (duo-member elem list fn-equal)))
-    (duo-filter-next fn-filter duo)))
+    (duo-filter-next duo fn-filter)))
 
 ;;; Circular
 ;;; ------------------------------
 
-(defun duo-circ-filter-previous (fn-filter cons list)
+(defun duo-circ-filter-previous (cons list fn-filter)
   "Return cons of previous element of CONS in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
   (if (eq cons list)
-      (duo-filter-previous fn-filter
-                              (duo-last list)
-                              list)
+      (duo-filter-previous (duo-last list)
+                           list
+                           fn-filter)
     (let ((duo list)
           (previous))
       (while (and duo
@@ -2999,7 +2999,7 @@ FN-FILTER takes one argument and return t if the element passes the filter."
           (setq duo (cdr duo))))
       previous)))
 
-(defun duo-circ-filter-next (fn-filter cons list)
+(defun duo-circ-filter-next (cons list fn-filter)
   "Return cons of next element of CONS in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
   (let ((next (cdr cons)))
@@ -3008,28 +3008,28 @@ FN-FILTER takes one argument and return t if the element passes the filter."
       (setq next (cdr next)))
     (if next
         next
-      (duo-filter-next fn-filter list))))
+      (duo-filter-next list fn-filter))))
 
-(defun duo-circ-filter-before (fn-filter elem list &optional fn-equal)
+(defun duo-circ-filter-before (elem list fn-filter &optional fn-equal)
   "Return cons of element before ELEM in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
   (let ((duo (duo-member elem list fn-equal)))
-    (duo-circ-filter-previous fn-filter duo list)))
+    (duo-circ-filter-previous duo list fn-filter)))
 
-(defun duo-circ-filter-after (fn-filter elem list &optional fn-equal)
+(defun duo-circ-filter-after (elem list fn-filter &optional fn-equal)
   "Return cons of element after ELEM in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
   (let ((duo (duo-member elem list fn-equal)))
-    (duo-circ-filter-next fn-filter duo list)))
+    (duo-circ-filter-next duo list fn-filter)))
 
 ;;; Partition
 ;;; ------------------------------------------------------------
 
-(defun duo-partition (fn-key list)
+(defun duo-partition (list fn-key)
   "Partition LIST using FN-KEY.
 The result is an alist whose keys are given by the values of FN-KEY
 applied to the elements of LIST.
