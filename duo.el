@@ -973,8 +973,6 @@ Destructive."
 
 (defun duo-join (&rest arguments)
   "Join lists given in ARGUMENTS.
-Lists given in ARGUMENTS must be disjoints before the operation,
-or it will loop forever.
 Destructive."
   (let* ((arg arguments)
          (list (car arg))
@@ -982,9 +980,10 @@ Destructive."
          (next))
     (while arg
       (setq next (car (cdr arg)))
-      (setcdr last next)
-      (while (cdr last)
-        (setq last (cdr last)))
+      (unless (duo-inside next list)
+        (setcdr last next)
+        (while (cdr last)
+          (setq last (cdr last))))
       (setq arg (cdr arg)))
     list))
 
