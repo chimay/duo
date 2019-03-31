@@ -187,7 +187,7 @@ Return nil if ONE and TWO are distincts or not cons."
   (nthcdr index list))
 
 (defun duo-index-of-cons (cons list)
-  "Return index of cons in LIST or nil if not present. "
+  "Return index of CONS in LIST or nil if not present."
   (let ((duo list)
         (index 0))
     (while (and duo
@@ -504,7 +504,7 @@ Destructive."
       (setq duo (cdr duo)))
     list))
 
-;;; Add / Remove at Beg / End
+;;; Stack & Queue
 ;;; ------------------------------------------------------------
 
 (defun duo-naive-push ()
@@ -971,7 +971,22 @@ Destructive."
 ;;; Join
 ;;; ------------------------------------------------------------
 
-;; TODO : join &rest lists
+(defun duo-join (&rest arguments)
+  "Join lists given in ARGUMENTS.
+Lists given in ARGUMENTS must be disjoints before the operation,
+or it will loop forever.
+Destructive."
+  (let* ((arg arguments)
+         (list (car arg))
+         (last (duo-last list))
+         (next))
+    (while arg
+      (setq next (car (cdr arg)))
+      (setcdr last next)
+      (while (cdr last)
+        (setq last (cdr last)))
+      (setq arg (cdr arg)))
+    list))
 
 ;;; Rotate <- ->
 ;;; ------------------------------------------------------------
