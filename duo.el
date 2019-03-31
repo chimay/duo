@@ -174,10 +174,6 @@ Return nil if ONE and TWO are distincts or not cons."
 ;;; Find
 ;;; ------------------------------------------------------------
 
-(defun duo-at-index (index list)
-  "Cons at INDEX in LIST."
-  (nthcdr index list))
-
 (defun duo-inside (cons list)
   "Return CONS if CONS is in LIST or nil otherwise."
   (let ((duo list))
@@ -185,6 +181,39 @@ Return nil if ONE and TWO are distincts or not cons."
                 (not (eq duo cons)))
       (setq duo (cdr duo)))
     duo))
+
+(defun duo-at-index (index list)
+  "Cons at INDEX in LIST."
+  (nthcdr index list))
+
+(defun duo-index-of-cons (cons list)
+  "Return index of cons in LIST or nil if not present. "
+  (let ((duo list)
+        (index 0))
+    (while (and duo
+                (not (eq duo cons)))
+      (setq duo (cdr duo))
+      (setq index (1+ index)))
+    (if duo
+        index
+      nil)))
+
+(defun duo-index-of (elem list &optional fn-equal)
+  "Return index of ELEM in LIST or nil if not present.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo list)
+        (fn-equal (if fn-equal
+                        fn-equal
+                      #'equal))
+        (index 0))
+    (while (and duo
+                (not (funcall fn-equal (car duo) elem)))
+      (setq duo (cdr duo))
+      (setq index (1+ index)))
+    (if duo
+        index
+      nil)))
 
 (defun duo-member (elem list &optional fn-equal)
   "Return cons of ELEM in LIST or nil if ELEM is not in list.
@@ -939,6 +968,11 @@ Destructive."
       (setq length (1- length)))
     added))
 
+;;; Join
+;;; ------------------------------------------------------------
+
+;; TODO : join &rest lists
+
 ;;; Rotate <- ->
 ;;; ------------------------------------------------------------
 
@@ -1225,6 +1259,8 @@ Destructive."
       (setq previous (duo-previous current list)))
     (setcdr current nil)
     newlist))
+
+;; TODO : reverse until, from
 
 ;;; Reference
 ;;; ------------------------------
