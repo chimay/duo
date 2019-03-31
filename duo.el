@@ -1274,7 +1274,57 @@ Destructive."
     (setcdr current nil)
     newlist))
 
-;; TODO : reverse until, from
+(defun duo-reverse-previous (cons list)
+  "Reverse first part of LIST, from beginning to CONS included.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-reverse-previous cons list))
+Destructive."
+  (let ((next (cdr cons))
+        (newlist))
+    (setcdr cons nil)
+    (setq newlist (duo-reverse list))
+    (setcdr (duo-last newlist) next)
+    newlist))
+
+(defun duo-reverse-next (cons list)
+  "Reverse second part of LIST, starting just after CONS to end.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-reverse-next cons list))
+Destructive."
+  (let ((next (cdr cons))
+        (reversed))
+    (setcdr cons nil)
+    (setq reversed (duo-reverse next))
+    (setcdr cons reversed)
+    list))
+
+(defun duo-reverse-before (elem list &optional fn-equal)
+  "Reverse first part of LIST, from beginning to ELEM included.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-reverse-before elem list))
+Destructive."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-reverse-previous duo list)))
+
+(defun duo-reverse-after (elem list &optional fn-equal)
+  "Reverse second part of LIST, starting just after ELEM to end.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-reverse-after elem list))
+Destructive."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-reverse-next duo list)))
 
 ;;; Reference
 ;;; ------------------------------
