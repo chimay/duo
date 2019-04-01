@@ -3038,8 +3038,7 @@ Destructive."
         (progn
           (duo-insert-next previous new)
           (setq duo (cdr previous)))
-      (duo-ref-add new reflist)
-      (setq duo new))
+      (setq duo (duo-ref-add new reflist)))
     duo))
 
 ;;; Filter
