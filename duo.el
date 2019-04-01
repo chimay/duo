@@ -1290,10 +1290,6 @@ Destructive."
 
 (defun duo-reverse-next (cons list)
   "Reverse second part of LIST, starting just after CONS to end.
-The actual new list must be recovered using the returned list.
-See the docstring of `duo-naive-push' to know why.
-Common usage :
-\(setq list (duo-reverse-next cons list))
 Destructive."
   (let ((next (cdr cons))
         (reversed))
@@ -1318,10 +1314,6 @@ Destructive."
   "Reverse second part of LIST, starting just after ELEM to end.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
-See the docstring of `duo-naive-push' to know why.
-Common usage :
-\(setq list (duo-reverse-after elem list))
 Destructive."
   (let ((duo (duo-member elem list fn-equal)))
     (duo-reverse-next duo list)))
@@ -1353,6 +1345,43 @@ Destructive."
     (setcdr current nil)
     (duo-ref-set reflist newlist)
     newlist))
+
+(defun duo-ref-reverse-previous (cons reflist)
+  "Reverse first part of LIST, from beginning to CONS included.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-reverse-previous cons reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let ((next (cdr cons)))
+    (setcdr cons nil)
+    (duo-ref-reverse reflist)
+    (setcdr (duo-last (duo-deref reflist)) next)
+    (duo-deref reflist)))
+
+(defun duo-ref-reverse-before (elem reflist &optional fn-equal)
+  "Reverse first part of LIST, from beginning to ELEM included.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-reverse-before elem reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let ((duo (duo-member elem (duo-deref reflist) fn-equal)))
+    (duo-ref-reverse-previous duo reflist)))
 
 ;;; Insert
 ;;; ------------------------------------------------------------
