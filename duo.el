@@ -2943,7 +2943,7 @@ Destructive."
 (defun duo-insert-at-group-end (new list &optional fn-group)
   "Insert NEW in LIST, at the end of a group determined by FN-GROUP.
 If the group is not found, insert at the end of LIST.
-Return (cons of NEW. LIST).
+Return (cons of NEW . LIST).
 NEW is the value of the element inserted.
 FN-GROUP takes two arguments and returns t if they belongs to the same group.
 FN-GROUP defaults to `equal'.
@@ -3010,7 +3010,7 @@ Destructive."
   "Insert NEW in list referenced by REFLIST, at the end of its group.
 The group is determined by FN-GROUP.
 If the group is not found, insert at the end of list referenced by REFLIST.
-Return (cons of NEW. list referenced by REFLIST).
+Return cons of NEW.
 NEW is the value of the element inserted.
 See `duo-deref' for the format of REFLIST.
 FN-GROUP takes two arguments and returns t if they belongs to the same group.
