@@ -476,10 +476,10 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
   (duo-circ-next (duo-member elem list fn-equal) list num))
 
-;;; Change
+;;; Replace
 ;;; ------------------------------------------------------------
 
-(defun duo-change (old new list &optional fn-equal)
+(defun duo-replace (old new list &optional fn-equal)
   "Replace OLD by NEW in LIST. Return cons of NEW.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
@@ -489,7 +489,7 @@ Destructive."
       (setcar duo new))
     duo))
 
-(defun duo-change-all (old new list &optional fn-equal)
+(defun duo-replace-all (old new list &optional fn-equal)
   "Replace all occurences of OLD by NEW in LIST. Return LIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
