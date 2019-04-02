@@ -489,20 +489,245 @@ Destructive."
       (setcar duo new))
     duo))
 
+;;; Car & Cdr
+;;; ------------------------------
+
+;;; Level 1
+;;; ---------------
+
+(defun duo-replace-car (old new list &optional fn-equal)
+  "Replace OLD car by NEW in LIST. Return cons of NEW.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((duo list)
+        (fn-equal (if fn-equal
+                        fn-equal
+                      #'equal)))
+    (while (and duo
+                (not (funcall fn-equal (car (car duo)) old)))
+      (setq duo (cdr duo)))
+    (when duo
+      (setcar (car duo) new))
+    duo))
+
+(defun duo-replace-cdr (old new list &optional fn-equal)
+  "Replace OLD cdr by NEW in LIST. Return cons of NEW.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((duo list)
+        (fn-equal (if fn-equal
+                        fn-equal
+                      #'equal)))
+    (while (and duo
+                (not (funcall fn-equal (cdr (car duo)) old)))
+      (setq duo (cdr duo)))
+    (when duo
+      (setcdr (car duo) new))
+    duo))
+
+;;; Level 2
+;;; ---------------
+
+(defun duo-replace-caar (old new list &optional fn-equal)
+  "Replace OLD caar by NEW in LIST. Return cons of NEW.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((duo list)
+        (fn-equal (if fn-equal
+                        fn-equal
+                      #'equal)))
+    (while (and duo
+                (not (funcall fn-equal (car (car (car duo))) old)))
+      (setq duo (cdr duo)))
+    (when duo
+      (setcar (car (car duo)) new))
+    duo))
+
+(defun duo-replace-cdar (old new list &optional fn-equal)
+  "Replace OLD cdar by NEW in LIST. Return cons of NEW.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((duo list)
+        (fn-equal (if fn-equal
+                        fn-equal
+                      #'equal)))
+    (while (and duo
+                (not (funcall fn-equal (cdr (car (car duo))) old)))
+      (setq duo (cdr duo)))
+    (when duo
+      (setcdr (car (car duo)) new))
+    duo))
+
+(defun duo-replace-cadr (old new list &optional fn-equal)
+  "Replace OLD cadr by NEW in LIST. Return cons of NEW.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((duo list)
+        (fn-equal (if fn-equal
+                        fn-equal
+                      #'equal)))
+    (while (and duo
+                (not (funcall fn-equal (car (cdr (car duo))) old)))
+      (setq duo (cdr duo)))
+    (when duo
+      (setcar (cdr (car duo)) new))
+    duo))
+
+(defun duo-replace-cddr (old new list &optional fn-equal)
+  "Replace OLD cddr by NEW in LIST. Return cons of NEW.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((duo list)
+        (fn-equal (if fn-equal
+                        fn-equal
+                      #'equal)))
+    (while (and duo
+                (not (funcall fn-equal (cdr (cdr (car duo))) old)))
+      (setq duo (cdr duo)))
+    (when duo
+      (setcdr (cdr (car duo)) new))
+    duo))
+
+;;; All
+;;; ------------------------------
+
 (defun duo-replace-all (old new list &optional fn-equal)
-  "Replace all occurences of OLD by NEW in LIST. Return LIST.
+  "Replace all occurences of OLD by NEW in LIST.
+Return number of elements replaced.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((fn-equal (if fn-equal
                       fn-equal
                     #'equal))
-        (duo list))
+        (duo list)
+        (num 0))
     (while duo
       (when (funcall fn-equal (car duo) old)
-        (setcar duo new))
+        (setcar duo new)
+        (setq num (1+ num)))
       (setq duo (cdr duo)))
-    list))
+    num))
+
+;;; Level 1
+;;; ---------------
+
+(defun duo-replace-all-car (old new list &optional fn-equal)
+  "Replace all occurences of OLD car by NEW in LIST.
+Return number of elements replaced.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((fn-equal (if fn-equal
+                      fn-equal
+                    #'equal))
+        (duo list)
+        (num 0))
+    (while duo
+      (when (funcall fn-equal (car (car duo)) old)
+        (setcar (car duo) new)
+        (setq num (1+ num)))
+      (setq duo (cdr duo)))
+    num))
+
+(defun duo-replace-all-cdr (old new list &optional fn-equal)
+  "Replace all occurences of OLD cdr by NEW in LIST.
+Return number of elements replaced.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((fn-equal (if fn-equal
+                      fn-equal
+                    #'equal))
+        (duo list)
+        (num 0))
+    (while duo
+      (when (funcall fn-equal (cdr (car duo)) old)
+        (setcdr (car duo) new)
+        (setq num (1+ num)))
+      (setq duo (cdr duo)))
+    num))
+
+;;; Level 2
+;;; ---------------
+
+(defun duo-replace-all-caar (old new list &optional fn-equal)
+  "Replace all occurences of OLD caar by NEW in LIST.
+Return number of elements replaced.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((fn-equal (if fn-equal
+                      fn-equal
+                    #'equal))
+        (duo list)
+        (num 0))
+    (while duo
+      (when (funcall fn-equal (car (car (car duo))) old)
+        (setcar (car (car duo)) new)
+        (setq num (1+ num)))
+      (setq duo (cdr duo)))
+    num))
+
+(defun duo-replace-all-cdar (old new list &optional fn-equal)
+  "Replace all occurences of OLD cdar by NEW in LIST.
+Return number of elements replaced.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((fn-equal (if fn-equal
+                      fn-equal
+                    #'equal))
+        (duo list)
+        (num 0))
+    (while duo
+      (when (funcall fn-equal (cdr (car (car duo))) old)
+        (setcdr (car (car duo)) new)
+        (setq num (1+ num)))
+      (setq duo (cdr duo)))
+    num))
+
+(defun duo-replace-all-cadr (old new list &optional fn-equal)
+  "Replace all occurences of OLD cadr by NEW in LIST.
+Return number of elements replaced.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((fn-equal (if fn-equal
+                      fn-equal
+                    #'equal))
+        (duo list)
+        (num 0))
+    (while duo
+      (when (funcall fn-equal (car (cdr (car duo))) old)
+        (setcar (cdr (car duo)) new)
+        (setq num (1+ num)))
+      (setq duo (cdr duo)))
+    num))
+
+(defun duo-replace-all-cddr (old new list &optional fn-equal)
+  "Replace all occurences of OLD cddr by NEW in LIST.
+Return number of elements replaced.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((fn-equal (if fn-equal
+                      fn-equal
+                    #'equal))
+        (duo list)
+        (num 0))
+    (while duo
+      (when (funcall fn-equal (cdr (cdr (car duo))) old)
+        (setcdr (cdr (car duo)) new)
+        (setq num (1+ num)))
+      (setq duo (cdr duo)))
+    num))
 
 ;;; Map
 ;;; ------------------------------------------------------------
