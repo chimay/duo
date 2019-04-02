@@ -508,10 +508,26 @@ Destructive."
 ;;; ------------------------------------------------------------
 
 (defun duo-map (list fn-map)
-  "Replace each element of LIST by (FN-MAP element). Return LIST."
+  "Replace each element of LIST by (FN-MAP element). Return LIST.
+Destructive."
   (let ((duo list))
     (while duo
       (setcar duo (funcall fn-map (car duo)))
+      (setq duo (cdr duo))))
+  list)
+
+;;; Assoc
+;;; ------------------------------
+
+(defun duo-assoc-map (list fn-map)
+  "Replace each element of LIST by (element . (FN-MAP element)).
+Return assoc LIST.
+Destructive."
+  (let ((duo list)
+        (elem))
+    (while duo
+      (setq elem (car duo))
+      (setcar duo (cons elem (funcall fn-map elem)))
       (setq duo (cdr duo))))
   list)
 
