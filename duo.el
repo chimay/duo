@@ -504,6 +504,17 @@ Destructive."
       (setq duo (cdr duo)))
     list))
 
+;;; Map
+;;; ------------------------------------------------------------
+
+(defun duo-map (list fn-map)
+  "Replace each element of LIST by (FN-MAP element). Return LIST."
+  (let ((duo list))
+    (while duo
+      (setcar duo (funcall fn-map (car duo)))
+      (setq duo (cdr duo))))
+  list)
+
 ;;; Stack & Queue
 ;;; ------------------------------------------------------------
 
