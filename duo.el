@@ -1416,7 +1416,7 @@ Common usage :
 \(duo-ref-roll-cons-to-beg cons reflist)
 ;; Update list
 \(setq mylist (duo-deref reflist))
-Modifies list referenced by REFLIST."
+Destructive."
   (let* ((list (duo-deref reflist))
          (previous (if previous
                        previous
@@ -1445,7 +1445,7 @@ Common usage :
 \(duo-ref-roll-cons-to-end cons reflist)
 ;; Update list
 \(setq mylist (duo-deref reflist))
-Modifies list referenced by REFLIST."
+Destructive."
   (let* ((list (duo-deref reflist))
          (next (cdr cons))
          (last next))
@@ -1475,7 +1475,7 @@ Common usage :
 \(duo-ref-roll-to-beg elem reflist)
 ;; Update list
 \(setq mylist (duo-deref reflist))
-Modifies list referenced by REFLIST."
+Destructive."
   (let* ((list (duo-deref reflist))
          (previous (if previous
                        previous
@@ -1501,7 +1501,7 @@ Common usage :
 \(duo-ref-roll-to-end elem reflist)
 ;; Update list
 \(setq mylist (duo-deref reflist))
-Modifies list referenced by REFLIST."
+Destructive."
   (let* ((list (duo-deref reflist))
          (duo (duo-member elem list fn-equal)))
     (duo-ref-roll-cons-to-end duo reflist)))
@@ -3004,7 +3004,7 @@ Common usage :
 \(duo-ref-exchange-cons one two reflist)
 ;; Update list
 \(setq mylist (duo-deref reflist))
-Modifies list referenced by REFLIST."
+Destructive."
   (unless (eq one two)
     (if (eq two (duo-deref reflist))
         (let ((return)
@@ -3047,7 +3047,7 @@ Common usage :
 \(duo-ref-exchange one two reflist)
 ;; Update list
 \(setq mylist (duo-deref reflist))
-Modifies list referenced by REFLIST."
+Destructive."
   (let* ((list (duo-deref reflist))
          (cons-one (duo-member one list fn-equal))
          (cons-two (duo-member two list fn-equal)))
@@ -3056,26 +3056,66 @@ Modifies list referenced by REFLIST."
 ;;; Sorted
 ;;; ------------------------------------------------------------
 
-(defun duo-insert-in-sorted-list (elem list fn-less)
-  "Insert ELEM at the right place in LIST. LIST is sorted in ascending order.
+(defun duo-insert-in-sorted-list (elem list &optional fn-less)
+  "Insert ELEM at the right place in LIST.
+LIST must be sorted in ascending order.
 Return LIST.
 FN-LESS takes two arguments and return t if the first is less than the second.
+FN-LESS defaults to <
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-insert-in-sorted-list elem list))
 Destructive."
-  (cond ((not list) (cons elem nil))
-        ((funcall fn-less elem (car list)) (duo-push elem list))
-        (t (let ((duo list)
-                 (next (cdr list)))
-             (while (and duo
-                         next
-                         (funcall fn-less (car next) elem))
-               (setq duo (cdr duo))
-               (setq next (cdr next)))
-             (duo-insert-next duo elem))
-           list)))
+  (let ((fn-less (if fn-less
+                     fn-less
+                   #'<)))
+    (cond ((not list) (cons elem nil))
+          ((funcall fn-less elem (car list)) (duo-push elem list))
+          (t (let ((duo list)
+                   (next (cdr list)))
+               (while (and duo
+                           next
+                           (funcall fn-less (car next) elem))
+                 (setq duo (cdr duo))
+                 (setq next (cdr next)))
+               (duo-insert-next duo elem))
+             list))))
+
+;;; Reference
+;;; ------------------------------
+
+(defun duo-ref-insert-in-sorted-list (elem reflist &optional fn-less)
+  "Insert ELEM at the right place in list referecend by REFLIST.
+The list must be sorted in ascending order.
+Return list referenced by REFLIST.
+FN-LESS takes two arguments and return t if the first is less than the second.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-in-sorted-list elem reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let ((fn-less (if fn-less
+                     fn-less
+                   #'<))
+        (list (duo-deref reflist)))
+    (cond ((not list) (duo-ref-set reflist (cons elem nil)))
+          ((funcall fn-less elem (car list)) (duo-ref-push elem reflist))
+          (t (let ((duo list)
+                   (next (cdr list)))
+               (while (and duo
+                           next
+                           (funcall fn-less (car next) elem))
+                 (setq duo (cdr duo))
+                 (setq next (cdr next)))
+               (duo-insert-next duo elem)))))
+  (duo-deref reflist))
 
 ;;; Group
 ;;; ------------------------------------------------------------
