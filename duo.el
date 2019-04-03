@@ -3053,6 +3053,30 @@ Modifies list referenced by REFLIST."
          (cons-two (duo-member two list fn-equal)))
     (duo-ref-exchange-cons cons-one cons-two reflist pre-one pre-two)))
 
+;;; Sorted
+;;; ------------------------------------------------------------
+
+(defun duo-insert-in-sorted-list (elem list fn-less)
+  "Insert ELEM at the right place in LIST. LIST is sorted in ascending order.
+Return LIST.
+FN-LESS takes two arguments and return t if the first is less than the second.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-insert-in-sorted-list elem list))
+Destructive."
+  (cond ((not list) (cons elem nil))
+        ((funcall fn-less elem (car list)) (duo-push elem list))
+        (t (let ((duo list)
+                 (next (cdr list)))
+             (while (and duo
+                         next
+                         (funcall fn-less (car next) elem))
+               (setq duo (cdr duo))
+               (setq next (cdr next)))
+             (duo-insert-next duo elem))
+           list)))
+
 ;;; Group
 ;;; ------------------------------------------------------------
 
