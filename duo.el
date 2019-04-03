@@ -944,7 +944,7 @@ Destructive."
   "Add ELEM at the end of LIST. Truncate LIST to its last NUM elements.
 Return (new LAST . LIST).
 If non nil, LENGTH is used to speed up the process.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-add-and-clip elem list num))
@@ -2121,7 +2121,7 @@ CONS must be a cons in LIST.
 MOVED is the cons of the moved element.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-teleport-cons-previous cons moved list))
@@ -2143,7 +2143,7 @@ Destructive."
 CONS must be a cons in LIST.
 MOVED is the cons of the moved element.
 If non nil, PREVIOUS removed is used to speed up the process.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
 \(setq pair (duo-teleport-cons-next cons moved list))
@@ -2169,7 +2169,7 @@ If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-teleport-previous cons moved list))
@@ -2187,7 +2187,7 @@ MOVED is the value of the moved element.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
 \(setq pair (duo-teleport-next cons moved list))
@@ -2210,7 +2210,7 @@ If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-teleport-before elem moved list))
@@ -2228,7 +2228,7 @@ MOVED is the cons of the moved element.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
 \(setq pair (duo-teleport-after elem moved list))
@@ -2251,7 +2251,7 @@ If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-teleport-before elem moved list))
@@ -2270,7 +2270,7 @@ MOVED is the value of the moved element.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
 \(setq pair (duo-teleport-after elem moved list))
@@ -2497,7 +2497,7 @@ Destructive."
 If range is exceeded, move MOVED at the beginning of the list.
 MOVED must be a cons in LIST.
 NUM defaults to 1.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-previous moved list))
@@ -2521,7 +2521,7 @@ Destructive."
 If range is exceeded, move MOVED at the end of the list.
 MOVED must be a cons in LIST.
 NUM defaults to 1.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-next moved list))
@@ -2543,7 +2543,7 @@ MOVED is the moved value.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-before elem list))
@@ -2572,7 +2572,7 @@ MOVED is the moved value.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-after elem list))
@@ -2596,7 +2596,7 @@ Destructive."
 Circular : if in beginning of list, go to the end.
 MOVED must be a cons in LIST.
 NUM defaults to 1.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-circ-move-previous moved list))
@@ -2620,7 +2620,7 @@ Destructive."
 Circular : if in end of list, go to the beginning.
 MOVED must be a cons in LIST.
 NUM defaults to 1.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-circ-move-next moved list))
@@ -2640,7 +2640,7 @@ MOVED is the moved value.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-before elem list))
@@ -2670,7 +2670,7 @@ MOVED is the moved value.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
-The actual new list must be recovered using the returned list.
+The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq pair (duo-move-after elem list))
@@ -3056,39 +3056,41 @@ Destructive."
 ;;; Sorted
 ;;; ------------------------------------------------------------
 
-(defun duo-insert-in-sorted-list (elem list &optional fn-less)
-  "Insert ELEM at the right place in LIST.
+(defun duo-insert-in-sorted-list (new list &optional fn-less)
+  "Insert NEW at the right place in LIST.
 LIST must be sorted in ascending order.
-Return LIST.
+Return cons of NEW.
 FN-LESS takes two arguments and return t if the first is less than the second.
 FN-LESS defaults to <
-The actual new list must be recovered using the returned list.
+If the new cons is inserted at the beginning of the list,
+the actual new list must be recovered using new LIST = NEW.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
-\(setq list (duo-insert-in-sorted-list elem list))
+\(setq return (duo-insert-in-sorted-list cons new list))
+\(when (eq (cdr return) list)
+  (setq list return))
 Destructive."
   (let ((fn-less (if fn-less
                      fn-less
                    #'<)))
-    (cond ((not list) (cons elem nil))
-          ((funcall fn-less elem (car list)) (duo-push elem list))
+    (cond ((not list) (cons new nil))
+          ((funcall fn-less new (car list)) (duo-push new list))
           (t (let ((duo list)
                    (next (cdr list)))
                (while (and duo
                            next
-                           (funcall fn-less (car next) elem))
+                           (funcall fn-less (car next) new))
                  (setq duo (cdr duo))
                  (setq next (cdr next)))
-               (duo-insert-next duo elem))
-             list))))
+               (duo-insert-next duo new))))))
 
 ;;; Reference
 ;;; ------------------------------
 
-(defun duo-ref-insert-in-sorted-list (elem reflist &optional fn-less)
-  "Insert ELEM at the right place in list referecend by REFLIST.
+(defun duo-ref-insert-in-sorted-list (new reflist &optional fn-less)
+  "Insert NEW at the right place in list referecend by REFLIST.
 The list must be sorted in ascending order.
-Return list referenced by REFLIST.
+Return cons of NEW.
 FN-LESS takes two arguments and return t if the first is less than the second.
 See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -3097,7 +3099,7 @@ Common usage :
 ;; Create reflist
 \(setq reflist (list mylist))
 ;; Modify
-\(duo-ref-insert-in-sorted-list elem reflist)
+\(duo-ref-insert-in-sorted-list new reflist)
 ;; Update list
 \(setq mylist (duo-deref reflist))
 Destructive."
@@ -3105,17 +3107,16 @@ Destructive."
                      fn-less
                    #'<))
         (list (duo-deref reflist)))
-    (cond ((not list) (duo-ref-set reflist (cons elem nil)))
-          ((funcall fn-less elem (car list)) (duo-ref-push elem reflist))
+    (cond ((not list) (duo-ref-set reflist (cons new nil)))
+          ((funcall fn-less new (car list)) (duo-ref-push new reflist))
           (t (let ((duo list)
                    (next (cdr list)))
                (while (and duo
                            next
-                           (funcall fn-less (car next) elem))
+                           (funcall fn-less (car next) new))
                  (setq duo (cdr duo))
                  (setq next (cdr next)))
-               (duo-insert-next duo elem)))))
-  (duo-deref reflist))
+               (duo-insert-next duo new))))))
 
 ;;; Group
 ;;; ------------------------------------------------------------
@@ -3176,24 +3177,20 @@ FN-EQUAL defaults to `equal'."
 The result and CONS are in the same group : (FN-GROUP CONS result) = t.
 FN-GROUP takes two arguments and returns t if they belongs to the same group.
 FN-GROUP defaults to `equal'."
-  (if (eq cons list)
-      (duo-previous-in-group (duo-last list)
-                             list
-                             fn-group)
-    (let ((duo list)
-          (previous))
-      (while (and duo
-                  (not (eq duo cons)))
+  (let ((duo list)
+        (previous))
+    (while (and duo
+                (not (eq duo cons)))
+      (when (funcall fn-group (car duo) (car cons))
+        (setq previous duo))
+      (setq duo (cdr duo)))
+    (unless previous
+      (setq duo (cdr duo))
+      (while duo
         (when (funcall fn-group (car duo) (car cons))
           (setq previous duo))
-        (setq duo (cdr duo)))
-      (unless previous
-        (setq duo (cdr duo))
-        (while duo
-          (when (funcall fn-group (car duo))
-            (setq previous duo))
-          (setq duo (cdr duo))))
-      previous)))
+        (setq duo (cdr duo))))
+    previous))
 
 (defun duo-circ-next-in-group (cons list &optional fn-group)
   "Return cons of next element of CONS in LIST matching FN-GROUP.
@@ -3204,9 +3201,13 @@ FN-GROUP defaults to `equal'."
     (while (and next
                 (not (funcall fn-group (car next) (car cons))))
       (setq next (cdr next)))
-    (if next
-        next
-      (duo-next-in-group list fn-group))))
+    (unless next
+      (setq next list)
+      (while (and next
+                  (not (eq next cons))
+                  (not (funcall fn-group (car next) (car cons))))
+        (setq next (cdr next))))
+    next))
 
 (defun duo-circ-before-in-group (elem list &optional fn-group fn-equal)
   "Return cons of element before ELEM in LIST matching FN-GROUP.
@@ -3242,7 +3243,7 @@ The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
 \(setq pair (duo-insert-at-group-beg new list))
-\(setq cons-new (car pair))
+\(setq cons-inserted (car pair))
 \(setq list (cdr pair))
 Destructive."
   (let ((newlist list)
@@ -3267,7 +3268,7 @@ The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
 \(setq pair (duo-insert-at-group-end new list))
-\(setq cons-new (car pair))
+\(setq cons-inserted (car pair))
 \(setq list (cdr pair))
 Destructive."
   (let ((fn-group (if fn-group
@@ -3360,11 +3361,15 @@ Destructive."
 ;;; Filter
 ;;; ------------------------------------------------------------
 
-(defun duo-filter (list fn-filter)
+(defun duo-filter (list &optional fn-filter)
   "Return list of elements in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
+FN-FILTER defaults to `identity'.
 LIST is not modified."
-  (let ((duo list)
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo list)
         (new)
         (last)
         (filtered))
@@ -3381,10 +3386,13 @@ LIST is not modified."
 ;;; Next / Previous
 ;;; ------------------------------
 
-(defun duo-filter-previous (cons list fn-filter)
+(defun duo-filter-previous (cons list &optional fn-filter)
   "Return cons of previous element of CONS in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
-  (let ((duo list)
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo list)
         (previous))
     (while (and duo
                 (not (eq duo cons)))
@@ -3393,94 +3401,119 @@ FN-FILTER takes one argument and return t if the element passes the filter."
       (setq duo (cdr duo)))
     previous))
 
-(defun duo-filter-next (cons fn-filter)
+(defun duo-filter-next (cons &optional fn-filter)
   "Return cons of next element of CONS in list matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
-  (let ((next (cdr cons)))
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (next (cdr cons)))
     (while (and next
                 (not (funcall fn-filter (car next))))
       (setq next (cdr next)))
     next))
 
-(defun duo-filter-before (elem list fn-filter &optional fn-equal)
+(defun duo-filter-before (elem list &optional fn-filter fn-equal)
   "Return cons of element before ELEM in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let ((duo (duo-member elem list fn-equal)))
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo (duo-member elem list fn-equal)))
     (duo-filter-previous duo list fn-filter)))
 
-(defun duo-filter-after (elem list fn-filter &optional fn-equal)
+(defun duo-filter-after (elem list &optional fn-filter fn-equal)
   "Return cons of element after ELEM in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let ((duo (duo-member elem list fn-equal)))
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo (duo-member elem list fn-equal)))
     (duo-filter-next duo fn-filter)))
 
 ;;; Circular
 ;;; ------------------------------
 
-(defun duo-circ-filter-previous (cons list fn-filter)
+(defun duo-circ-filter-previous (cons list &optional fn-filter)
   "Return cons of previous element of CONS in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
-  (if (eq cons list)
-      (duo-filter-previous (duo-last list)
-                           list
-                           fn-filter)
-    (let ((duo list)
-          (previous))
-      (while (and duo
-                  (not (eq duo cons)))
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo list)
+        (previous))
+    (while (and duo
+                (not (eq duo cons)))
+      (when (funcall fn-filter (car duo))
+        (setq previous duo))
+      (setq duo (cdr duo)))
+    (unless previous
+      (setq duo (cdr duo))
+      (while duo
         (when (funcall fn-filter (car duo))
           (setq previous duo))
-        (setq duo (cdr duo)))
-      (unless previous
-        (setq duo (cdr duo))
-        (while duo
-          (when (funcall fn-filter (car duo))
-            (setq previous duo))
-          (setq duo (cdr duo))))
-      previous)))
+        (setq duo (cdr duo))))
+    previous))
 
-(defun duo-circ-filter-next (cons list fn-filter)
+(defun duo-circ-filter-next (cons list &optional fn-filter)
   "Return cons of next element of CONS in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
-  (let ((next (cdr cons)))
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (next (cdr cons)))
     (while (and next
                 (not (funcall fn-filter (car next))))
       (setq next (cdr next)))
-    (if next
-        next
-      (duo-filter-next list fn-filter))))
+    (unless next
+      (setq next list)
+      (while (and next
+                  (not (eq next cons))
+                  (not (funcall fn-filter (car next))))
+        (setq next (cdr next))))
+    next))
 
-(defun duo-circ-filter-before (elem list fn-filter &optional fn-equal)
+(defun duo-circ-filter-before (elem list &optional fn-filter fn-equal)
   "Return cons of element before ELEM in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let ((duo (duo-member elem list fn-equal)))
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo (duo-member elem list fn-equal)))
     (duo-circ-filter-previous duo list fn-filter)))
 
-(defun duo-circ-filter-after (elem list fn-filter &optional fn-equal)
+(defun duo-circ-filter-after (elem list &optional fn-filter fn-equal)
   "Return cons of element after ELEM in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let ((duo (duo-member elem list fn-equal)))
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo (duo-member elem list fn-equal)))
     (duo-circ-filter-next duo list fn-filter)))
 
 ;;; Partition
 ;;; ------------------------------------------------------------
 
-(defun duo-partition (list fn-key)
+(defun duo-partition (list &optional fn-key)
   "Partition LIST using FN-KEY.
 The result is an alist whose keys are given by the values of FN-KEY
 applied to the elements of LIST.
 Each element of the alist is of the form :
 \(key elem-1 elem-2 ... elem-N)
-where all the elem-* verify (FN-KEY elem-?) = key."
-  (let ((duo list)
+where all the elem-* verify (FN-KEY elem-?) = key.
+FN-KEY defaults to `identity'. "
+  (let ((fn-key (if fn-key
+                    fn-key
+                  #'identity))
+        (duo list)
         (assoc-list)
         (key)
         (key-list))
