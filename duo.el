@@ -1278,7 +1278,7 @@ Destructive."
   "Add ELEM at the end of list referenced by REFLIST if not there.
 If NUM is nil, do nothing.
 Return the new LAST.
-If non nil, LAST is used to speed up the process.
+If non nil, LENGTH and LAST are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 See `duo-deref' for the format of REFLIST.
@@ -1674,7 +1674,9 @@ Destructive."
     newlist))
 
 (defun duo-ref-reverse-previous (cons reflist)
-  "Reverse first part of LIST, from beginning to CONS included.
+  "Reverse first part of list referenced by REFLIST.
+The fist part goes from beginning to CONS included.
+Return list referenced by REFLIST.
 See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
@@ -1693,7 +1695,9 @@ Destructive."
     (duo-deref reflist)))
 
 (defun duo-ref-reverse-before (elem reflist &optional fn-equal)
-  "Reverse first part of LIST, from beginning to ELEM included.
+  "Reverse first part of list referenced by REFLIST.
+The first part goes from beginning to ELEM included.
+Return list referenced by REFLIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 See `duo-deref' for the format of REFLIST.
@@ -2161,8 +2165,8 @@ Destructive."
         (duo)
         (next)
         (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+                      fn-equal
+                    #'equal)))
     (while (funcall fn-equal (car (duo-deref reflist)) elem)
       (setq removed (duo-ref-pop reflist))
       (if removed-list
@@ -3584,7 +3588,7 @@ applied to the elements of LIST.
 Each element of the alist is of the form :
 \(key elem-1 elem-2 ... elem-N)
 where all the elem-* verify (FN-KEY elem-?) = key.
-FN-KEY defaults to `identity'. "
+FN-KEY defaults to `identity'."
   (let ((fn-key (if fn-key
                     fn-key
                   #'identity))
