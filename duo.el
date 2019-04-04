@@ -912,6 +912,7 @@ Destructive."
 
 (defun duo-truncate (list &optional num)
   "Truncate LIST to its first NUM elements. Return removed part.
+If NUM is nil, do nothing.
 Destructive."
   (let* ((num (if num
                   num
@@ -929,6 +930,7 @@ Destructive."
 
 (defun duo-push-and-truncate (elem list &optional num)
   "Add ELEM at the beginning of LIST. Truncate LIST to its first NUM elements.
+If NUM is nil, do nothing.
 Return LIST.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
@@ -942,8 +944,9 @@ Destructive."
 
 (defun duo-add-and-clip (elem list &optional num length last)
   "Add ELEM at the end of LIST. Truncate LIST to its last NUM elements.
+If NUM is nil, do nothing.
 Return (new LAST . LIST).
-If non nil, LENGTH is used to speed up the process.
+If non nil, LENGTH and LAST are used to speed up the process.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -961,6 +964,32 @@ Destructive."
       (setq list (cdr (duo-pop list)))
       (setq length (1- length)))
     (cons added list)))
+
+(defun duo-push-new-and-truncate (elem list &optional num fn-equal)
+  "Push ELEM to LIST if not there and truncate to NUM elements.
+If NUM is nil, do nothing.
+Return LIST.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq list (duo-push-new-and-truncate elem list))
+Destructive."
+  (if (duo-member elem list fn-equal)
+      list
+    (duo-push-and-truncate elem list num)))
+
+(defun duo-add-new-and-clip (elem list &optional num length last fn-equal)
+  "Add ELEM to LIST if not there and truncate to NUM elements.
+If NUM is nil, do nothing.
+Return (new LAST . LIST).
+If non nil, LENGTH and LAST are used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (unless (duo-member elem list fn-equal)
+    (duo-add-and-clip elem list num length last)))
 
 ;;; Reference
 ;;; ------------------------------
@@ -985,8 +1014,8 @@ Destructive."
 
 (defun duo-ref-add-cons (cons reflist &optional last)
   "Store CONS at the end of list referenced by REFLIST. Return CONS.
-See `duo-deref' for the format of REFLIST.
 If non nil, LAST is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -1028,8 +1057,8 @@ Destructive."
 
 (defun duo-ref-add (elem reflist &optional last)
   "Add ELEM at the end of list referenced by REFLIST. Return the new LAST.
-See `duo-deref' for the format of REFLIST.
 If non nil, LAST is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -1073,8 +1102,8 @@ Destructive."
 (defun duo-ref-add-new-cons (cons reflist &optional last)
   "Add CONS at the end of list referenced by REFLIST if not already there.
 Return the new LAST.
-See `duo-deref' for the format of REFLIST.
 If non nil, LAST is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -1091,9 +1120,9 @@ Destructive."
 (defun duo-ref-push-new (elem reflist &optional fn-equal)
   "Add ELEM at the beginning of list referenced by REFLIST if not already there.
 Return list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -1113,10 +1142,10 @@ Destructive."
   "Add ELEM at the end of car of REFlist referenced by REFLIST.
 Do nothing if ELEM is already present.
 Return the new LAST.
-See `duo-deref' for the format of REFLIST.
 If non nil, LAST is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -1176,6 +1205,7 @@ Destructive."
 (defun duo-ref-push-and-truncate (elem reflist &optional num)
   "Add ELEM at the beginning of list referenced by REFLIST.
 Truncate list referenced by REFLIST to its first NUM elements.
+If NUM is nil, do nothing.
 Return list referenced by REFLIST.
 See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -1195,6 +1225,7 @@ Destructive."
 (defun duo-ref-add-and-clip (elem reflist &optional num length last)
   "Add ELEM at the end of list referenced by REFLIST.
 Truncate list referenced by REFLIST to its last NUM elements.
+If NUM is nil, do nothing.
 Return the new LAST.
 If non nil, LENGTH is used to speed up the process.
 See `duo-deref' for the format of REFLIST.
@@ -1219,6 +1250,50 @@ Destructive."
       (duo-ref-pop reflist)
       (setq length (1- length)))
     added))
+
+(defun duo-ref-push-new-and-truncate (elem reflist &optional num fn-equal)
+  "Push ELEM to list referenced by REFLIST if not there and truncate.
+The first NUM elements are kept.
+If NUM is nil, do nothing.
+Return list referenced by REFLIST.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-push-new-and-truncate elem reflist num)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let ((list (duo-deref reflist)))
+    (if (duo-member elem list fn-equal)
+        list
+      (duo-ref-push-and-truncate elem reflist num))))
+
+(defun duo-ref-add-new-and-clip (elem reflist &optional num length last fn-equal)
+  "Add ELEM at the end of list referenced by REFLIST if not there.
+If NUM is nil, do nothing.
+Return the new LAST.
+If non nil, LAST is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-add-new-and-clip elem reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (unless (duo-member elem (duo-deref reflist) fn-equal)
+    (duo-ref-add-and-clip elem reflist num length last)))
 
 ;;; Join
 ;;; ------------------------------------------------------------
@@ -1279,8 +1354,8 @@ Destructive."
 (defun duo-ref-rotate-left (reflist)
   "Rotate list referenced by REFLIST to the left.
 Return list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 Equivalent to pop first element and add it to the end.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -1302,8 +1377,8 @@ Destructive."
 (defun duo-ref-rotate-right (reflist)
   "Rotate list referenced by REFLIST to the right.
 Return list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 Equivalent to drop last element and push it at the beginning.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -1405,8 +1480,8 @@ Destructive."
   "Roll list referenced by REFLIST to the left until CONS is at the beginning.
 Return list referenced by REFLIST.
 CONS must be a cons in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1462,10 +1537,10 @@ Destructive."
   "Roll list referenced by REFLIST to the left until ELEM is at the beginning.
 Return list referenced by REFLIST.
 ELEM must be present in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1489,9 +1564,9 @@ Destructive."
   "Roll list referenced by REFLIST to the right until ELEM is at the end.
 Return list referenced by REFLIST.
 ELEM must be present in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1793,8 +1868,8 @@ Destructive."
   "Insert NEW before CONS in list referenced by REFLIST. Return NEW.
 CONS must be a cons in list referenced by REFLIST.
 NEW is the cons inserted.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS inserted is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1826,8 +1901,8 @@ Destructive."
   "Insert NEW before CONS in list referenced by REFLIST. Return cons of NEW.
 CONS must be a cons in list referenced by REFLIST.
 NEW is the value of the element inserted.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS inserted is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1848,10 +1923,10 @@ Destructive."
   "Insert NEW before ELEM in list referenced by REFLIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS inserted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -1881,10 +1956,10 @@ Destructive."
   "Insert NEW before ELEM in list referenced by REFLIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS inserted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2008,8 +2083,8 @@ Destructive."
 (defun duo-ref-remove (cons reflist &optional previous)
   "Remove CONS from list referenced by REFLIST. Return CONS.
 CONS must be a cons in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS removed is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2034,10 +2109,10 @@ Destructive."
 
 (defun duo-ref-delete (elem reflist &optional previous fn-equal)
   "Delete ELEM from list referenced by REFLIST. Return removed cons.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS deleted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2066,9 +2141,9 @@ Destructive."
 (defun duo-ref-delete-all (elem reflist &optional fn-equal)
   "Delete all elements equals to ELEM from list referenced by REFLIST.
 Return list of removed cons.
-See `duo-deref' for the format of REFLIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2292,9 +2367,9 @@ Destructive."
   "Move MOVED before CONS in list referenced by REFLIST. Return MOVED.
 CONS must be a cons in list referenced by REFLIST.
 MOVED is the cons of the moved element.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2314,8 +2389,8 @@ Destructive."
   "Move MOVED after CONS in list referenced by REFLIST. Return MOVED.
 CONS must be a cons in list referenced by REFLIST.
 MOVED is the cons of the moved element.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS removed is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2340,11 +2415,11 @@ Destructive."
   "Move MOVED before CONS in list referenced by REFLIST. Return MOVED.
 CONS must be a cons in list referenced by REFLIST.
 MOVED is the value of the moved element.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2364,10 +2439,10 @@ Destructive."
   "Move MOVED after CONS in list referenced by REFLIST. Return MOVED.
 CONS must be a cons in list referenced by REFLIST.
 MOVED is the value of the moved element.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2391,11 +2466,11 @@ Destructive."
   "Move MOVED before ELEM in list referenced by REFLIST. Return MOVED.
 ELEM must be present in list.
 MOVED is the cons of the moved element.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2415,10 +2490,10 @@ Destructive."
   "Move MOVED after ELEM in list referenced by REFLIST. Return MOVED.
 ELEM must be present in list.
 MOVED is the cons of the moved element.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2442,11 +2517,11 @@ Destructive."
   "Move MOVED before ELEM in list referenced by REFLIST. Return MOVED.
 ELEM must be present in list.
 MOVED is the value of the moved element.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
 are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2467,10 +2542,10 @@ Destructive."
   "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
-See `duo-deref' for the format of REFLIST.
 If non nil, PREVIOUS removed is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2694,8 +2769,8 @@ Destructive."
   "Move MOVED to NUM previous place in list referenced by REFLIST. Return MOVED.
 If range is exceeded, move MOVED at the beginning of the list.
 MOVED must be a cons in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2724,8 +2799,8 @@ Destructive."
   "Move MOVED to NUM next place in list referenced by REFLIST. Return MOVED.
 If range is exceeded, move MOVED at the end of the list.
 MOVED must be a cons in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2750,10 +2825,10 @@ Destructive."
   "Move ELEM to NUM previous place in list referenced by REFLIST. Return MOVED.
 If range is exceeded, move ELEM at the beginning of the list.
 MOVED is the moved value.
-See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2785,10 +2860,10 @@ Destructive."
   "Move ELEM to NUM next place in list referenced by REFLIST. Return MOVED.
 If range is exceeded, move MOVED at the end of the list.
 MOVED is the moved value.
-See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2817,8 +2892,8 @@ Destructive."
   "Move MOVED to NUM previous place in list referenced by REFLIST. Return MOVED.
 Circular : if in beginning of list, go to the end.
 MOVED must be a cons in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2846,8 +2921,8 @@ Destructive."
   "Move MOVED to NUM next place in list referenced by REFLIST. Return MOVED.
 Circular : if in end of list, go to the beginning.
 MOVED must be a cons in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2869,10 +2944,10 @@ Destructive."
   "Move ELEM to NUM previous place in LIST. Return MOVED.
 Circular : if in beginning of list, go to the end.
 MOVED is the moved value.
-See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2904,10 +2979,10 @@ Destructive."
   "Move ELEM to NUM next place in LIST. Return MOVED.
 Circular : if in end of list, go to the beginning.
 MOVED is the moved value.
-See `duo-deref' for the format of REFLIST.
 NUM defaults to 1.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -2993,8 +3068,8 @@ Destructive."
 (defun duo-ref-exchange-cons (one two reflist &optional pre-one pre-two)
   "Exchange cons ONE and TWO in list referenced by REFLIST. Return (ONE . TWO).
 ONE and TWO must be cons in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
 Common usage :
@@ -3034,11 +3109,11 @@ Destructive."
   "Exchange elements ONE and TWO in list referenced by REFLIST.
 Return (ONE . TWO).
 ONE and TWO must be present in list referenced by REFLIST.
-See `duo-deref' for the format of REFLIST.
 If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 ;; Create reflist
@@ -3299,9 +3374,9 @@ If the group is not found, insert at the beginning of list
 referenced by REFLIST.
 Return cons of NEW.
 NEW is the value of the element inserted.
-See `duo-deref' for the format of REFLIST.
 FN-GROUP takes two arguments and returns t if they belongs to the same group.
 FN-GROUP defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
@@ -3329,9 +3404,9 @@ The group is determined by FN-GROUP.
 If the group is not found, insert at the end of list referenced by REFLIST.
 Return cons of NEW.
 NEW is the value of the element inserted.
-See `duo-deref' for the format of REFLIST.
 FN-GROUP takes two arguments and returns t if they belongs to the same group.
 FN-GROUP defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself as argument.
 Common usage :
