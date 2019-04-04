@@ -12,6 +12,7 @@
   - [[#next--previous-vs-after--before][Next / Previous vs After / Before]]
   - [[#remove-vs-delete][Remove vs Delete]]
   - [[#returned-objects][Returned objects]]
+  - [[#functions-in-arguments][Functions in arguments]]
   - [[#assoc][Assoc]]
 - [[#warning][Warning]]
 
@@ -192,6 +193,17 @@ A common case of this situation is with functions which modify the
 first cons of the list : push, pop, etc.
 
 Check their doc to know how to recover the updated list.
+
+
+** Functions in arguments
+
+Some functions accept a function =fn-*= in argument. Among these
+=fn-*=, some takes two arguments. When this is the case, they are
+called internally like this :
+
+#+begin_src emacs-lisp
+(funcall fn-* cons-from-loop elem-or-cons-from-argument)
+#+end_src
 
 
 ** Assoc

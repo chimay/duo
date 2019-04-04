@@ -13,6 +13,8 @@
 
 ;; Library of in place list operations in Emacs-Lisp.
 ;;
+;; See also https://github.com/chimay/duo/blob/master/README.org
+;;
 ;; Cons DUO = (CAR . CDR) can be used as double pointer
 ;; with setcar and setcdr
 ;;
@@ -56,6 +58,21 @@
 ;;
 ;;   - Continuing at the beginning once arrived at the end
 ;;   - Continuing at the end once arrived at the beginning
+;;
+;; There is a slight difference between next/previous and after/before
+;; functions :
+;;
+;;   - Next / Previous use a cons as main argument
+;;   - After / Before use the value of an element of the list as main argument
+;;
+;; There is a slight difference between remove and delete functions :
+;;
+;;   - Remove removes a cons given as argument
+;;   - Delete remove the first cons whose car matches an element given as argument
+;;
+;; The fn-* accepting two arguments are called like this :
+;;
+;; (funcall fn-* cons-from-loop elem-or-cons-from-argument)
 
 ;;; License:
 ;;; ----------------------------------------------------------------------
