@@ -35,6 +35,101 @@
 (eval-when-compile
   (require 'duo-common))
 
+;;; Stack & Queue
+;;; ------------------------------------------------------------
+
+(defun duo-sym-push-cons (cons symlist)
+  "Add CONS at the beginning of SYMLIST. Return list.
+Common usage :
+\(duo-sym-push-cons cons 'list)
+Destructive."
+  (setcdr cons (symbol-value symlist))
+  (set symlist cons)
+  cons)
+
+(defun duo-sym-add-cons (cons symlist &optional last)
+  "Store CONS at the end of SYMLIST. Return CONS.
+If non nil, LAST is used to speed up the process.
+Common usage :
+\(duo-sym-add-cons cons 'list)
+Destructive."
+  (let ((last (if last
+                  last
+                (duo-last (symbol-value symlist)))))
+    (if last
+        (setcdr last cons)
+      (set symlist cons))
+    (setcdr cons nil)
+    cons))
+
+(defun duo-sym-push (elem symlist)
+  "Add ELEM at the beginning of SYMLIST. Return list.
+Common usage :
+\(duo-sym-push elem 'list)
+Destructive."
+  (set symlist (cons elem (symbol-value symlist)))
+  (symbol-value symlist))
+
+(defun duo-sym-add (elem symlist &optional last)
+  "Add ELEM at the end of SYMLIST. Return the new LAST.
+If non nil, LAST is used to speed up the process.
+Common usage :
+\(duo-sym-add elem 'list)
+Destructive."
+  (let ((last (if last
+                  last
+                (duo-last (symbol-value symlist))))
+        (duo (cons elem nil)))
+    (if last
+        (setcdr last duo)
+      (set symlist duo))
+    duo))
+
+(defun duo-sym-push-new-cons (cons symlist)
+  "Add CONS at the beginning of SYMLIST if not already there. Return list.
+Common usage :
+\(duo-sym-push-new-cons cons 'list)
+Destructive."
+  (let ((list (symbol-value symlist)))
+    (if (duo-inside cons list)
+        list
+      (duo-sym-push-cons cons symlist))))
+
+(defun duo-sym-add-new-cons (cons symlist &optional last)
+  "Add CONS at the end of SYMLIST if not already there. Return the new LAST.
+If non nil, LAST is used to speed up the process.
+Common usage :
+\(duo-sym-add-new-cons cons 'list)
+Destructive."
+  (let ((list (symbol-value symlist)))
+    (unless (duo-inside cons list)
+      (duo-sym-add-cons cons symlist last))))
+
+(defun duo-sym-push-new (elem symlist &optional fn-equal)
+  "Add ELEM at the beginning of SYMLIST if not already there. Return list.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Common usage :
+\(duo-sym-push-new elem 'list)
+Destructive."
+  (let ((list (symbol-value symlist)))
+    (if (duo-member elem list fn-equal)
+        list
+      (duo-sym-push elem symlist))))
+
+(defun duo-sym-add-new (elem symlist &optional last fn-equal)
+  "Add ELEM at the end of SYMLIST if not already there.
+Return the new LAST.
+If non nil, LAST is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Common usage :
+\(duo-sym-add-new elem 'list)
+Destructive."
+  (let ((list (symbol-value symlist)))
+    (unless (duo-member elem list fn-equal)
+      (duo-sym-add elem symlist last))))
+
 ;;; End
 ;;; ------------------------------------------------------------
 
