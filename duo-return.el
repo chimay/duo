@@ -1,5 +1,7 @@
 ;;; duo-return.el --- Return part of duo             -*- lexical-binding: t; -*-
 
+;; Use return value to alter list
+
 ;; Copyright (C) 2019 Chimay
 
 ;;; License:

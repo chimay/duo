@@ -1,5 +1,7 @@
 ;;; duo-symbol.el --- Symbol part of duo             -*- lexical-binding: t; -*-
 
+;; Use symbol to alter list
+
 ;; Copyright (C) 2019 Chimay
 
 ;;; License:
@@ -30,8 +32,6 @@
 
 (eval-when-compile
   (require 'duo-common))
-
-
 
 ;;; End
 ;;; ------------------------------------------------------------

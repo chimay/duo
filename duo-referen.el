@@ -1,5 +1,7 @@
 ;;; duo-referen.el --- Reference part of duo         -*- lexical-binding: t; -*-
 
+;; Use reference to list to alter it
+
 ;; Copyright (C) 2019 Chimay
 
 ;;; License:
