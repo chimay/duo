@@ -44,6 +44,7 @@
 (declare-function duo-circ-previous "duo-common")
 (declare-function duo-circ-next "duo-common")
 (declare-function duo-circ-before "duo-common")
+(declare-function duo-assoc "duo-common")
 
 ;;; Pointers
 ;;; ------------------------------------------------------------
@@ -938,7 +939,7 @@ Common usage :
 Destructive."
   (unless (eq cons moved)
     (duo-ref-remove moved reflist previous)
-    (duo-insert-cons-next cons moved))
+    (duo-ref-insert-cons-next cons moved))
   moved)
 
 ;;; Cons Elem
@@ -1436,7 +1437,7 @@ Destructive."
                            (funcall fn-less (car next) new))
                  (setq duo (cdr duo))
                  (setq next (cdr next)))
-               (duo-insert-next duo new))))))
+               (duo-ref-insert-next duo new))))))
 
 ;;; Group
 ;;; ------------------------------
@@ -1466,7 +1467,7 @@ Destructive."
          (duo))
     (if previous
         (progn
-          (duo-insert-next previous new)
+          (duo-ref-insert-next previous new)
           (setq duo (cdr previous)))
       (duo-ref-push new reflist)
       (setq duo (duo-deref reflist)))
@@ -1502,7 +1503,7 @@ Destructive."
       (setq previous (cdr previous)))
     (if previous
         (progn
-          (duo-insert-next previous new)
+          (duo-ref-insert-next previous new)
           (setq duo (cdr previous)))
       (setq duo (duo-ref-add new reflist)))
     duo))
@@ -1520,22 +1521,20 @@ where all the elem-* verify (FN-KEY elem-?) = key.
 FN-KEY defaults to `identity'."
   (let* ((list (duo-deref reflist))
          (fn-key (if fn-key
-                    fn-key
-                  #'identity))
-        (duo list)
-        (assoc-list)
-        (key)
-        (key-list))
+                     fn-key
+                   #'identity))
+         (duo list)
+         (assoc-list (list nil))
+         (key)
+         (key-list))
     (while duo
       (setq key (funcall fn-key (car duo)))
-      (setq key-list (duo-assoc key assoc-list))
+      (setq key-list (duo-assoc key (duo-deref assoc-list)))
       (if key-list
-          (duo-add (car duo) (car key-list))
-        (if assoc-list
-            (duo-add (list key (car duo)) assoc-list)
-          (setq assoc-list (list (list key (car duo))))))
+          (duo-ref-add (car duo) (list (car key-list)))
+        (duo-ref-add (list key (car duo)) assoc-list))
       (setq duo (cdr duo)))
-    assoc-list))
+    (duo-deref assoc-list)))
 
 ;;; End
 ;;; ------------------------------------------------------------
