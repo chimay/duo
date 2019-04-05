@@ -372,6 +372,7 @@ Destructive."
 
 (defun duo-reverse-next (cons list)
   "Reverse second part of LIST, starting just after CONS to end.
+Return LIST.
 Destructive."
   (let ((next (cdr cons))
         (reversed))
@@ -394,6 +395,7 @@ Destructive."
 
 (defun duo-reverse-after (elem list &optional fn-equal)
   "Reverse second part of LIST, starting just after ELEM to end.
+Return LIST.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."

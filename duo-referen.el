@@ -402,12 +402,10 @@ Common usage :
 ;; Update list
 \(setq mylist (duo-deref reflist))
 Destructive."
-  (let ((list (duo-deref reflist)))
-    ;; Length list > 1
-    (when (cdr list)
-      (let ((popped (duo-ref-pop reflist)))
-        (setq list (duo-deref reflist))
-        (duo-add-cons popped list))))
+  ;; Length list > 1
+  (when (cdr (duo-deref reflist))
+    (let ((popped (duo-ref-pop reflist)))
+      (duo-ref-add-cons popped reflist)))
   (duo-deref reflist))
 
 (defun duo-ref-rotate-right (reflist)
@@ -588,6 +586,16 @@ Destructive."
     (setcdr (duo-last (duo-deref reflist)) next)
     (duo-deref reflist)))
 
+(defun duo-ref-reverse-next (cons reflist)
+  "Reverse second part of list referenced by REFLIST, from after CONS to end.
+Return list referenced by REFLIST.
+Destructive."
+  (let ((refnext (list (cdr cons))))
+    (setcdr cons nil)
+    (duo-ref-reverse refnext)
+    (setcdr cons (duo-deref refnext))
+    (duo-deref reflist)))
+
 (defun duo-ref-reverse-before (elem reflist &optional fn-equal)
   "Reverse first part of list referenced by REFLIST.
 The first part goes from beginning to ELEM included.
@@ -607,6 +615,15 @@ Common usage :
 Destructive."
   (let ((duo (duo-member elem (duo-deref reflist) fn-equal)))
     (duo-ref-reverse-previous duo reflist)))
+
+(defun duo-ref-reverse-after (elem reflist &optional fn-equal)
+  "Reverse second part of list referenced by REFLIST, from after ELEM to end.
+Return list referenced by REFLIST.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((duo (duo-member elem (duo-deref reflist) fn-equal)))
+    (duo-ref-reverse-next duo reflist)))
 
 ;;; Insert
 ;;; ------------------------------------------------------------
@@ -811,7 +828,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let ((removed)
-        (removed-list)
+        (removed-list (list nil))
         (last)
         (list)
         (duo)
@@ -821,10 +838,7 @@ Destructive."
                     #'equal)))
     (while (funcall fn-equal (car (duo-deref reflist)) elem)
       (setq removed (duo-ref-pop reflist))
-      (if removed-list
-          (setq last (duo-add-cons removed removed-list last))
-        (setq removed-list removed)
-        (setq last removed)))
+      (setq last (duo-ref-add-cons removed removed-list last)))
     (setq list (duo-deref reflist))
     (setq duo list)
     (while duo
@@ -832,12 +846,9 @@ Destructive."
       (when (funcall fn-equal (car duo) elem)
         (setq list (car (duo-ref-remove duo reflist)))
         (setq removed duo)
-        (if removed-list
-            (setq last (duo-add-cons removed removed-list last))
-          (setq removed-list removed)
-          (setq last removed)))
+        (setq last (duo-ref-add-cons removed removed-list last)))
       (setq duo next))
-    removed-list))
+    (duo-deref removed-list)))
 
 ;;; Teleport
 ;;; ------------------------------------------------------------
