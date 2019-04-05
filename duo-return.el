@@ -387,6 +387,771 @@ Destructive."
   (let ((duo (duo-member elem list fn-equal)))
     (duo-reverse-next duo list)))
 
+;;; Insert
+;;; ------------------------------------------------------------
+
+;;; Cons Cons
+;;; ------------------------------
+
+(defun duo-insert-cons-previous (cons new list &optional previous)
+  "Insert NEW before CONS in LIST. Return NEW.
+CONS must be a cons in LIST.
+NEW is the cons inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+If the new cons is inserted at the beginning of the list,
+the actual new list must be recovered using new LIST = NEW.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq return (duo-insert-cons-previous cons new list))
+\(when (eq (cdr return) list)
+  (setq list return))
+Destructive."
+  (if (eq cons list)
+      (duo-push-cons new list)
+    (let ((previous (if (and previous
+                             (not (eq previous new)))
+                        previous
+                      (duo-previous cons list))))
+      (if previous
+          (progn
+            (setcdr new (cdr previous))
+            (setcdr previous new)
+            new)
+        nil))))
+
+(defun duo-insert-cons-next (cons new)
+  "Insert NEW after CONS in list. Return NEW.
+CONS must be a cons in LIST.
+NEW is the cons inserted.
+Destructive."
+    (setcdr new (cdr cons))
+    (setcdr cons new)
+    new)
+
+;;; Cons Elem
+;;; ------------------------------
+
+(defun duo-insert-previous (cons new list &optional previous)
+  "Insert NEW before CONS in LIST. Return cons of NEW.
+CONS must be a cons in LIST.
+NEW is the value of the element inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+If the new cons is inserted at the beginning of the list,
+the actual new list must be recovered using new LIST = NEW.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq return (duo-insert-previous cons new list))
+\(when (eq (cdr return) list)
+  (setq list return))
+Destructive."
+  (let ((duo (list new)))
+    (duo-insert-cons-previous cons duo list previous)))
+
+(defun duo-insert-next (cons new)
+  "Insert NEW after CONS in list. Return cons of NEW.
+CONS must be a cons in LIST.
+NEW is the value of the element inserted.
+Destructive."
+  (let ((duo (list new)))
+    (duo-insert-cons-next cons duo)))
+
+;;; Elem Cons
+;;; ------------------------------
+
+(defun duo-insert-cons-before (elem new list &optional previous fn-equal)
+  "Insert NEW before ELEM in LIST. Return NEW.
+ELEM must be present in list.
+NEW is the cons inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+If the new cons is inserted at the beginning of the list,
+the actual new list must be recovered using new LIST = NEW.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq return (duo-insert-cons-before cons new list))
+\(when (eq (cdr return) list)
+  (setq list return))
+Destructive."
+  (let* ((fn-equal (if fn-equal
+                         fn-equal
+                       #'equal))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 fn-equal)))
+         (duo (if (funcall fn-equal (car list) elem)
+                  list
+                (cdr previous))))
+    (duo-insert-cons-previous duo new list previous)))
+
+(defun duo-insert-cons-after (elem new list &optional fn-equal)
+  "Insert NEW after ELEM in LIST. Return NEW.
+ELEM must be present in list.
+NEW is the cons inserted.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-insert-cons-next duo new)))
+
+;;; Elem Elem
+;;; ------------------------------
+
+(defun duo-insert-before (elem new list &optional previous fn-equal)
+  "Insert NEW before ELEM in LIST. Return cons of NEW.
+ELEM must be present in list.
+NEW is the value of the element inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+If the new cons is inserted at the beginning of the list,
+the actual new list must be recovered using new LIST = NEW.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq return (duo-insert-before cons new list))
+\(when (eq (cdr return) list)
+  (setq list return))
+Destructive."
+  (let* ((fn-equal (if fn-equal
+                         fn-equal
+                       #'equal))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 fn-equal)))
+         (cons-elem (if (funcall fn-equal (car list) elem)
+                        list
+                      (cdr previous)))
+         (cons-new (list new)))
+    (duo-insert-cons-previous cons-elem cons-new list previous)))
+
+(defun duo-insert-after (elem new list &optional fn-equal)
+  "Insert NEW after ELEM in LIST. Return cons of NEW.
+ELEM must be present in list.
+NEW is the value of the element inserted.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((cons-elem (duo-member elem list fn-equal))
+        (cons-new (list new)))
+    (duo-insert-cons-next cons-elem cons-new)))
+
+;;; Remove
+;;; ------------------------------------------------------------
+
+(defun duo-remove (cons list &optional previous)
+  "Remove CONS from LIST. Return (CONS . LIST).
+CONS must be a cons in LIST.
+If non nil, PREVIOUS removed is used to speed up the process.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq pair (duo-remove cons list))
+\(setq removed (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (if (eq cons list)
+      (duo-pop list)
+    (let ((previous (if (and previous
+                             (not (eq previous cons)))
+                        previous
+                      (duo-previous cons list))))
+      (when previous
+        (setcdr previous (cdr cons))
+        (setcdr cons nil))
+      (cons cons list))))
+
+(defun duo-delete (elem list &optional previous fn-equal)
+  "Delete ELEM from LIST. Return (removed-cons . LIST).
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+If non nil, PREVIOUS removed is used to speed up the process.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq pair (duo-delete elem list))
+\(setq removed (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let* ((fn-equal (if fn-equal
+                         fn-equal
+                       #'equal))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 fn-equal)))
+         (duo (if (funcall fn-equal (car list) elem)
+                  list
+                (cdr previous))))
+    (if (and duo
+             list)
+        (duo-remove duo list previous)
+      (cons nil list))))
+
+(defun duo-delete-all (elem list &optional fn-equal)
+  "Delete all elements equals to ELEM from LIST.
+Return (list-of-removed-cons . LIST).
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq pair (duo-delete-all elem list))
+\(setq removed-list (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((newlist list)
+        (pair)
+        (removed)
+        (removed-list)
+        (last)
+        (duo)
+        (next)
+        (fn-equal (if fn-equal
+                        fn-equal
+                      #'equal)))
+    (while (funcall fn-equal (car newlist) elem)
+      (setq pair (duo-pop newlist))
+      (setq removed (car pair))
+      (setq newlist (cdr pair))
+      (if removed-list
+          (setq last (duo-add-cons removed removed-list last))
+        (setq removed-list removed)
+        (setq last removed)))
+    (setq duo newlist)
+    (while duo
+      (setq next (cdr duo))
+      (when (funcall fn-equal (car duo) elem)
+        (setq newlist (cdr (duo-remove duo newlist)))
+        (setq removed duo)
+        (if removed-list
+            (setq last (duo-add-cons removed removed-list last))
+          (setq removed-list removed)
+          (setq last removed)))
+      (setq duo next))
+    (cons removed-list newlist)))
+
+;;; Teleport
+;;; ------------------------------------------------------------
+
+;;; Cons Cons
+;;; ------------------------------
+
+(defun duo-teleport-cons-previous (cons moved list &optional
+                                        previous-removed previous-inserted)
+  "Move MOVED before CONS in LIST. Return (MOVED . LIST).
+CONS must be a cons in LIST.
+MOVED is the cons of the moved element.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-teleport-cons-previous cons moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((newlist list)
+        (return))
+    (unless (eq cons moved)
+      (setq newlist (cdr (duo-remove moved list previous-removed)))
+      (setq return (duo-insert-cons-previous cons moved newlist
+                                             previous-inserted))
+      (when (eq (cdr return) newlist)
+        (setq newlist return)))
+    (cons moved newlist)))
+
+(defun duo-teleport-cons-next (cons moved list &optional previous)
+  "Move MOVED after CONS in LIST. Return (MOVED . LIST).
+CONS must be a cons in LIST.
+MOVED is the cons of the moved element.
+If non nil, PREVIOUS removed is used to speed up the process.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq pair (duo-teleport-cons-next cons moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((newlist list))
+    (unless (eq cons moved)
+      (setq newlist (cdr (duo-remove moved list previous)))
+      (duo-insert-cons-next cons moved))
+    (cons moved newlist)))
+
+;;; Cons Elem
+;;; ------------------------------
+
+(defun duo-teleport-previous (cons moved list &optional
+                                   previous-removed previous-inserted
+                                   fn-equal)
+  "Move MOVED before CONS in LIST. Return (cons of MOVED . LIST).
+CONS must be a cons in LIST.
+MOVED is the value of the moved element.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-teleport-previous cons moved list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((duo (duo-member moved list fn-equal)))
+    (duo-teleport-cons-previous cons duo list
+                                previous-removed previous-inserted)))
+
+(defun duo-teleport-next (cons moved list &optional previous fn-equal)
+  "Move MOVED after CONS in LIST. Return (cons of MOVED . LIST).
+CONS must be a cons in LIST.
+MOVED is the value of the moved element.
+If non nil, PREVIOUS removed is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq pair (duo-teleport-next cons moved list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((duo (duo-member moved list fn-equal)))
+    (duo-teleport-cons-next cons duo list previous)))
+
+;;; Elem Cons
+;;; ------------------------------
+
+(defun duo-teleport-cons-before (elem moved list &optional
+                                   previous-removed previous-inserted
+                                   fn-equal)
+  "Move MOVED before ELEM in LIST. Return (MOVED . LIST).
+ELEM must be present in list.
+MOVED is the cons of the moved element.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-teleport-before elem moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-teleport-cons-previous duo moved list
+                                previous-removed previous-inserted)))
+
+(defun duo-teleport-cons-after (elem moved list &optional previous fn-equal)
+  "Move MOVED after ELEM in LIST. Return (MOVED . LIST).
+ELEM must be present in list.
+MOVED is the cons of the moved element.
+If non nil, PREVIOUS removed is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq pair (duo-teleport-after elem moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-teleport-cons-next duo moved list previous)))
+
+;;; Elem Elem
+;;; ------------------------------
+
+(defun duo-teleport-before (elem moved list &optional
+                                 previous-removed previous-inserted
+                                 fn-equal)
+  "Move MOVED before ELEM in LIST. Return (cons of MOVED . LIST).
+ELEM must be present in list.
+MOVED is the value of the moved element.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-teleport-before elem moved list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((elem-cons (duo-member elem list fn-equal))
+        (moved-cons (duo-member moved list fn-equal)))
+    (duo-teleport-cons-previous elem-cons moved-cons list
+                                previous-removed previous-inserted)))
+
+(defun duo-teleport-after (elem moved list &optional previous fn-equal)
+  "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
+ELEM must be present in list.
+MOVED is the value of the moved element.
+If non nil, PREVIOUS removed is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq pair (duo-teleport-after elem moved list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((elem-cons (duo-member elem list fn-equal))
+        (moved-cons (duo-member moved list fn-equal)))
+    (duo-teleport-cons-next elem-cons moved-cons list previous)))
+
+;;; Move
+;;; ------------------------------------------------------------
+
+;;; Step
+;;; ------------------------------
+
+(defun duo-move-previous (moved list &optional num)
+  "Move MOVED to NUM previous place in LIST. Return (MOVED . LIST).
+If range is exceeded, move MOVED at the beginning of the list.
+MOVED must be a cons in LIST.
+NUM defaults to 1.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-previous moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let* ((num (if num
+                  num
+                1))
+         (pre-ins (duo-previous moved list (1+ num)))
+         (landmark (if pre-ins
+                       (cdr pre-ins)
+                     list))
+         (pre-rem (if pre-ins
+                      (nthcdr num pre-ins)
+                    (duo-previous moved list))))
+    (duo-teleport-cons-previous landmark moved list pre-rem pre-ins)))
+
+(defun duo-move-next (moved list &optional num)
+  "Move MOVED to NUM next place in LIST. Return (MOVED . LIST).
+If range is exceeded, move MOVED at the end of the list.
+MOVED must be a cons in LIST.
+NUM defaults to 1.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-next moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let* ((num (if num
+                  num
+                1))
+         (landmark (nthcdr num moved)))
+    (unless landmark
+      (setq landmark (duo-last list)))
+    (duo-teleport-cons-next landmark moved list)))
+
+(defun duo-move-before (elem list &optional num fn-equal)
+  "Move ELEM to NUM previous place in LIST. Return (MOVED . LIST).
+If range is exceeded, move ELEM at the beginning of the list.
+MOVED is the moved value.
+NUM defaults to 1.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-before elem list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let* ((num (if num
+                  num
+                1))
+         (pre-ins (duo-before elem list (1+ num) fn-equal))
+         (landmark (if pre-ins
+                       (cdr pre-ins)
+                     list))
+         (pre-rem (if pre-ins
+                      (nthcdr num pre-ins)
+                    (duo-before elem list 1 fn-equal)))
+         (moved (if pre-rem
+                    (cdr pre-rem)
+                  (duo-member elem list fn-equal))))
+    (duo-teleport-cons-previous landmark moved list pre-rem pre-ins)))
+
+(defun duo-move-after (elem list &optional num fn-equal)
+  "Move ELEM to NUM next place in LIST. Return (MOVED . LIST).
+If range is exceeded, move MOVED at the end of the list.
+MOVED is the moved value.
+NUM defaults to 1.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-after elem list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let* ((num (if num
+                  num
+                1))
+         (moved (duo-member elem list fn-equal))
+         (landmark (nthcdr num moved)))
+    (unless landmark
+      (setq landmark (duo-last list)))
+    (duo-teleport-cons-next landmark moved list)))
+
+;;; Circular
+;;; ------------------------------
+
+(defun duo-circ-move-previous (moved list &optional num)
+  "Move MOVED to NUM previous place in LIST. Return (MOVED . LIST).
+Circular : if in beginning of list, go to the end.
+MOVED must be a cons in LIST.
+NUM defaults to 1.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-circ-move-previous moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let* ((num (if num
+                  num
+                1))
+         (pre-ins (duo-circ-previous moved list (1+ num)))
+         (landmark (duo-circ-next pre-ins list))
+         (pre-rem (duo-circ-next pre-ins list num)))
+    (when (eq landmark list)
+      (setq pre-ins nil))
+    (when (eq moved pre-ins)
+      (setq pre-ins nil))
+    (duo-teleport-cons-previous landmark moved list pre-rem pre-ins)))
+
+(defun duo-circ-move-next (moved list &optional num)
+  "Move MOVED to NUM next place in LIST. Return (MOVED . LIST).
+Circular : if in end of list, go to the beginning.
+MOVED must be a cons in LIST.
+NUM defaults to 1.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-circ-move-next moved list))
+\(setq moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let* ((num (if num
+                  num
+                1))
+         (landmark (duo-circ-next moved list num)))
+    (duo-teleport-cons-next landmark moved list)))
+
+(defun duo-circ-move-before (elem list &optional num fn-equal)
+  "Move ELEM to NUM previous place in LIST. Return (MOVED . LIST).
+Circular : if in beginning of list, go to the end.
+MOVED is the moved value.
+NUM defaults to 1.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-before elem list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let* ((num (if num
+                  num
+                1))
+         (pre-ins (duo-circ-before elem list (1+ num) fn-equal))
+         (landmark (duo-circ-next pre-ins list))
+         (pre-rem (duo-circ-next pre-ins list num))
+         (moved (cdr pre-rem)))
+    (unless moved
+      (setq moved (duo-member elem list fn-equal))
+      (setq pre-rem nil))
+    (when (eq landmark list)
+      (setq pre-ins nil))
+    (when (eq moved pre-ins)
+      (setq pre-ins nil))
+    (duo-teleport-cons-previous landmark moved list pre-rem pre-ins)))
+
+(defun duo-circ-move-after (elem list &optional num fn-equal)
+  "Move ELEM to NUM next place in LIST. Return (MOVED . LIST).
+Circular : if in end of list, go to the beginning.
+MOVED is the moved value.
+NUM defaults to 1.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq pair (duo-move-after elem list))
+\(setq cons-moved (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let* ((num (if num
+                  num
+                1))
+         (moved (duo-member elem list fn-equal))
+         (landmark (duo-circ-next moved list num)))
+    (duo-teleport-cons-next landmark moved list)))
+
+;;; Exchange
+;;; ------------------------------------------------------------
+
+(defun duo-exchange-cons (one two list &optional pre-one pre-two)
+  "Exchange cons ONE and TWO in LIST. Return ((ONE . TWO) . LIST).
+ONE and TWO must be cons in LIST.
+If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq structure (duo-exchange-cons one two list))
+\(setq one (car (car structure)))
+\(setq two (cdr (car structure)))
+\(setq list (cdr structure))
+Destructive."
+  (unless (eq one two)
+    (if (eq two list)
+        (let ((return)
+              (swap))
+          (setq return (duo-exchange-cons two one list))
+          (setq swap (car (car return)))
+          (setcar (car return) (cdr (car return)))
+          (setcdr (car return) swap)
+          return)
+      (let ((newlist list)
+            (pre-one (if pre-one
+                         pre-one
+                       (duo-previous one list)))
+            (pre-two (if pre-two
+                         pre-two
+                       (duo-previous two list)))
+            (pair))
+        (cond ((eq (cdr one) two)
+               (setq pair (duo-teleport-cons-next two one newlist pre-one)))
+              ((eq (cdr two) one)
+               (setq pair (duo-teleport-cons-next one two newlist pre-two)))
+              (t
+               (setq pair (duo-teleport-cons-next one two newlist pre-two))
+               (setq newlist (cdr pair))
+               (setq pair (duo-teleport-cons-next pre-two one newlist pre-one))))
+        (setq newlist (cdr pair))
+        (cons (cons one two) newlist)))))
+
+(defun duo-exchange (one two list &optional pre-one pre-two fn-equal)
+  "Exchange elements ONE and TWO in LIST. Return ((ONE . TWO) . LIST).
+ONE and TWO must be present in LIST.
+If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned list.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq structure (duo-exchange-cons one two list))
+\(setq one (car (car structure)))
+\(setq two (cdr (car structure)))
+\(setq list (cdr structure))
+Destructive."
+  (let ((cons-one (duo-member one list fn-equal))
+        (cons-two (duo-member two list fn-equal)))
+    (duo-exchange-cons cons-one cons-two list pre-one pre-two)))
+
+;;; Sorted
+;;; ------------------------------------------------------------
+
+(defun duo-insert-in-sorted-list (new list &optional fn-less)
+  "Insert NEW at the right place in LIST.
+LIST must be sorted in ascending order.
+Return cons of NEW.
+FN-LESS takes two arguments and return t if the first is less than the second.
+FN-LESS defaults to <
+If the new cons is inserted at the beginning of the list,
+the actual new list must be recovered using new LIST = NEW.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+\(setq return (duo-insert-in-sorted-list cons new list))
+\(when (eq (cdr return) list)
+  (setq list return))
+Destructive."
+  (let ((fn-less (if fn-less
+                     fn-less
+                   #'<)))
+    (cond ((not list) (cons new nil))
+          ((funcall fn-less new (car list)) (duo-push new list))
+          (t (let ((duo list)
+                   (next (cdr list)))
+               (while (and duo
+                           next
+                           (funcall fn-less (car next) new))
+                 (setq duo (cdr duo))
+                 (setq next (cdr next)))
+               (duo-insert-next duo new))))))
+
+;;; Group
+;;; ------------------------------
+
+(defun duo-insert-at-group-beg (new list &optional fn-group)
+  "Insert NEW in LIST, at the beginning of a group determined by FN-GROUP.
+If the group is not found, insert at the beginning of LIST.
+Return (cons of NEW . LIST).
+NEW is the value of the element inserted.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq pair (duo-insert-at-group-beg new list))
+\(setq cons-inserted (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((newlist list)
+        (previous (duo-before new list 1 fn-group))
+        (duo))
+    (if previous
+        (progn
+          (duo-insert-next previous new)
+          (setq duo (cdr previous)))
+      (setq newlist (duo-push new list))
+      (setq duo newlist))
+    (cons duo newlist)))
+
+(defun duo-insert-at-group-end (new list &optional fn-group)
+  "Insert NEW in LIST, at the end of a group determined by FN-GROUP.
+If the group is not found, insert at the end of LIST.
+Return (cons of NEW . LIST).
+NEW is the value of the element inserted.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+The actual new list must be recovered using the returned structure.
+See the docstring of `duo-naive-pop' to know why.
+Common usage :
+\(setq pair (duo-insert-at-group-end new list))
+\(setq cons-inserted (car pair))
+\(setq list (cdr pair))
+Destructive."
+  (let ((fn-group (if fn-group
+                        fn-group
+                      #'equal))
+        (newlist list)
+        (previous (duo-member new list fn-group))
+        (duo))
+    (while (and previous
+                (funcall fn-group (car (cdr previous)) new))
+      (setq previous (cdr previous)))
+    (if previous
+        (progn
+          (duo-insert-next previous new)
+          (setq duo (cdr previous)))
+      (setq duo (duo-add new newlist)))
+    (unless newlist
+      (setq newlist duo))
+    (cons duo newlist)))
+
 ;;; End
 ;;; ------------------------------------------------------------
 

@@ -596,6 +596,853 @@ Destructive."
   (let ((duo (duo-member elem (duo-deref reflist) fn-equal)))
     (duo-ref-reverse-previous duo reflist)))
 
+;;; Insert
+;;; ------------------------------------------------------------
+
+;;; Cons Cons
+;;; ------------------------------
+
+(defun duo-ref-insert-cons-previous (cons new reflist &optional previous)
+  "Insert NEW before CONS in list referenced by REFLIST. Return NEW.
+CONS must be a cons in list referenced by REFLIST.
+NEW is the cons inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-cons-previous cons new reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let ((list (duo-deref reflist)))
+    (if (eq cons list)
+        (duo-ref-push-cons new reflist)
+      (let ((previous (if (and previous
+                               (not (eq previous new)))
+                          previous
+                        (duo-previous cons list))))
+        (if previous
+            (progn
+              (setcdr new (cdr previous))
+              (setcdr previous new)
+              new)
+          nil)))))
+
+;;; Cons Elem
+;;; ------------------------------
+
+(defun duo-ref-insert-previous (cons new reflist &optional previous)
+  "Insert NEW before CONS in list referenced by REFLIST. Return cons of NEW.
+CONS must be a cons in list referenced by REFLIST.
+NEW is the value of the element inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-previous cons new reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let ((duo (list new)))
+    (duo-ref-insert-cons-previous cons duo reflist previous)))
+
+;;; Elem Cons
+;;; ------------------------------
+
+(defun duo-ref-insert-cons-before (elem new reflist &optional previous fn-equal)
+  "Insert NEW before ELEM in list referenced by REFLIST. Return NEW.
+ELEM must be present in list.
+NEW is the cons inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-cons-before elem new reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((fn-equal (if fn-equal
+                         fn-equal
+                       #'equal))
+         (list (duo-deref reflist))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 fn-equal)))
+         (duo (if (funcall fn-equal (car list) elem)
+                  list
+                (cdr previous))))
+    (duo-ref-insert-cons-previous duo new reflist previous)))
+
+;;; Elem Elem
+;;; ------------------------------
+
+(defun duo-ref-insert-before (elem new reflist &optional previous fn-equal)
+  "Insert NEW before ELEM in list referenced by REFLIST. Return cons of NEW.
+ELEM must be present in list.
+NEW is the value of the element inserted.
+If non nil, PREVIOUS inserted is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-before elem new reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((fn-equal (if fn-equal
+                         fn-equal
+                       #'equal))
+         (list (duo-deref reflist))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 fn-equal)))
+         (cons-elem (if (funcall fn-equal (car list) elem)
+                        list
+                      (cdr previous)))
+         (cons-new (list new)))
+    (duo-ref-insert-cons-previous cons-elem cons-new reflist previous)))
+
+;;; Remove
+;;; ------------------------------------------------------------
+
+(defun duo-ref-remove (cons reflist &optional previous)
+  "Remove CONS from list referenced by REFLIST. Return CONS.
+CONS must be a cons in list referenced by REFLIST.
+If non nil, PREVIOUS removed is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-pop' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-remove cons reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let ((list (duo-deref reflist)))
+    (if (eq cons list)
+        (duo-ref-pop reflist)
+      (let ((previous (if (and previous
+                               (not (eq previous cons)))
+                          previous
+                        (duo-previous cons list))))
+        (when previous
+          (setcdr previous (cdr cons))
+          (setcdr cons nil))
+        cons))))
+
+(defun duo-ref-delete (elem reflist &optional previous fn-equal)
+  "Delete ELEM from list referenced by REFLIST. Return removed cons.
+If non nil, PREVIOUS deleted is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-pop' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-delete elem reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (fn-equal (if fn-equal
+                         fn-equal
+                       #'equal))
+         (previous (if previous
+                       previous
+                     (duo-before elem list 1 fn-equal)))
+         (duo (if (funcall fn-equal (car list) elem)
+                  list
+                (cdr previous))))
+    (if (and duo
+             list)
+        (duo-ref-remove duo reflist previous)
+      nil)))
+
+(defun duo-ref-delete-all (elem reflist &optional fn-equal)
+  "Delete all elements equals to ELEM from list referenced by REFLIST.
+Return list of removed cons.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-pop' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-delete-all elem reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let ((removed)
+        (removed-list)
+        (last)
+        (list)
+        (duo)
+        (next)
+        (fn-equal (if fn-equal
+                      fn-equal
+                    #'equal)))
+    (while (funcall fn-equal (car (duo-deref reflist)) elem)
+      (setq removed (duo-ref-pop reflist))
+      (if removed-list
+          (setq last (duo-add-cons removed removed-list last))
+        (setq removed-list removed)
+        (setq last removed)))
+    (setq list (duo-deref reflist))
+    (setq duo list)
+    (while duo
+      (setq next (cdr duo))
+      (when (funcall fn-equal (car duo) elem)
+        (setq list (car (duo-ref-remove duo reflist)))
+        (setq removed duo)
+        (if removed-list
+            (setq last (duo-add-cons removed removed-list last))
+          (setq removed-list removed)
+          (setq last removed)))
+      (setq duo next))
+    removed-list))
+
+;;; Teleport
+;;; ------------------------------------------------------------
+
+;;; Cons Cons
+;;; ------------------------------
+
+(defun duo-ref-teleport-cons-previous (cons moved reflist &optional
+                                            previous-removed previous-inserted)
+  "Move MOVED before CONS in list referenced by REFLIST. Return MOVED.
+CONS must be a cons in list referenced by REFLIST.
+MOVED is the cons of the moved element.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-cons-previous cons moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (unless (eq cons moved)
+    (duo-ref-remove moved reflist previous-removed)
+    (duo-ref-insert-cons-previous cons moved reflist previous-inserted))
+  moved)
+
+(defun duo-ref-teleport-cons-next (cons moved reflist &optional previous)
+  "Move MOVED after CONS in list referenced by REFLIST. Return MOVED.
+CONS must be a cons in list referenced by REFLIST.
+MOVED is the cons of the moved element.
+If non nil, PREVIOUS removed is used to speed up the process.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-cons-next cons moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (unless (eq cons moved)
+    (duo-ref-remove moved reflist previous)
+    (duo-insert-cons-next cons moved))
+  moved)
+
+;;; Cons Elem
+;;; ------------------------------
+
+(defun duo-ref-teleport-previous (cons moved reflist &optional
+                                       previous-removed previous-inserted
+                                       fn-equal)
+  "Move MOVED before CONS in list referenced by REFLIST. Return MOVED.
+CONS must be a cons in list referenced by REFLIST.
+MOVED is the value of the moved element.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-previous cons moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (duo (duo-member moved list fn-equal)))
+    (duo-ref-teleport-cons-previous cons duo reflist
+                                    previous-removed previous-inserted)))
+
+(defun duo-ref-teleport-next (cons moved reflist &optional previous fn-equal)
+  "Move MOVED after CONS in list referenced by REFLIST. Return MOVED.
+CONS must be a cons in list referenced by REFLIST.
+MOVED is the value of the moved element.
+If non nil, PREVIOUS removed is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-next cons moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (duo (duo-member moved list fn-equal)))
+    (duo-ref-teleport-cons-next cons duo reflist previous)))
+
+;;; Elem Cons
+;;; ------------------------------
+
+(defun duo-ref-teleport-cons-before (elem moved reflist &optional
+                                          previous-removed previous-inserted
+                                          fn-equal)
+  "Move MOVED before ELEM in list referenced by REFLIST. Return MOVED.
+ELEM must be present in list.
+MOVED is the cons of the moved element.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-cons-before cons moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (duo (duo-member elem list fn-equal)))
+    (duo-ref-teleport-cons-previous duo moved reflist
+                                    previous-removed previous-inserted)))
+
+(defun duo-ref-teleport-cons-after (elem moved reflist &optional previous fn-equal)
+  "Move MOVED after ELEM in list referenced by REFLIST. Return MOVED.
+ELEM must be present in list.
+MOVED is the cons of the moved element.
+If non nil, PREVIOUS removed is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-cons-after cons moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (duo (duo-member elem list fn-equal)))
+    (duo-ref-teleport-cons-next duo moved reflist previous)))
+
+;;; Elem Elem
+;;; ------------------------------
+
+(defun duo-ref-teleport-before (elem moved reflist &optional
+                                     previous-removed previous-inserted
+                                     fn-equal)
+  "Move MOVED before ELEM in list referenced by REFLIST. Return MOVED.
+ELEM must be present in list.
+MOVED is the value of the moved element.
+If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+are used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-before cons moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (elem-cons (duo-member elem list fn-equal))
+         (moved-cons (duo-member moved list fn-equal)))
+    (duo-ref-teleport-cons-previous elem-cons moved-cons reflist
+                                    previous-removed previous-inserted)))
+
+(defun duo-ref-teleport-after (elem moved reflist &optional previous fn-equal)
+  "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
+ELEM must be present in list.
+MOVED is the value of the moved element.
+If non nil, PREVIOUS removed is used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-teleport-after elem moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (elem-cons (duo-member elem list fn-equal))
+         (moved-cons (duo-member moved list fn-equal)))
+    (duo-ref-teleport-cons-next elem-cons moved-cons reflist previous)))
+
+;;; Move
+;;; ------------------------------------------------------------
+
+;;; Linear
+;;; ------------------------------
+
+(defun duo-ref-move-previous (moved reflist &optional num)
+  "Move MOVED to NUM previous place in list referenced by REFLIST. Return MOVED.
+If range is exceeded, move MOVED at the beginning of the list.
+MOVED must be a cons in list referenced by REFLIST.
+NUM defaults to 1.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-move-previous moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (num (if num
+                  num
+                1))
+         (pre-ins (duo-previous moved list (1+ num)))
+         (landmark (if pre-ins
+                       (cdr pre-ins)
+                     list))
+         (pre-rem (if pre-ins
+                      (nthcdr num pre-ins)
+                    (duo-previous moved list))))
+    (duo-ref-teleport-cons-previous landmark moved reflist pre-rem pre-ins)
+    moved))
+
+(defun duo-ref-move-next (moved reflist &optional num)
+  "Move MOVED to NUM next place in list referenced by REFLIST. Return MOVED.
+If range is exceeded, move MOVED at the end of the list.
+MOVED must be a cons in list referenced by REFLIST.
+NUM defaults to 1.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-move-next moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (num (if num
+                  num
+                1))
+         (landmark (nthcdr num moved)))
+    (unless landmark
+      (setq landmark (duo-last list)))
+    (duo-ref-teleport-cons-next landmark moved reflist)
+    moved))
+
+(defun duo-ref-move-before (elem reflist &optional num fn-equal)
+  "Move ELEM to NUM previous place in list referenced by REFLIST. Return MOVED.
+If range is exceeded, move ELEM at the beginning of the list.
+MOVED is the moved value.
+NUM defaults to 1.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-move-before moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (num (if num
+                  num
+                1))
+         (pre-ins (duo-before elem list (1+ num) fn-equal))
+         (landmark (if pre-ins
+                       (cdr pre-ins)
+                     list))
+         (pre-rem (if pre-ins
+                      (nthcdr num pre-ins)
+                    (duo-before elem list 1 fn-equal)))
+         (moved (if pre-rem
+                    (cdr pre-rem)
+                  (duo-member elem list fn-equal))))
+    (duo-ref-teleport-cons-previous landmark moved reflist pre-rem pre-ins)
+    moved))
+
+(defun duo-ref-move-after (elem reflist &optional num fn-equal)
+  "Move ELEM to NUM next place in list referenced by REFLIST. Return MOVED.
+If range is exceeded, move MOVED at the end of the list.
+MOVED is the moved value.
+NUM defaults to 1.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-move-after moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (num (if num
+                  num
+                1))
+         (moved (duo-member elem list fn-equal))
+         (landmark (nthcdr num moved)))
+    (unless landmark
+      (setq landmark (duo-last list)))
+    (duo-ref-teleport-cons-next landmark moved reflist)
+    moved))
+
+;;; Circular
+;;; ------------------------------
+
+(defun duo-ref-circ-move-previous (moved reflist &optional num)
+  "Move MOVED to NUM previous place in list referenced by REFLIST. Return MOVED.
+Circular : if in beginning of list, go to the end.
+MOVED must be a cons in list referenced by REFLIST.
+NUM defaults to 1.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-circ-move-previous moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (num (if num
+                  num
+                1))
+         (pre-ins (duo-circ-previous moved list (1+ num)))
+         (landmark (duo-circ-next pre-ins list))
+         (pre-rem (duo-circ-next pre-ins list num)))
+    (when (eq landmark list)
+      (setq pre-ins nil))
+    (when (eq moved pre-ins)
+      (setq pre-ins nil))
+    (duo-ref-teleport-cons-previous landmark moved reflist pre-rem pre-ins)))
+
+(defun duo-ref-circ-move-next (moved reflist &optional num)
+  "Move MOVED to NUM next place in list referenced by REFLIST. Return MOVED.
+Circular : if in end of list, go to the beginning.
+MOVED must be a cons in list referenced by REFLIST.
+NUM defaults to 1.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-circ-move-next moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (num (if num
+                  num
+                1))
+         (landmark (duo-circ-next moved list num)))
+    (duo-ref-teleport-cons-next landmark moved reflist)))
+
+(defun duo-ref-circ-move-before (elem reflist &optional num fn-equal)
+  "Move ELEM to NUM previous place in LIST. Return MOVED.
+Circular : if in beginning of list, go to the end.
+MOVED is the moved value.
+NUM defaults to 1.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-circ-move-before moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (num (if num
+                  num
+                1))
+         (pre-ins (duo-circ-before elem list (1+ num) fn-equal))
+         (landmark (duo-circ-next pre-ins list))
+         (pre-rem (duo-circ-next pre-ins list num))
+         (moved (cdr pre-rem)))
+    (unless moved
+      (setq moved (duo-member elem list fn-equal))
+      (setq pre-rem nil))
+    (when (eq landmark list)
+      (setq pre-ins nil))
+    (when (eq moved pre-ins)
+      (setq pre-ins nil))
+    (duo-ref-teleport-cons-previous landmark moved reflist pre-rem pre-ins)))
+
+(defun duo-ref-circ-move-after (elem reflist &optional num fn-equal)
+  "Move ELEM to NUM next place in LIST. Return MOVED.
+Circular : if in end of list, go to the beginning.
+MOVED is the moved value.
+NUM defaults to 1.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-circ-move-after moved reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (num (if num
+                  num
+                1))
+         (moved (duo-member elem list fn-equal))
+         (landmark (duo-circ-next moved list num)))
+    (duo-ref-teleport-cons-next landmark moved reflist)))
+
+;;; Exchange
+;;; ------------------------------------------------------------
+
+(defun duo-ref-exchange-cons (one two reflist &optional pre-one pre-two)
+  "Exchange cons ONE and TWO in list referenced by REFLIST. Return (ONE . TWO).
+ONE and TWO must be cons in list referenced by REFLIST.
+If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-exchange-cons one two reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (unless (eq one two)
+    (if (eq two (duo-deref reflist))
+        (let ((return)
+              (swap))
+          (setq return (duo-ref-exchange-cons two one reflist))
+          (setq swap (car return))
+          (setcar return (cdr return))
+          (setcdr return swap)
+          return)
+      (let* ((list (duo-deref reflist))
+             (pre-one (if pre-one
+                          pre-one
+                        (duo-previous one list)))
+             (pre-two (if pre-two
+                          pre-two
+                        (duo-previous two list))))
+        (cond ((eq (cdr one) two)
+               (duo-ref-teleport-cons-next two one reflist pre-one))
+              ((eq (cdr two) one)
+               (duo-ref-teleport-cons-next one two reflist pre-two))
+              (t
+               (duo-ref-teleport-cons-next one two reflist pre-two)
+               (duo-ref-teleport-cons-next pre-two one reflist pre-one)))
+        (cons one two)))))
+
+(defun duo-ref-exchange (one two reflist &optional pre-one pre-two fn-equal)
+  "Exchange elements ONE and TWO in list referenced by REFLIST.
+Return (ONE . TWO).
+ONE and TWO must be present in list referenced by REFLIST.
+If non nil, PRE-ONE and PRE-TWO are used to speed up the process.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+The actual new list must be recovered using the returned list.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-exchange one two reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (cons-one (duo-member one list fn-equal))
+         (cons-two (duo-member two list fn-equal)))
+    (duo-ref-exchange-cons cons-one cons-two reflist pre-one pre-two)))
+
+;;; Sorted
+;;; ------------------------------------------------------------
+
+(defun duo-ref-insert-in-sorted-list (new reflist &optional fn-less)
+  "Insert NEW at the right place in list referecend by REFLIST.
+The list must be sorted in ascending order.
+Return cons of NEW.
+FN-LESS takes two arguments and return t if the first is less than the second.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself in argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-in-sorted-list new reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let ((fn-less (if fn-less
+                     fn-less
+                   #'<))
+        (list (duo-deref reflist)))
+    (cond ((not list) (duo-ref-set reflist (cons new nil)))
+          ((funcall fn-less new (car list)) (duo-ref-push new reflist))
+          (t (let ((duo list)
+                   (next (cdr list)))
+               (while (and duo
+                           next
+                           (funcall fn-less (car next) new))
+                 (setq duo (cdr duo))
+                 (setq next (cdr next)))
+               (duo-insert-next duo new))))))
+
+;;; Group
+;;; ------------------------------
+
+(defun duo-ref-insert-at-group-beg (new reflist &optional fn-group)
+  "Insert NEW in list referenced by REFLIST at the beginning of its group.
+The group is determined by FN-GROUP.
+If the group is not found, insert at the beginning of list
+referenced by REFLIST.
+Return cons of NEW.
+NEW is the value of the element inserted.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-at-group-beg new reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (previous (duo-before new list 1 fn-group))
+         (duo))
+    (if previous
+        (progn
+          (duo-insert-next previous new)
+          (setq duo (cdr previous)))
+      (duo-ref-push new reflist)
+      (setq duo (duo-deref reflist)))
+    duo))
+
+(defun duo-ref-insert-at-group-end (new reflist &optional fn-group)
+  "Insert NEW in list referenced by REFLIST, at the end of its group.
+The group is determined by FN-GROUP.
+If the group is not found, insert at the end of list referenced by REFLIST.
+Return cons of NEW.
+NEW is the value of the element inserted.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+See `duo-deref' for the format of REFLIST.
+See the docstring of `duo-naive-push' to know why it doesn’t
+use the list itself as argument.
+Common usage :
+;; Create reflist
+\(setq reflist (list mylist))
+;; Modify
+\(duo-ref-insert-at-group-end new reflist)
+;; Update list
+\(setq mylist (duo-deref reflist))
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (fn-group (if fn-group
+                         fn-group
+                       #'equal))
+         (previous (duo-member new list fn-group))
+         (duo))
+    (while (and previous
+                (funcall fn-group (car (cdr previous)) new))
+      (setq previous (cdr previous)))
+    (if previous
+        (progn
+          (duo-insert-next previous new)
+          (setq duo (cdr previous)))
+      (setq duo (duo-ref-add new reflist)))
+    duo))
+
 ;;; End
 ;;; ------------------------------------------------------------
 

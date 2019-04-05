@@ -744,6 +744,287 @@ Destructive."
         (setcdr last nil)))
     tail))
 
+;;; Group
+;;; ------------------------------------------------------------
+
+;;; Next / Previous
+;;; ------------------------------
+
+(defun duo-previous-in-group (cons list &optional fn-group)
+  "Return cons of previous element of CONS in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((duo list)
+        (previous))
+    (while (and duo
+                (not (eq duo cons)))
+      (when (funcall fn-group (car duo) (car cons))
+        (setq previous duo))
+      (setq duo (cdr duo)))
+    previous))
+
+(defun duo-next-in-group (cons &optional fn-group)
+  "Return cons of next element of CONS in list matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((next (cdr cons)))
+    (while (and next
+                (not (funcall fn-group (car next) (car cons))))
+      (setq next (cdr next)))
+    next))
+
+(defun duo-before-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element before ELEM in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-previous-in-group duo list fn-group)))
+
+(defun duo-after-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element after ELEM in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-next-in-group duo fn-group)))
+
+;;; Circular
+;;; ------------------------------
+
+(defun duo-circ-previous-in-group (cons list &optional fn-group)
+  "Return cons of previous element of CONS in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((duo list)
+        (previous))
+    (while (and duo
+                (not (eq duo cons)))
+      (when (funcall fn-group (car duo) (car cons))
+        (setq previous duo))
+      (setq duo (cdr duo)))
+    (unless previous
+      (setq duo (cdr duo))
+      (while duo
+        (when (funcall fn-group (car duo) (car cons))
+          (setq previous duo))
+        (setq duo (cdr duo))))
+    previous))
+
+(defun duo-circ-next-in-group (cons list &optional fn-group)
+  "Return cons of next element of CONS in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((next (cdr cons)))
+    (while (and next
+                (not (funcall fn-group (car next) (car cons))))
+      (setq next (cdr next)))
+    (unless next
+      (setq next list)
+      (while (and next
+                  (not (eq next cons))
+                  (not (funcall fn-group (car next) (car cons))))
+        (setq next (cdr next))))
+    next))
+
+(defun duo-circ-before-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element before ELEM in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-circ-previous-in-group duo list fn-group)))
+
+(defun duo-circ-after-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element after ELEM in LIST matching FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-circ-next-in-group duo list fn-group)))
+
+;;; Filter
+;;; ------------------------------------------------------------
+
+(defun duo-filter (list &optional fn-filter)
+  "Return list of elements in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
+FN-FILTER defaults to `identity'.
+LIST is not modified."
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo list)
+        (new)
+        (last)
+        (filtered))
+    (while duo
+      (when (funcall fn-filter (car duo))
+        (setq new (cons (car duo) nil))
+        (if filtered
+            (setcdr last new)
+          (setq filtered new))
+        (setq last new))
+      (setq duo (cdr duo)))
+    filtered))
+
+;;; Next / Previous
+;;; ------------------------------
+
+(defun duo-filter-previous (cons list &optional fn-filter)
+  "Return cons of previous element of CONS in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter."
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo list)
+        (previous))
+    (while (and duo
+                (not (eq duo cons)))
+      (when (funcall fn-filter (car duo))
+        (setq previous duo))
+      (setq duo (cdr duo)))
+    previous))
+
+(defun duo-filter-next (cons &optional fn-filter)
+  "Return cons of next element of CONS in list matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter."
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (next (cdr cons)))
+    (while (and next
+                (not (funcall fn-filter (car next))))
+      (setq next (cdr next)))
+    next))
+
+(defun duo-filter-before (elem list &optional fn-filter fn-equal)
+  "Return cons of element before ELEM in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo (duo-member elem list fn-equal)))
+    (duo-filter-previous duo list fn-filter)))
+
+(defun duo-filter-after (elem list &optional fn-filter fn-equal)
+  "Return cons of element after ELEM in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo (duo-member elem list fn-equal)))
+    (duo-filter-next duo fn-filter)))
+
+;;; Circular
+;;; ------------------------------
+
+(defun duo-circ-filter-previous (cons list &optional fn-filter)
+  "Return cons of previous element of CONS in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter."
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo list)
+        (previous))
+    (while (and duo
+                (not (eq duo cons)))
+      (when (funcall fn-filter (car duo))
+        (setq previous duo))
+      (setq duo (cdr duo)))
+    (unless previous
+      (setq duo (cdr duo))
+      (while duo
+        (when (funcall fn-filter (car duo))
+          (setq previous duo))
+        (setq duo (cdr duo))))
+    previous))
+
+(defun duo-circ-filter-next (cons list &optional fn-filter)
+  "Return cons of next element of CONS in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter."
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (next (cdr cons)))
+    (while (and next
+                (not (funcall fn-filter (car next))))
+      (setq next (cdr next)))
+    (unless next
+      (setq next list)
+      (while (and next
+                  (not (eq next cons))
+                  (not (funcall fn-filter (car next))))
+        (setq next (cdr next))))
+    next))
+
+(defun duo-circ-filter-before (elem list &optional fn-filter fn-equal)
+  "Return cons of element before ELEM in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo (duo-member elem list fn-equal)))
+    (duo-circ-filter-previous duo list fn-filter)))
+
+(defun duo-circ-filter-after (elem list &optional fn-filter fn-equal)
+  "Return cons of element after ELEM in LIST matching FN-FILTER.
+FN-FILTER takes one argument and return t if the element passes the filter.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((fn-filter (if fn-filter
+                       fn-filter
+                     #'identity))
+        (duo (duo-member elem list fn-equal)))
+    (duo-circ-filter-next duo list fn-filter)))
+
+;;; Partition
+;;; ------------------------------------------------------------
+
+(defun duo-partition (list &optional fn-key)
+  "Partition LIST using FN-KEY.
+The result is an alist whose keys are given by the values of FN-KEY
+applied to the elements of LIST.
+Each element of the alist is of the form :
+\(key elem-1 elem-2 ... elem-N)
+where all the elem-* verify (FN-KEY elem-?) = key.
+FN-KEY defaults to `identity'."
+  (let ((fn-key (if fn-key
+                    fn-key
+                  #'identity))
+        (duo list)
+        (assoc-list)
+        (key)
+        (key-list))
+    (while duo
+      (setq key (funcall fn-key (car duo)))
+      (setq key-list (duo-assoc key assoc-list))
+      (if key-list
+          (duo-add (car duo) (car key-list))
+        (if assoc-list
+            (duo-add (list key (car duo)) assoc-list)
+          (setq assoc-list (list (list key (car duo))))))
+      (setq duo (cdr duo)))
+    assoc-list))
+
 ;;; End
 ;;; ------------------------------------------------------------
 
