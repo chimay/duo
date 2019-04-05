@@ -744,27 +744,6 @@ Destructive."
         (setcdr last nil)))
     tail))
 
-;;; Reverse
-;;; ------------------------------------------------------------
-
-(defun duo-reverse-next (cons list)
-  "Reverse second part of LIST, starting just after CONS to end.
-Destructive."
-  (let ((next (cdr cons))
-        (reversed))
-    (setcdr cons nil)
-    (setq reversed (duo-reverse next))
-    (setcdr cons reversed)
-    list))
-
-(defun duo-reverse-after (elem list &optional fn-equal)
-  "Reverse second part of LIST, starting just after ELEM to end.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
-Destructive."
-  (let ((duo (duo-member elem list fn-equal)))
-    (duo-reverse-next duo list)))
-
 ;;; End
 ;;; ------------------------------------------------------------
 
