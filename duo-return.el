@@ -31,6 +31,17 @@
 (eval-when-compile
   (require 'duo-common))
 
+(declare-function duo-last "duo-common")
+(declare-function duo-inside "duo-common")
+(declare-function duo-member "duo-common")
+(declare-function duo-truncate "duo-common")
+(declare-function duo-previous "duo-common")
+(declare-function duo-before "duo-common")
+(declare-function duo-circ-previous "duo-common")
+(declare-function duo-circ-next "duo-common")
+(declare-function duo-circ-before "duo-common")
+(declare-function duo-assoc "duo-common")
+
 ;;; Stack & Queue
 ;;; ------------------------------------------------------------
 
@@ -1151,6 +1162,35 @@ Destructive."
     (unless newlist
       (setq newlist duo))
     (cons duo newlist)))
+
+;;; Partition
+;;; ------------------------------------------------------------
+
+(defun duo-partition (list &optional fn-key)
+  "Partition LIST using FN-KEY.
+The result is an alist whose keys are given by the values of FN-KEY
+applied to the elements of LIST.
+Each element of the alist is of the form :
+\(key elem-1 elem-2 ... elem-N)
+where all the elem-* verify (FN-KEY elem-?) = key.
+FN-KEY defaults to `identity'."
+  (let ((fn-key (if fn-key
+                    fn-key
+                  #'identity))
+        (duo list)
+        (assoc-list)
+        (key)
+        (key-list))
+    (while duo
+      (setq key (funcall fn-key (car duo)))
+      (setq key-list (duo-assoc key assoc-list))
+      (if key-list
+          (duo-add (car duo) (car key-list))
+        (if assoc-list
+            (duo-add (list key (car duo)) assoc-list)
+          (setq assoc-list (list (list key (car duo))))))
+      (setq duo (cdr duo)))
+    assoc-list))
 
 ;;; End
 ;;; ------------------------------------------------------------

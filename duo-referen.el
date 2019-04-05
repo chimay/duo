@@ -31,6 +31,16 @@
 (eval-when-compile
   (require 'duo-common))
 
+(declare-function duo-last "duo-common")
+(declare-function duo-inside "duo-common")
+(declare-function duo-member "duo-common")
+(declare-function duo-truncate "duo-common")
+(declare-function duo-previous "duo-common")
+(declare-function duo-before "duo-common")
+(declare-function duo-circ-previous "duo-common")
+(declare-function duo-circ-next "duo-common")
+(declare-function duo-circ-before "duo-common")
+
 ;;; Pointers
 ;;; ------------------------------------------------------------
 
