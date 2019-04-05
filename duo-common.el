@@ -1,5 +1,9 @@
 ;;; duo-common.el --- Common part of duo             -*- lexical-binding: t; -*-
 
+;;; Commentary:
+
+;; Common part of duo
+
 ;; Copyright (C) 2019 Chimay
 
 ;;; License:

@@ -1,5 +1,7 @@
 ;;; duo-return.el --- Return part of duo             -*- lexical-binding: t; -*-
 
+;;; Commentary:
+
 ;; Use return value to alter list
 
 ;; Copyright (C) 2019 Chimay
@@ -475,7 +477,7 @@ Destructive."
 
 (defun duo-insert-cons-before (elem new list &optional previous fn-equal)
   "Insert NEW before ELEM in LIST. Return NEW.
-ELEM must be present in list.
+ELEM must be present in LIST.
 NEW is the cons inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
@@ -501,7 +503,7 @@ Destructive."
 
 (defun duo-insert-cons-after (elem new list &optional fn-equal)
   "Insert NEW after ELEM in LIST. Return NEW.
-ELEM must be present in list.
+ELEM must be present in LIST.
 NEW is the cons inserted.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
@@ -514,7 +516,7 @@ Destructive."
 
 (defun duo-insert-before (elem new list &optional previous fn-equal)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
-ELEM must be present in list.
+ELEM must be present in LIST.
 NEW is the value of the element inserted.
 If non nil, PREVIOUS inserted is used to speed up the process.
 FN-EQUAL takes two arguments and return t if they are considered equals.
@@ -541,7 +543,7 @@ Destructive."
 
 (defun duo-insert-after (elem new list &optional fn-equal)
   "Insert NEW after ELEM in LIST. Return cons of NEW.
-ELEM must be present in list.
+ELEM must be present in LIST.
 NEW is the value of the element inserted.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
@@ -820,7 +822,7 @@ Destructive."
 ;;; Move
 ;;; ------------------------------------------------------------
 
-;;; Step
+;;; Linear
 ;;; ------------------------------
 
 (defun duo-move-previous (moved list &optional num)

@@ -1,5 +1,7 @@
 ;;; duo-symbol.el --- Symbol part of duo             -*- lexical-binding: t; -*-
 
+;;; Commentary:
+
 ;; Use symbol to alter list
 
 ;; Copyright (C) 2019 Chimay

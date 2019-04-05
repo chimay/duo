@@ -1,5 +1,7 @@
 ;;; duo-referen.el --- Reference part of duo         -*- lexical-binding: t; -*-
 
+;;; Commentary:
+
 ;; Use reference to list to alter it
 
 ;; Copyright (C) 2019 Chimay
@@ -661,6 +663,15 @@ Destructive."
               new)
           nil)))))
 
+(defun duo-ref-insert-cons-next (cons new)
+  "Insert NEW after CONS in list. Return NEW.
+CONS must be a cons in list.
+NEW is the cons inserted.
+Destructive."
+    (setcdr new (cdr cons))
+    (setcdr cons new)
+    new)
+
 ;;; Cons Elem
 ;;; ------------------------------
 
@@ -682,6 +693,14 @@ Common usage :
 Destructive."
   (let ((duo (list new)))
     (duo-ref-insert-cons-previous cons duo reflist previous)))
+
+(defun duo-ref-insert-next (cons new)
+  "Insert NEW after CONS in list. Return cons of NEW.
+CONS must be a cons in list.
+NEW is the value of the element inserted.
+Destructive."
+  (let ((duo (list new)))
+    (duo-ref-insert-cons-next cons duo)))
 
 ;;; Elem Cons
 ;;; ------------------------------
@@ -716,6 +735,16 @@ Destructive."
                 (cdr previous))))
     (duo-ref-insert-cons-previous duo new reflist previous)))
 
+(defun duo-ref-insert-cons-after (elem new reflist &optional fn-equal)
+  "Insert NEW after ELEM in list referenced in REFLIST. Return NEW.
+ELEM must be present in list.
+NEW is the cons inserted.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let ((duo (duo-member elem (duo-deref reflist) fn-equal)))
+    (duo-ref-insert-cons-next duo new)))
+
 ;;; Elem Elem
 ;;; ------------------------------
 
@@ -749,6 +778,18 @@ Destructive."
                       (cdr previous)))
          (cons-new (list new)))
     (duo-ref-insert-cons-previous cons-elem cons-new reflist previous)))
+
+(defun duo-ref-insert-after (elem new reflist &optional fn-equal)
+  "Insert NEW after ELEM referenced in REFLIST. Return cons of NEW.
+ELEM must be present in list.
+NEW is the value of the element inserted.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Destructive."
+  (let* ((list (duo-deref reflist))
+         (cons-elem (duo-member elem list fn-equal))
+         (cons-new (list new)))
+    (duo-ref-insert-cons-next cons-elem cons-new)))
 
 ;;; Remove
 ;;; ------------------------------------------------------------
@@ -1465,6 +1506,36 @@ Destructive."
           (setq duo (cdr previous)))
       (setq duo (duo-ref-add new reflist)))
     duo))
+
+;;; Partition
+;;; ------------------------------------------------------------
+
+(defun duo-ref-partition (reflist &optional fn-key)
+  "Partition list referenced in REFLIST using FN-KEY.
+The result is an alist whose keys are given by the values of FN-KEY
+applied to the elements of LIST.
+Each element of the alist is of the form :
+\(key elem-1 elem-2 ... elem-N)
+where all the elem-* verify (FN-KEY elem-?) = key.
+FN-KEY defaults to `identity'."
+  (let* ((list (duo-deref reflist))
+         (fn-key (if fn-key
+                    fn-key
+                  #'identity))
+        (duo list)
+        (assoc-list)
+        (key)
+        (key-list))
+    (while duo
+      (setq key (funcall fn-key (car duo)))
+      (setq key-list (duo-assoc key assoc-list))
+      (if key-list
+          (duo-add (car duo) (car key-list))
+        (if assoc-list
+            (duo-add (list key (car duo)) assoc-list)
+          (setq assoc-list (list (list key (car duo))))))
+      (setq duo (cdr duo)))
+    assoc-list))
 
 ;;; End
 ;;; ------------------------------------------------------------
