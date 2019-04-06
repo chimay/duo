@@ -102,9 +102,9 @@
 
 (eval-when-compile
   (require 'duo-common)
-  (require 'duo-return)
+  (require 'duo-symbol)
   (require 'duo-referen)
-  (require 'duo-symbol))
+  (require 'duo-return))
 
 ;;; End
 ;;; ------------------------------------------------------------
