@@ -408,15 +408,16 @@ Destructive."
     (setcdr (duo-last (symbol-value symlist)) next)
     (symbol-value symlist)))
 
-(defun duo-sym-reverse-next (cons symlist)
+(defun duo-sym-reverse-next (cons symlist symnext)
   "Reverse second part of SYMLIST, from after CONS to end.
 Return list in SYMLIST.
+SYMNEXT is the cons symbol which will hold the second part of the list.
 Destructive."
-  (let ((refnext (list (cdr cons))))
-    (setcdr cons nil)
-    (duo-sym-reverse refnext)
-    (setcdr cons (duo-deref refnext))
-    (symbol-value symlist)))
+  (set symnext (cdr cons))
+  (setcdr cons nil)
+  (duo-sym-reverse 'next)
+  (setcdr cons next)
+  (symbol-value symlist))
 
 (defun duo-sym-reverse-before (elem symlist &optional fn-equal)
   "Reverse first part of SYMLIST.
@@ -630,9 +631,9 @@ Destructive."
         (duo-sym-remove duo symlist previous)
       nil)))
 
-(defun duo-sym-delete-all (elem symlist &optional fn-equal)
+(defun duo-sym-delete-all (elem symlist symremoved &optional fn-equal)
   "Delete all elements equals to ELEM from SYMLIST.
-Return list of removed cons.
+Return list of removed cons SYMREMOVED.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-pop' to know why it
@@ -641,27 +642,31 @@ Common usage :
 \(duo-sym-delete-all elem 'list)
 Destructive."
   (let ((removed)
-        (removed-list (list nil))
         (last)
         (list)
         (duo)
+        (pre)
         (next)
         (fn-equal (if fn-equal
                       fn-equal
                     #'equal)))
     (while (funcall fn-equal (car (symbol-value symlist)) elem)
       (setq removed (duo-sym-pop symlist))
-      (setq last (duo-sym-add-cons removed removed-list last)))
+      (setq last (duo-sym-add-cons removed symremoved last)))
     (setq list (symbol-value symlist))
     (setq duo list)
+    (setq pre nil)
     (while duo
       (setq next (cdr duo))
-      (when (funcall fn-equal (car duo) elem)
-        (setq list (car (duo-sym-remove duo symlist)))
-        (setq removed duo)
-        (setq last (duo-sym-add-cons removed removed-list last)))
+      (if (funcall fn-equal (car duo) elem)
+          (progn
+            (duo-sym-remove duo symlist pre)
+            (setq removed duo)
+            (setq last (duo-sym-add-cons removed symremoved last))
+            (setq pre nil))
+        (setq pre duo))
       (setq duo next))
-    (duo-deref removed-list)))
+    (symbol-value symremoved)))
 
 ;;; Teleport
 ;;; ------------------------------------------------------------
@@ -1155,8 +1160,9 @@ Destructive."
 ;;; Partition
 ;;; ------------------------------------------------------------
 
-(defun duo-sym-partition (symlist &optional fn-key)
-  "Partition SYMLIST using FN-KEY.
+(defun duo-sym-partition (symlist symassoc symkey &optional fn-key)
+  "Partition SYMLIST using FN-KEY to fill the alist SYMASSOC.
+SYMKEY holds the current assoc in the loop.
 The result is an alist whose keys are given by the values of FN-KEY
 applied to the elements of LIST.
 Each element of the alist is of the form :
@@ -1168,17 +1174,15 @@ FN-KEY defaults to `identity'."
                      fn-key
                    #'identity))
          (duo list)
-         (assoc-list (list nil))
-         (key)
-         (key-list))
+         (key))
     (while duo
       (setq key (funcall fn-key (car duo)))
-      (setq key-list (duo-assoc key (duo-deref assoc-list)))
-      (if key-list
-          (duo-sym-add (car duo) (list (car key-list)))
-        (duo-sym-add (list key (car duo)) assoc-list))
+      (set symkey (car (duo-assoc key (symbol-value symassoc))))
+      (if (symbol-value symkey)
+          (duo-sym-add (car duo) symkey)
+        (duo-sym-add (list key (car duo)) symassoc))
       (setq duo (cdr duo)))
-    (duo-deref assoc-list)))
+    (symbol-value symassoc)))
 
 ;;; End
 ;;; ------------------------------------------------------------

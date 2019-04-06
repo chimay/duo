@@ -874,6 +874,7 @@ Destructive."
         (last)
         (list)
         (duo)
+        (pre)
         (next)
         (fn-equal (if fn-equal
                       fn-equal
@@ -883,12 +884,16 @@ Destructive."
       (setq last (duo-ref-add-cons removed removed-list last)))
     (setq list (duo-deref reflist))
     (setq duo list)
+    (setq pre nil)
     (while duo
       (setq next (cdr duo))
-      (when (funcall fn-equal (car duo) elem)
-        (setq list (car (duo-ref-remove duo reflist)))
-        (setq removed duo)
-        (setq last (duo-ref-add-cons removed removed-list last)))
+      (if (funcall fn-equal (car duo) elem)
+          (progn
+            (duo-ref-remove duo reflist)
+            (setq removed duo)
+            (setq last (duo-ref-add-cons removed removed-list last))
+            (setq pre nil))
+        (setq pre duo))
       (setq duo next))
     (duo-deref removed-list)))
 
