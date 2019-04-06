@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 
-;; Use reference to list to alter it
+;; Use reference to alter list
 
 ;; Copyright (C) 2019 Chimay
 

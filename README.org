@@ -8,10 +8,11 @@
   - [[#keep-it-simple][Keep It Simple]]
 - [[#summary-of-available-functions][Summary of available functions]]
 - [[#technical-details][Technical details]]
+  - [[#modify-the-argument-list][Modify the argument list]]
+  - [[#files][Files]]
   - [[#circular-lists][Circular lists]]
   - [[#next--previous-vs-after--before][Next / Previous vs After / Before]]
   - [[#remove-vs-delete][Remove vs Delete]]
-  - [[#returned-objects][Returned objects]]
   - [[#functions-in-arguments][Functions in arguments]]
   - [[#assoc][Assoc]]
 - [[#warning][Warning]]
@@ -43,16 +44,15 @@ If in doubt, check their doc.
 
 ** Use Cons as double pointers
 
-The functions use and return references whenever possible. It’s
-implemented with =(CAR . CDR)= =cons=, which are called =duo=, hence
-the name of the library. These cons are everywhere in Elisp, either
-explicitely created or as brick components in lists. A list variable
-=list= is itself the cons at the beginning of the list. =(cdr list)=
-is the second cons in the list. And so one with =(cddr list)=,
-=(nthcdr N list)=. Generally speaking, a member of a list is a cons
-=(value . next-member-in-list)=. Most of Elisp is built around these
-=(CAR . CDR)= double pointers. You can even construct binary trees
-with it.
+This library is implemented with =(CAR . CDR)= =cons=, which are
+called =duo=, hence the name. These cons are everywhere in Elisp,
+either explicitely created or as brick components in lists. A list
+variable =list= is itself the cons at the beginning of the list.
+=(cdr list)= is the second cons in the list. And so one with
+=(cddr list)=, =(nthcdr N list)=. Generally speaking, a member of
+a list is a cons =(value . next-member-in-list)=. Most of Elisp
+is built around these =(CAR . CDR)= double pointers. You can even
+construct binary trees with it.
 
 
 ** Keep It Simple
@@ -92,17 +92,21 @@ Some functions defined in =subr.el= are also used.
 
     + In virtual circular list
 
-  - Change element
+  - Replace element
+
+  - Map
+
+  - Join
+
+  - Truncate
+
+  - Next / Previous in group
+
+  - Next / Previous matching filter
 
   - Push, Add
 
-    + Anytime
-
-    + Only if new element
-
   - Pop, Drop
-
-  - Truncate
 
   - Rotate <- or ->
 
@@ -128,16 +132,54 @@ Some functions defined in =subr.el= are also used.
 
   - Exchange cons or elements
 
+  - Insert in sorted list
+
   - Insert at group beginning or end
 
-  - Filter
-
-    + Next / Previous in same filter
-
-  - Partition with a key function
+  - Partition with a key function to form an alist
 
 
 * Technical details
+
+
+** Modify the argument list
+
+When you pass a list as argument of a function, the calling scope
+=list-var= holds the address of the first cons of the list. The
+argument =arg-list-var= holds a copy of it. Using ~(setq list ...)~
+inside the definition of the function changes the argument list
+reference, not the calling scope one. So, the calling scope address is
+not updated. As a result, you need either :
+
+  - to use the list symbol in argument (=*-sym-*= functions)
+
+    + ~(function ... 'list ...)~
+
+  - to pass a reference to the list as argument (=*-ref-*= functions)
+
+    + ~(setq reflist (cons list nil))~
+
+    + ~(function ... reflist ...)~
+
+  - to recover the modified list as the returned value (=*-return-*= functions)
+
+    + ~(setq list (function ... list ...))~
+
+A common case of this situation is with functions which modify the
+first cons of the list : push, pop, etc.
+
+Check their doc to know how to recover the updated list.
+
+
+** Files
+
+  - =duo-common.el= holds the functions which don’t modify the list
+
+  - =duo-symbol.el= holds the =*-sym-*= functions
+
+  - =duo-referen.el= holds the =*-ref-*= functions
+
+  - =duo-return.el= holds the =*-return-*= functions
 
 
 ** Circular lists
@@ -170,29 +212,6 @@ There is a slight difference between remove and delete functions :
   - Remove removes a cons given as argument
 
   - Delete remove the first cons whose car matches an element given as argument
-
-
-** Returned objects
-
-When you pass a list as argument of a function, the calling scope
-=list-var= holds the address of the first cons of the list. The
-argument =arg-list-var= holds a copy of it. Using ~(setq list ...)~
-inside the definition of the function changes the argument list
-reference, not the calling scope one. So, the calling scope address is
-not updated. As a result, you need either :
-
-  - to recover the modified list as the returned value of the function
-
-    + ~(setq list (function list ...))~
-
-  - to pass a reference to the list as argument (=*-ref-*= functions)
-
-    + ~(setq reflist (cons list nil)) (function reflist ...)~
-
-A common case of this situation is with functions which modify the
-first cons of the list : push, pop, etc.
-
-Check their doc to know how to recover the updated list.
 
 
 ** Functions in arguments

@@ -11,9 +11,19 @@
 
 ;;; Commentary:
 
-;; Library of in place list operations in Emacs-Lisp.
+;; Duo is a library of in place list operations in Emacs-Lisp.
 ;;
 ;; See also https://github.com/chimay/duo/blob/master/README.org
+;;
+;; This library is implemented with (CAR . CDR) cons, which are
+;; called duo, hence the name. These cons are everywhere in Elisp,
+;; either explicitely created or as brick components in lists. A list
+;; variable list is itself the cons at the beginning of the list.
+;; (cdr list) is the second cons in the list. And so one with
+;; (cddr list), (nthcdr N list). Generally speaking, a member of
+;; a list is a cons (value . next-member-in-list). Most of Elisp
+;; is built around these (CAR . CDR) double pointers. You can even
+;; construct binary trees with it.
 ;;
 ;; Cons DUO = (CAR . CDR) can be used as double pointer
 ;; with setcar and setcdr
@@ -21,58 +31,36 @@
 ;; ELEM = (car DUO)          -> straightforward
 ;; DUO  = (member ELEM LIST) -> needs loop
 ;;
-;; Duo is a library of in place list operations in Emacs-Lisp.
-;; Its functions modify the original list when :
+;; Modify the argument list
+;; ------------------------------
 ;;
-;;   - It’s easy to get back : rotate, reverse, etc
-;;   - The name is clear : push, pop, add, drop, insert, remove, etc
-;;     + When an element is removed, a reference to it is often returned
+;; When you pass a list as argument to a function, the calling scope
+;; list-var holds the address of the first cons of the list. The
+;; argument arg-list-var holds a copy of it. Using (setq list ...)
+;; inside the definition of the function changes the argument list
+;; reference, not the calling scope one. So, the calling scope address is
+;; not updated. As a result, you need either to :
 ;;
-;; However, when it’s difficult or impossible to reverse the operation, a
-;; new list is created, with references to the elements of the original
-;; list when possible. For instance :
+;;   - use the list symbol in argument (*-sym-* functions)
+;;     + (function ... 'list ...)
+;;   - pass a reference to the list (*-ref-* functions)
+;;     + (setq reflist (cons list nil))
+;;     + (function ... reflist ...)
+;;   - recover the modified list in the returned value (*-return-* functions)
+;;     + (setq list (function ... list ...))
 ;;
-;;   - filter
-;;   - partition
+;; A common case of this situation is with functions which modify the
+;; first cons of the list : push, pop, etc.
 ;;
-;; If in doubt, check their doc.
+;; Check their doc to know how to recover the updated list.
 ;;
-;; In fact, the functions use and return references whenever possible.
-;; It’s implemented with (CAR . CDR) cons, which are called duo,
-;; hence the name of the library. These cons are everywhere in Elisp,
-;; either explicitely created or in lists. A list variable <list> is
-;; itself the cons at the beginning of the list. (cdr list) is the
-;; second cons in the list. And so one with (cddr list), (nthcdr N list).
-;; Generally speaking, a member of a list is a cons
-;; (value . next-member-in-list). Most of Elisp is built around these
-;; (CAR . CDR) double pointers. You can even construct binary trees with it.
+;; Files
+;; ------------------------------
 ;;
-;; When a =duo= has to be modified, it’s generally by =setcar= and
-;; =setcdr= built-in.
-;;
-;; Caution : apply some of these functions to circular lists would
-;; produce infinite loops.
-;;
-;; However, some functions, like =*-circ-*= or =*-rotate-*=, simulate
-;; circular lists by :
-;;
-;;   - Continuing at the beginning once arrived at the end
-;;   - Continuing at the end once arrived at the beginning
-;;
-;; There is a slight difference between next/previous and after/before
-;; functions :
-;;
-;;   - Next / Previous use a cons as main argument
-;;   - After / Before use the value of an element of the list as main argument
-;;
-;; There is a slight difference between remove and delete functions :
-;;
-;;   - Remove removes a cons given as argument
-;;   - Delete remove the first cons whose car matches an element given as argument
-;;
-;; The fn-* accepting two arguments are called like this :
-;;
-;; (funcall fn-* cons-from-loop elem-or-cons-from-argument)
+;; - duo-common.el holds the functions which don’t modify the list
+;; - duo-symbol.el holds the *-sym-* functions
+;; - duo-referen.el holds the *-ref-* functions
+;; - duo-return.el holds the *-return-* functions
 
 ;;; License:
 ;;; ----------------------------------------------------------------------
