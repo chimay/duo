@@ -633,8 +633,7 @@ Destructive."
          (duo (if (funcall fn-equal (car list) elem)
                   list
                 (cdr previous))))
-    (if (and duo
-             list)
+    (if (and duo list)
         (duo-sym-remove duo symlist previous)
       nil)))
 
