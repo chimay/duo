@@ -1536,7 +1536,7 @@ FN-KEY defaults to `identity'."
       (setq key (funcall fn-key (car duo)))
       (setq key-list (duo-assoc key (duo-deref assoc-list)))
       (if key-list
-          (duo-ref-add (car duo) (list (car key-list)))
+          (duo-ref-add (car duo) key-list)
         (duo-ref-add (list key (car duo)) assoc-list))
       (setq duo (cdr duo)))
     (duo-deref assoc-list)))

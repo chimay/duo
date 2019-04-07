@@ -35,6 +35,14 @@
 (eval-when-compile
   (require 'duo-common))
 
+;;; Variables
+;;; ------------------------------------------------------------
+
+(defvar duo-sym-var-next-in-reverse-next nil)
+(defvar duo-sym-var-removed-list-in-delete-all nil)
+(defvar duo-sym-var-key-list-in-partition nil)
+(defvar duo-sym-var-assoc-list-in-partition nil)
+
 ;;; Stack & Queue
 ;;; ------------------------------------------------------------
 
@@ -408,15 +416,14 @@ Destructive."
     (setcdr (duo-last (symbol-value symlist)) next)
     (symbol-value symlist)))
 
-(defun duo-sym-reverse-next (cons symlist symnext)
+(defun duo-sym-reverse-next (cons symlist)
   "Reverse second part of SYMLIST, from after CONS to end.
 Return list in SYMLIST.
-SYMNEXT is the cons symbol which will hold the second part of the list.
 Destructive."
-  (set symnext (cdr cons))
+  (setq duo-sym-var-next-in-reverse-next (cdr cons))
   (setcdr cons nil)
-  (duo-sym-reverse 'next)
-  (setcdr cons next)
+  (duo-sym-reverse 'duo-sym-var-next-in-reverse-next)
+  (setcdr cons duo-sym-var-next-in-reverse-next)
   (symbol-value symlist))
 
 (defun duo-sym-reverse-before (elem symlist &optional fn-equal)
@@ -631,9 +638,8 @@ Destructive."
         (duo-sym-remove duo symlist previous)
       nil)))
 
-(defun duo-sym-delete-all (elem symlist symremoved &optional fn-equal)
+(defun duo-sym-delete-all (elem symlist &optional fn-equal)
   "Delete all elements equals to ELEM from SYMLIST.
-Return list of removed cons SYMREMOVED.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-pop' to know why it
@@ -650,9 +656,12 @@ Destructive."
         (fn-equal (if fn-equal
                       fn-equal
                     #'equal)))
+    (setq duo-sym-var-removed-list-in-delete-all nil)
     (while (funcall fn-equal (car (symbol-value symlist)) elem)
       (setq removed (duo-sym-pop symlist))
-      (setq last (duo-sym-add-cons removed symremoved last)))
+      (setq last (duo-sym-add-cons removed
+                                   'duo-sym-var-removed-list-in-delete-all
+                                   last)))
     (setq list (symbol-value symlist))
     (setq duo list)
     (setq pre nil)
@@ -662,11 +671,13 @@ Destructive."
           (progn
             (duo-sym-remove duo symlist pre)
             (setq removed duo)
-            (setq last (duo-sym-add-cons removed symremoved last))
+            (setq last (duo-sym-add-cons removed
+                                         'duo-sym-var-removed-list-in-delete-all
+                                         last))
             (setq pre nil))
         (setq pre duo))
       (setq duo next))
-    (symbol-value symremoved)))
+    duo-sym-var-removed-list-in-delete-all))
 
 ;;; Teleport
 ;;; ------------------------------------------------------------
@@ -1160,7 +1171,7 @@ Destructive."
 ;;; Partition
 ;;; ------------------------------------------------------------
 
-(defun duo-sym-partition (symlist symassoc symkey &optional fn-key)
+(defun duo-sym-partition (symlist &optional fn-key)
   "Partition SYMLIST using FN-KEY to fill the alist SYMASSOC.
 SYMKEY holds the current assoc in the loop.
 The result is an alist whose keys are given by the values of FN-KEY
@@ -1175,14 +1186,17 @@ FN-KEY defaults to `identity'."
                    #'identity))
          (duo list)
          (key))
+    (setq duo-sym-var-assoc-list-in-partition nil)
     (while duo
       (setq key (funcall fn-key (car duo)))
-      (set symkey (car (duo-assoc key (symbol-value symassoc))))
-      (if (symbol-value symkey)
-          (duo-sym-add (car duo) symkey)
-        (duo-sym-add (list key (car duo)) symassoc))
+      (setq duo-sym-var-key-list-in-partition
+            (car (duo-assoc key duo-sym-var-assoc-list-in-partition)))
+      (if duo-sym-var-key-list-in-partition
+          (duo-sym-add (car duo) 'duo-sym-var-key-list-in-partition)
+        (duo-sym-add (list key (car duo))
+                     'duo-sym-var-assoc-list-in-partition))
       (setq duo (cdr duo)))
-    (symbol-value symassoc)))
+    duo-sym-var-assoc-list-in-partition))
 
 ;;; End
 ;;; ------------------------------------------------------------
