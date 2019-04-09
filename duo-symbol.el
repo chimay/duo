@@ -46,14 +46,6 @@
 (declare-function duo-circ-before "duo-common")
 (declare-function duo-assoc "duo-common")
 
-;;; Variables
-;;; ------------------------------------------------------------
-
-(defvar duo-sym-var-next-in-reverse-next nil)
-(defvar duo-sym-var-removed-list-in-delete-all nil)
-(defvar duo-sym-var-key-list-in-partition nil)
-(defvar duo-sym-var-assoc-list-in-partition nil)
-
 ;;; Stack & Queue
 ;;; ------------------------------------------------------------
 
@@ -431,11 +423,12 @@ Destructive."
   "Reverse second part of SYMLIST, from after CONS to end.
 Return list in SYMLIST.
 Destructive."
-  (setq duo-sym-var-next-in-reverse-next (cdr cons))
-  (setcdr cons nil)
-  (duo-sym-reverse 'duo-sym-var-next-in-reverse-next)
-  (setcdr cons duo-sym-var-next-in-reverse-next)
-  (symbol-value symlist))
+  (let ((symnext (make-symbol "next")))
+    (set symnext (cdr cons))
+    (setcdr cons nil)
+    (duo-sym-reverse symnext)
+    (setcdr cons (symbol-value symnext))
+    (symbol-value symlist)))
 
 (defun duo-sym-reverse-before (elem symlist &optional fn-equal)
   "Reverse first part of SYMLIST.
@@ -658,6 +651,7 @@ Common usage :
 \(duo-sym-delete-all elem 'list)
 Destructive."
   (let ((removed)
+        (sym-removed-list (make-symbol "removed-list"))
         (last)
         (list)
         (duo)
@@ -666,12 +660,10 @@ Destructive."
         (fn-equal (if fn-equal
                       fn-equal
                     #'equal)))
-    (setq duo-sym-var-removed-list-in-delete-all nil)
+    (set sym-removed-list nil)
     (while (funcall fn-equal (car (symbol-value symlist)) elem)
       (setq removed (duo-sym-pop symlist))
-      (setq last (duo-sym-add-cons removed
-                                   'duo-sym-var-removed-list-in-delete-all
-                                   last)))
+      (setq last (duo-sym-add-cons removed sym-removed-list last)))
     (setq list (symbol-value symlist))
     (setq duo list)
     (setq pre nil)
@@ -681,13 +673,11 @@ Destructive."
           (progn
             (duo-sym-remove duo symlist pre)
             (setq removed duo)
-            (setq last (duo-sym-add-cons removed
-                                         'duo-sym-var-removed-list-in-delete-all
-                                         last))
+            (setq last (duo-sym-add-cons removed sym-removed-list last))
             (setq pre nil))
         (setq pre duo))
       (setq duo next))
-    duo-sym-var-removed-list-in-delete-all))
+    (symbol-value sym-removed-list)))
 
 ;;; Teleport
 ;;; ------------------------------------------------------------
@@ -1194,19 +1184,19 @@ FN-KEY defaults to `identity'."
          (fn-key (if fn-key
                      fn-key
                    #'identity))
+         (sym-assoc-list (make-symbol "assoc-list"))
+         (sym-key-list (make-symbol "key-list"))
          (duo list)
          (key))
-    (setq duo-sym-var-assoc-list-in-partition nil)
+    (set sym-assoc-list nil)
     (while duo
       (setq key (funcall fn-key (car duo)))
-      (setq duo-sym-var-key-list-in-partition
-            (car (duo-assoc key duo-sym-var-assoc-list-in-partition)))
-      (if duo-sym-var-key-list-in-partition
-          (duo-sym-add (car duo) 'duo-sym-var-key-list-in-partition)
-        (duo-sym-add (list key (car duo))
-                     'duo-sym-var-assoc-list-in-partition))
+      (set sym-key-list (car (duo-assoc key (symbol-value sym-assoc-list))))
+      (if (symbol-value sym-key-list)
+          (duo-sym-add (car duo) sym-key-list)
+        (duo-sym-add (list key (car duo)) sym-assoc-list))
       (setq duo (cdr duo)))
-    duo-sym-var-assoc-list-in-partition))
+    (symbol-value sym-assoc-list)))
 
 ;;; End
 ;;; ------------------------------------------------------------
