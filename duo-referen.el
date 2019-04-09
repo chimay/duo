@@ -889,7 +889,7 @@ Destructive."
       (setq next (cdr duo))
       (if (funcall fn-equal (car duo) elem)
           (progn
-            (duo-ref-remove duo reflist)
+            (duo-ref-remove duo reflist pre)
             (setq removed duo)
             (setq last (duo-ref-add-cons removed removed-list last))
             (setq pre nil))

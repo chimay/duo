@@ -621,10 +621,11 @@ Destructive."
         (removed-list)
         (last)
         (duo)
+        (pre)
         (next)
         (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+                      fn-equal
+                    #'equal)))
     (while (funcall fn-equal (car newlist) elem)
       (setq pair (duo-return-pop newlist))
       (setq removed (car pair))
@@ -634,15 +635,19 @@ Destructive."
         (setq removed-list removed)
         (setq last removed)))
     (setq duo newlist)
+    (setq pre nil)
     (while duo
       (setq next (cdr duo))
-      (when (funcall fn-equal (car duo) elem)
-        (setq newlist (cdr (duo-return-remove duo newlist)))
-        (setq removed duo)
-        (if removed-list
-            (setq last (duo-return-add-cons removed removed-list last))
-          (setq removed-list removed)
-          (setq last removed)))
+      (if (funcall fn-equal (car duo) elem)
+          (progn
+            (setq newlist (cdr (duo-return-remove duo newlist pre)))
+            (setq removed duo)
+            (if removed-list
+                (setq last (duo-return-add-cons removed removed-list last))
+              (setq removed-list removed)
+              (setq last removed))
+            (setq pre nil))
+        (setq pre duo))
       (setq duo next))
     (cons removed-list newlist)))
 
