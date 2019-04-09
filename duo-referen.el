@@ -1414,7 +1414,7 @@ Destructive."
 ;;; ------------------------------------------------------------
 
 (defun duo-ref-insert-in-sorted-list (new reflist &optional fn-less)
-  "Insert NEW at the right place in list referecend by REFLIST.
+  "Insert NEW at the right place in list referenced by REFLIST.
 The list must be sorted in ascending order.
 Return cons of NEW.
 FN-LESS takes two arguments and return t if the first is less than the second.
@@ -1433,7 +1433,9 @@ Destructive."
                      fn-less
                    #'<))
         (list (duo-deref reflist)))
-    (cond ((not list) (duo-ref-set reflist (cons new nil)))
+    (cond ((not list)
+           (duo-ref-set reflist (cons new nil))
+           (duo-deref reflist))
           ((funcall fn-less new (car list)) (duo-ref-push new reflist))
           (t (let ((duo list)
                    (next (cdr list)))

@@ -157,20 +157,6 @@ FN-EQUAL defaults to `equal'."
         (cons index duo)
       nil)))
 
-;; Just for fun
-
-(defun duo-last (list &optional num)
-  "Return cons starting a sublist of NUM elements at the end of LIST.
-If NUM exceeds the length of LIST, return LIST.
-NUM defaults to 1 : NUM nil means return cons of last element in LIST."
-  (let ((num (if num
-                 num
-               1))
-        (last list))
-    (while (nthcdr num last)
-      (setq last (cdr last)))
-    last))
-
 ;;; Assoc
 ;;; ------------------------------
 
@@ -201,6 +187,27 @@ Return nil if no matching element is found."
                 (not (funcall fn-equal (cdr (car duo)) value)))
       (setq duo (cdr duo)))
     duo))
+
+;;; First & Last
+;;; ------------------------------
+
+;; Just for fun
+
+(defun duo-first (list)
+  "Return first cons of LIST, ie the list itself."
+  list)
+
+(defun duo-last (list &optional num)
+  "Return cons starting a sublist of NUM elements at the end of LIST.
+If NUM exceeds the length of LIST, return LIST.
+NUM defaults to 1 : NUM nil means return cons of last element in LIST."
+  (let ((num (if num
+                 num
+               1))
+        (last list))
+    (while (nthcdr num last)
+      (setq last (cdr last)))
+    last))
 
 ;;; Next / Previous
 ;;; ------------------------------------------------------------
