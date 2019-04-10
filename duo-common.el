@@ -191,11 +191,13 @@ Return nil if no matching element is found."
 ;;; First & Last
 ;;; ------------------------------
 
-;; Just for fun
+;; Keep this in mind
 
 (defun duo-first (list)
   "Return first cons of LIST, ie the list itself."
   list)
+
+;; Just for fun
 
 (defun duo-last (list &optional num)
   "Return cons starting a sublist of NUM elements at the end of LIST.
