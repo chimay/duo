@@ -246,8 +246,8 @@ FN-EQUAL defaults to `equal'."
 ;;; ------------------------------------------------------------
 
 (defun duo-range (list index-one &optional index-two)
-  "Return range from INDEX-ONE to INDEX-TWO in LIST.
-INDEX-ONE is included in the range, whereas INDEX-TWO is excluded.
+  "Return start and end of range from INDEX-ONE to INDEX-TWO in LIST.
+Cons of INDEX-ONE and INDEX-TWO are included in the range.
 Return first and last cons of range."
   (let* ((length (length list))
          (index-two (or index-two length))
@@ -259,10 +259,27 @@ Return first and last cons of range."
                     (+ length index-two)))
          (min (min pos-one pos-two))
          (max (max pos-one pos-two))
-         (delta (max (- max min 1) 0))
+         (delta (- max min))
          (duo-one (nthcdr min list))
          (duo-two (nthcdr delta duo-one)))
     (cons duo-one duo-two)))
+
+(defun duo-slice (list index-one &optional index-two)
+  "Return new list formed with range from INDEX-ONE to INDEX-TWO in LIST.
+INDEX-ONE is included in the range, whereas INDEX-TWO is excluded."
+  (let* ((pair (duo-range list index-one index-two))
+         (duo (car pair))
+         (end (cdr pair))
+         (new (cons (car duo) nil))
+         (newlist new)
+         (last new))
+    (unless (eq duo end)
+      (while (not (eq (cdr duo) end))
+        (setq duo (cdr duo))
+        (setq new (cons (car duo) nil))
+        (setcdr last new)
+        (setq last new)))
+    newlist))
 
 ;;; Position
 ;;; ------------------------------------------------------------
