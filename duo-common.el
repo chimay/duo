@@ -29,7 +29,7 @@
 ;;; Code:
 ;;; ----------------------------------------------------------------------
 
-;;; Predicates
+;;; Equality
 ;;; ------------------------------------------------------------
 
 ;;; Level 0
@@ -82,6 +82,115 @@ Return nil if ONE and TWO are distincts or not cons."
   (when (and (consp one)
              (consp two))
     (equal (cddr one) (cddr two))))
+
+;;; Match
+;;; ------------------------------------------------------------
+
+;;; Level 1
+;;; ------------------------------
+
+(defun duo-car-match-x-p (one two)
+  "Whether the car of ONE equals TWO."
+  (equal (car one) two))
+
+(defun duo-x-match-car-p (one two)
+  "Whether ONE equals the car of TWO."
+  (equal one (car two)))
+
+(defun duo-cdr-match-x-p (one two)
+  "Whether the cdr of ONE equals TWO."
+  (equal (cdr one) two))
+
+(defun duo-x-match-cdr-p (one two)
+  "Whether ONE equals the cdr of TWO."
+  (equal one (cdr two)))
+
+;;; Level 2
+;;; ------------------------------
+
+(defun duo-caar-match-x-p (one two)
+  "Whether the caar of ONE equals TWO."
+  (equal (car (car one)) two))
+
+(defun duo-x-match-caar-p (one two)
+  "Whether ONE equals the caar of TWO."
+  (equal one (car (car two))))
+
+(defun duo-cdar-match-x-p (one two)
+  "Whether the cdar of ONE equals TWO."
+  (equal (cdr (car one)) two))
+
+(defun duo-x-match-cdar-p (one two)
+  "Whether ONE equals the cdar of TWO."
+  (equal one (cdr (car two))))
+
+(defun duo-cadr-match-x-p (one two)
+  "Whether the cadr of ONE equals TWO."
+  (equal (car (cdr one)) two))
+
+(defun duo-x-match-cadr-p (one two)
+  "Whether ONE equals the cadr of TWO."
+  (equal one (car (cdr two))))
+
+(defun duo-cddr-match-x-p (one two)
+  "Whether the cddr of ONE equals TWO."
+  (equal (cdr (cdr one)) two))
+
+(defun duo-x-match-cddr-p (one two)
+  "Whether ONE equals the cddr of TWO."
+  (equal one (cdr (cdr two))))
+
+;;; Order
+;;; ------------------------------------------------------------
+
+(defun duo-< (one two)
+  "Return t if ONE is less than TWO."
+  (cond ((and (number-or-marker-p one)
+              (number-or-marker-p two))
+         (< one two))
+        ((and (or (stringp one) (symbolp one))
+              (or (stringp two) (symbolp two)))
+         (string< one two))
+        ((and (consp one)
+              (consp two))
+         (let ((car-one (car one))
+               (car-two (car two))
+               (cdr-one (cdr one))
+               (cdr-two (cdr two)))
+           (cond ((and (null cdr-one)
+                       (null cdr-two))
+                  (duo-< car-one car-two))
+                 ((null cdr-one) t)
+                 ((null cdr-two) nil)
+                 (t (or (duo-< car-one car-two)
+                        (and (equal car-one car-two)
+                             (duo-< cdr-one cdr-two)))))))
+        (t (error "Function duo-< : wrong type argument"))))
+
+(defun duo-<= (one two)
+  "Return t if ONE is less or equal to TWO."
+  (cond ((and (number-or-marker-p one)
+              (number-or-marker-p two))
+         (<= one two))
+        ((and (or (stringp one) (symbolp one))
+              (or (stringp two) (symbolp two)))
+         (or (equal one two)
+             (string< one two)))
+        ((and (consp one)
+              (consp two))
+         (let ((car-one (car one))
+               (car-two (car two))
+               (cdr-one (cdr one))
+               (cdr-two (cdr two)))
+           (cond ((and (null cdr-one)
+                       (null cdr-two))
+                  (duo-<= car-one car-two))
+                 ((null cdr-one) t)
+                 ((null cdr-two) nil)
+                 (t (or (duo-< car-one car-two)
+                        (and (equal car-one car-two)
+                             (duo-<= cdr-one cdr-two)))))))
+        (t (error "Function duo-<= : wrong type argument"))))
 
 ;;; Find
 ;;; ------------------------------------------------------------
