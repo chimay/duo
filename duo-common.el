@@ -242,6 +242,28 @@ FN-EQUAL defaults to `equal'."
       (setq duo (cdr duo)))
     duo))
 
+;;; Range
+;;; ------------------------------------------------------------
+
+(defun duo-range (list index-one &optional index-two)
+  "Return range from INDEX-ONE to INDEX-TWO in LIST.
+INDEX-ONE is included in the range, whereas INDEX-TWO is excluded.
+Return first and last cons of range."
+  (let* ((length (length list))
+         (index-two (or index-two length))
+         (pos-one (if (> index-one 0)
+                      index-one
+                    (+ length index-one)))
+         (pos-two (if (> index-two 0)
+                      index-two
+                    (+ length index-two)))
+         (min (min pos-one pos-two))
+         (max (max pos-one pos-two))
+         (delta (max (- max min 1) 0))
+         (duo-one (nthcdr min list))
+         (duo-two (nthcdr delta duo-one)))
+    (cons duo-one duo-two)))
+
 ;;; Position
 ;;; ------------------------------------------------------------
 
