@@ -192,8 +192,36 @@ Return nil if ONE and TWO are distincts or not cons."
                              (duo-<= cdr-one cdr-two)))))))
         (t (error "Function duo-<= : wrong type argument"))))
 
-;;; Find
+;;; First & Last
 ;;; ------------------------------------------------------------
+
+;; Keep this in mind
+
+(defun duo-first (list)
+  "Return first cons of LIST, ie the list itself."
+  list)
+
+;; Just for fun
+
+(defun duo-last (list &optional num)
+  "Return cons starting a sublist of NUM elements at the end of LIST.
+If NUM exceeds the length of LIST, return LIST.
+NUM defaults to 1 : NUM nil means return cons of last element in LIST."
+  (let ((num (or num 1))
+        (last list))
+    (while (nthcdr num last)
+      (setq last (cdr last)))
+    last))
+
+;;; Element & Cons
+;;; ------------------------------------------------------------
+
+(defun duo-at-index (index list)
+  "Cons at INDEX in LIST."
+  (let ((position (if (> index 0)
+                      index
+                    (+ (length list) index))))
+    (nthcdr position list)))
 
 (defun duo-inside (cons list)
   "Return CONS if CONS is in LIST or nil otherwise."
@@ -203,12 +231,19 @@ Return nil if ONE and TWO are distincts or not cons."
       (setq duo (cdr duo)))
     duo))
 
-(defun duo-at-index (index list)
-  "Cons at INDEX in LIST."
-  (let ((position (if (> index 0)
-                      index
-                    (+ (length list) index))))
-    (nthcdr position list)))
+(defun duo-member (elem list &optional fn-equal)
+  "Return cons of ELEM in LIST or nil if ELEM is not in list.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo list)
+        (fn-equal (or fn-equal #'equal)))
+    (while (and duo
+                (not (funcall fn-equal (car duo) elem)))
+      (setq duo (cdr duo)))
+    duo))
+
+;;; Position
+;;; ------------------------------------------------------------
 
 (defun duo-index-of-cons (cons list)
   "Return index of CONS in LIST or nil if not present."
@@ -237,17 +272,6 @@ FN-EQUAL defaults to `equal'."
         index
       nil)))
 
-(defun duo-member (elem list &optional fn-equal)
-  "Return cons of ELEM in LIST or nil if ELEM is not in list.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'."
-  (let ((duo list)
-        (fn-equal (or fn-equal #'equal)))
-    (while (and duo
-                (not (funcall fn-equal (car duo) elem)))
-      (setq duo (cdr duo)))
-    duo))
-
 (defun duo-index-member (elem list &optional fn-equal)
   "Return (index . cons) of ELEM in LIST or nil if not present.
 FN-EQUAL takes two arguments and return t if they are considered equals.
@@ -264,7 +288,7 @@ FN-EQUAL defaults to `equal'."
       nil)))
 
 ;;; Assoc
-;;; ------------------------------
+;;; ------------------------------------------------------------
 
 (defun duo-assoc (key list &optional fn-equal)
   "Return cons of first element in LIST whose car equals KEY.
@@ -289,27 +313,6 @@ Return nil if no matching element is found."
                 (not (funcall fn-equal (cdr (car duo)) value)))
       (setq duo (cdr duo)))
     duo))
-
-;;; First & Last
-;;; ------------------------------
-
-;; Keep this in mind
-
-(defun duo-first (list)
-  "Return first cons of LIST, ie the list itself."
-  list)
-
-;; Just for fun
-
-(defun duo-last (list &optional num)
-  "Return cons starting a sublist of NUM elements at the end of LIST.
-If NUM exceeds the length of LIST, return LIST.
-NUM defaults to 1 : NUM nil means return cons of last element in LIST."
-  (let ((num (or num 1))
-        (last list))
-    (while (nthcdr num last)
-      (setq last (cdr last)))
-    last))
 
 ;;; Next / Previous
 ;;; ------------------------------------------------------------
