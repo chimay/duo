@@ -531,9 +531,7 @@ uses the list symbol as argument.
 Common usage :
 \(duo-sym-insert-cons-before elem new 'list)
 Destructive."
-  (let* ((fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+  (let* ((fn-equal (or fn-equal #'equal))
          (list (symbol-value symlist))
          (previous (if previous
                        previous
@@ -568,9 +566,7 @@ uses the list symbol as argument.
 Common usage :
 \(duo-sym-insert-before elem new 'list)
 Destructive."
-  (let* ((fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+  (let* ((fn-equal (or fn-equal #'equal))
          (list (symbol-value symlist))
          (previous (if previous
                        previous
@@ -628,9 +624,7 @@ Common usage :
 \(duo-sym-delete elem 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+         (fn-equal (or fn-equal #'equal))
          (previous (if previous
                        previous
                      (duo-before elem list 1 fn-equal)))
@@ -657,9 +651,7 @@ Destructive."
         (duo)
         (pre)
         (next)
-        (fn-equal (if fn-equal
-                      fn-equal
-                    #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (set sym-removed-list nil)
     (while (funcall fn-equal (car (symbol-value symlist)) elem)
       (setq removed (duo-sym-pop symlist))
@@ -853,9 +845,7 @@ Common usage :
 \(duo-sym-move-previous moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (pre-ins (duo-previous moved list (1+ num)))
          (landmark (if pre-ins
                        (cdr pre-ins)
@@ -877,9 +867,7 @@ Common usage :
 \(duo-sym-move-next moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (landmark (nthcdr num moved)))
     (unless landmark
       (setq landmark (duo-last list)))
@@ -899,9 +887,7 @@ Common usage :
 \(duo-sym-move-before moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (pre-ins (duo-before elem list (1+ num) fn-equal))
          (landmark (if pre-ins
                        (cdr pre-ins)
@@ -928,9 +914,7 @@ Common usage :
 \(duo-sym-move-after moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (moved (duo-member elem list fn-equal))
          (landmark (nthcdr num moved)))
     (unless landmark
@@ -952,9 +936,7 @@ Common usage :
 \(duo-sym-circ-move-previous moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (pre-ins (duo-circ-previous moved list (1+ num)))
          (landmark (duo-circ-next pre-ins list))
          (pre-rem (duo-circ-next pre-ins list num)))
@@ -975,9 +957,7 @@ Common usage :
 \(duo-sym-circ-move-next moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (landmark (duo-circ-next moved list num)))
     (duo-sym-teleport-cons-next landmark moved symlist)))
 
@@ -994,9 +974,7 @@ Common usage :
 \(duo-sym-circ-move-before moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (pre-ins (duo-circ-before elem list (1+ num) fn-equal))
          (landmark (duo-circ-next pre-ins list))
          (pre-rem (duo-circ-next pre-ins list num))
@@ -1023,9 +1001,7 @@ Common usage :
 \(duo-sym-circ-move-after moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (moved (duo-member elem list fn-equal))
          (landmark (duo-circ-next moved list num)))
     (duo-sym-teleport-cons-next landmark moved symlist)))
@@ -1097,9 +1073,7 @@ uses the list symbol as argument.
 Common usage :
 \(duo-sym-insert-in-sorted-list new 'list)
 Destructive."
-  (let ((fn-less (if fn-less
-                     fn-less
-                   #'<))
+  (let ((fn-less (or fn-less #'duo-<))
         (list (symbol-value symlist)))
     (cond ((not list) (set symlist (cons new nil)))
           ((funcall fn-less new (car list)) (duo-sym-push new symlist))
@@ -1153,9 +1127,7 @@ Common usage :
 \(duo-sym-insert-at-group-end new 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (fn-group (if fn-group
-                         fn-group
-                       #'equal))
+         (fn-group (or fn-group #'equal))
          (previous (duo-member new list fn-group))
          (duo))
     (while (and previous
@@ -1181,9 +1153,7 @@ Each element of the alist is of the form :
 where all the elem-* verify (FN-KEY elem-?) = key.
 FN-KEY defaults to `identity'."
   (let* ((list (symbol-value symlist))
-         (fn-key (if fn-key
-                     fn-key
-                   #'identity))
+         (fn-key (or fn-key #'identity))
          (sym-assoc-list (make-symbol "assoc-list"))
          (sym-key-list (make-symbol "key-list"))
          (duo list)

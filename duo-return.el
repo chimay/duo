@@ -490,9 +490,7 @@ Common usage :
 \(when (eq (cdr return) list)
   (setq list return))
 Destructive."
-  (let* ((fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+  (let* ((fn-equal (or fn-equal #'equal))
          (previous (if previous
                        previous
                      (duo-before elem list 1 fn-equal)))
@@ -529,9 +527,7 @@ Common usage :
 \(when (eq (cdr return) list)
   (setq list return))
 Destructive."
-  (let* ((fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+  (let* ((fn-equal (or fn-equal #'equal))
          (previous (if previous
                        previous
                      (duo-before elem list 1 fn-equal)))
@@ -589,9 +585,7 @@ Common usage :
 \(setq removed (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let* ((fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+  (let* ((fn-equal (or fn-equal #'equal))
          (previous (if previous
                        previous
                      (duo-before elem list 1 fn-equal)))
@@ -623,9 +617,7 @@ Destructive."
         (duo)
         (pre)
         (next)
-        (fn-equal (if fn-equal
-                      fn-equal
-                    #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (funcall fn-equal (car newlist) elem)
       (setq pair (duo-return-pop newlist))
       (setq removed (car pair))
@@ -842,9 +834,7 @@ Common usage :
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (pre-ins (duo-previous moved list (1+ num)))
          (landmark (if pre-ins
                        (cdr pre-ins)
@@ -866,9 +856,7 @@ Common usage :
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (landmark (nthcdr num moved)))
     (unless landmark
       (setq landmark (duo-last list)))
@@ -888,9 +876,7 @@ Common usage :
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (pre-ins (duo-before elem list (1+ num) fn-equal))
          (landmark (if pre-ins
                        (cdr pre-ins)
@@ -917,9 +903,7 @@ Common usage :
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (moved (duo-member elem list fn-equal))
          (landmark (nthcdr num moved)))
     (unless landmark
@@ -941,9 +925,7 @@ Common usage :
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (pre-ins (duo-circ-previous moved list (1+ num)))
          (landmark (duo-circ-next pre-ins list))
          (pre-rem (duo-circ-next pre-ins list num)))
@@ -965,9 +947,7 @@ Common usage :
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (landmark (duo-circ-next moved list num)))
     (duo-return-teleport-cons-next landmark moved list)))
 
@@ -985,9 +965,7 @@ Common usage :
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (pre-ins (duo-circ-before elem list (1+ num) fn-equal))
          (landmark (duo-circ-next pre-ins list))
          (pre-rem (duo-circ-next pre-ins list num))
@@ -1015,9 +993,7 @@ Common usage :
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (moved (duo-member elem list fn-equal))
          (landmark (duo-circ-next moved list num)))
     (duo-return-teleport-cons-next landmark moved list)))
@@ -1100,9 +1076,7 @@ Common usage :
 \(when (eq (cdr return) list)
   (setq list return))
 Destructive."
-  (let ((fn-less (if fn-less
-                     fn-less
-                   #'<)))
+  (let ((fn-less (or fn-less #'duo-<)))
     (cond ((not list) (cons new nil))
           ((funcall fn-less new (car list)) (duo-return-push new list))
           (t (let ((duo list)
@@ -1156,9 +1130,7 @@ Common usage :
 \(setq cons-inserted (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let ((fn-group (if fn-group
-                        fn-group
-                      #'equal))
+  (let ((fn-group (or fn-group #'equal))
         (newlist list)
         (previous (duo-member new list fn-group))
         (duo))
@@ -1185,9 +1157,7 @@ Each element of the alist is of the form :
 \(key elem-1 elem-2 ... elem-N)
 where all the elem-* verify (FN-KEY elem-?) = key.
 FN-KEY defaults to `identity'."
-  (let ((fn-key (if fn-key
-                    fn-key
-                  #'identity))
+  (let ((fn-key (or fn-key #'identity))
         (duo list)
         (assoc-list)
         (key)

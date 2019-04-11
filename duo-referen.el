@@ -724,9 +724,7 @@ Common usage :
 ;; Update list
 \(setq mylist (duo-deref reflist))
 Destructive."
-  (let* ((fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+  (let* ((fn-equal (or fn-equal #'equal))
          (list (duo-deref reflist))
          (previous (if previous
                        previous
@@ -767,9 +765,7 @@ Common usage :
 ;; Update list
 \(setq mylist (duo-deref reflist))
 Destructive."
-  (let* ((fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+  (let* ((fn-equal (or fn-equal #'equal))
          (list (duo-deref reflist))
          (previous (if previous
                        previous
@@ -839,9 +835,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+         (fn-equal (or fn-equal #'equal))
          (previous (if previous
                        previous
                      (duo-before elem list 1 fn-equal)))
@@ -876,9 +870,7 @@ Destructive."
         (duo)
         (pre)
         (next)
-        (fn-equal (if fn-equal
-                      fn-equal
-                    #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (funcall fn-equal (car (duo-deref reflist)) elem)
       (setq removed (duo-ref-pop reflist))
       (setq last (duo-ref-add-cons removed removed-list last)))
@@ -1125,9 +1117,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (pre-ins (duo-previous moved list (1+ num)))
          (landmark (if pre-ins
                        (cdr pre-ins)
@@ -1155,9 +1145,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (landmark (nthcdr num moved)))
     (unless landmark
       (setq landmark (duo-last list)))
@@ -1183,9 +1171,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (pre-ins (duo-before elem list (1+ num) fn-equal))
          (landmark (if pre-ins
                        (cdr pre-ins)
@@ -1218,9 +1204,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (moved (duo-member elem list fn-equal))
          (landmark (nthcdr num moved)))
     (unless landmark
@@ -1248,9 +1232,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (pre-ins (duo-circ-previous moved list (1+ num)))
          (landmark (duo-circ-next pre-ins list))
          (pre-rem (duo-circ-next pre-ins list num)))
@@ -1277,9 +1259,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (landmark (duo-circ-next moved list num)))
     (duo-ref-teleport-cons-next landmark moved reflist)))
 
@@ -1302,9 +1282,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (pre-ins (duo-circ-before elem list (1+ num) fn-equal))
          (landmark (duo-circ-next pre-ins list))
          (pre-rem (duo-circ-next pre-ins list num))
@@ -1337,9 +1315,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (num (if num
-                  num
-                1))
+         (num (or num 1))
          (moved (duo-member elem list fn-equal))
          (landmark (duo-circ-next moved list num)))
     (duo-ref-teleport-cons-next landmark moved reflist)))
@@ -1429,9 +1405,7 @@ Common usage :
 ;; Update list
 \(setq mylist (duo-deref reflist))
 Destructive."
-  (let ((fn-less (if fn-less
-                     fn-less
-                   #'<))
+  (let ((fn-less (or fn-less #'duo-<))
         (list (duo-deref reflist)))
     (cond ((not list)
            (duo-ref-set reflist (cons new nil))
@@ -1500,9 +1474,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (fn-group (if fn-group
-                         fn-group
-                       #'equal))
+         (fn-group (or fn-group #'equal))
          (previous (duo-member new list fn-group))
          (duo))
     (while (and previous
@@ -1527,9 +1499,7 @@ Each element of the alist is of the form :
 where all the elem-* verify (FN-KEY elem-?) = key.
 FN-KEY defaults to `identity'."
   (let* ((list (duo-deref reflist))
-         (fn-key (if fn-key
-                     fn-key
-                   #'identity))
+         (fn-key (or fn-key #'identity))
          (duo list)
          (assoc-list (list nil))
          (key)

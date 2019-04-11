@@ -224,9 +224,7 @@ Return nil if ONE and TWO are distincts or not cons."
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal))
+        (fn-equal (or fn-equal #'equal))
         (index 0))
     (while (and duo
                 (not (funcall fn-equal (car duo) elem)))
@@ -241,9 +239,7 @@ FN-EQUAL defaults to `equal'."
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (and duo
                 (not (funcall fn-equal (car duo) elem)))
       (setq duo (cdr duo)))
@@ -254,9 +250,7 @@ FN-EQUAL defaults to `equal'."
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal))
+        (fn-equal (or fn-equal #'equal))
         (index 0))
     (while (and duo
                 (not (funcall fn-equal (car duo) elem)))
@@ -275,9 +269,7 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Return nil if no matching element is found."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (and duo
                 (not (funcall fn-equal (car (car duo)) key)))
       (setq duo (cdr duo)))
@@ -289,9 +281,7 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Return nil if no matching element is found."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (and duo
                 (not (funcall fn-equal (cdr (car duo)) value)))
       (setq duo (cdr duo)))
@@ -312,9 +302,7 @@ Return nil if no matching element is found."
   "Return cons starting a sublist of NUM elements at the end of LIST.
 If NUM exceeds the length of LIST, return LIST.
 NUM defaults to 1 : NUM nil means return cons of last element in LIST."
-  (let ((num (if num
-                 num
-               1))
+  (let ((num (or num 1))
         (last list))
     (while (nthcdr num last)
       (setq last (cdr last)))
@@ -327,9 +315,7 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
   "Return cons of NUM elements before CONS in LIST.
 NUM defaults to 1.
 CONS must be a cons in LIST."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (duo list)
          (scout (nthcdr num duo)))
     (while (and scout
@@ -345,9 +331,7 @@ CONS must be a cons in LIST."
   "Return cons of NUM elements after CONS in list.
 NUM defaults to 1.
 CONS must be a cons in the list."
-  (let ((num (if num
-                 num
-               1)))
+  (let ((num (or num 1)))
     (nthcdr num cons)))
 
 (defun duo-before (elem list &optional num fn-equal)
@@ -356,12 +340,8 @@ NUM defaults to 1.
 ELEM must be present in list.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let* ((num (if num
-                  num
-                1))
-         (fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+  (let* ((num (or num 1))
+         (fn-equal (or fn-equal #'equal))
          (duo list)
          (scout duo)
          (iter 0))
@@ -391,9 +371,7 @@ NUM defaults to 1.
 ELEM must be present in list.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let ((num (if num
-                 num
-               1)))
+  (let ((num (or num 1)))
     (nthcdr num (duo-member elem list fn-equal))))
 
 ;;; Circular
@@ -405,9 +383,7 @@ Circular : if in beginning of list, go to the end.
 NUM defaults to 1.
 CONS must be a cons in LIST.
 Test with eq."
-  (let* ((num (if num
-                  num
-                1))
+  (let* ((num (or num 1))
          (duo list)
          (scout (nthcdr num duo))
          (iter 0))
@@ -434,9 +410,7 @@ Test with eq."
 Circular : if in end of list, go to the beginning.
 NUM defaults to 1.
 CONS must be a cons in LIST."
-  (let ((num (if num
-                 num
-               1))
+  (let ((num (or num 1))
         (duo cons)
         (iter 0))
     (while (and duo
@@ -457,12 +431,8 @@ NUM defaults to 1.
 ELEM must be present in list.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let* ((num (if num
-                  num
-                1))
-         (fn-equal (if fn-equal
-                         fn-equal
-                       #'equal))
+  (let* ((num (or num 1))
+         (fn-equal (or fn-equal #'equal))
          (duo list)
          (scout duo)
          (iter 0))
@@ -531,9 +501,7 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (and duo
                 (not (funcall fn-equal (car (car duo)) old)))
       (setq duo (cdr duo)))
@@ -547,9 +515,7 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (and duo
                 (not (funcall fn-equal (cdr (car duo)) old)))
       (setq duo (cdr duo)))
@@ -566,9 +532,7 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (and duo
                 (not (funcall fn-equal (car (car (car duo))) old)))
       (setq duo (cdr duo)))
@@ -582,9 +546,7 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (and duo
                 (not (funcall fn-equal (cdr (car (car duo))) old)))
       (setq duo (cdr duo)))
@@ -598,9 +560,7 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (and duo
                 (not (funcall fn-equal (car (cdr (car duo))) old)))
       (setq duo (cdr duo)))
@@ -614,9 +574,7 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
   (let ((duo list)
-        (fn-equal (if fn-equal
-                        fn-equal
-                      #'equal)))
+        (fn-equal (or fn-equal #'equal)))
     (while (and duo
                 (not (funcall fn-equal (cdr (cdr (car duo))) old)))
       (setq duo (cdr duo)))
@@ -633,9 +591,7 @@ Return number of elements replaced.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
-  (let ((fn-equal (if fn-equal
-                      fn-equal
-                    #'equal))
+  (let ((fn-equal (or fn-equal #'equal))
         (duo list)
         (num 0))
     (while duo
@@ -654,9 +610,7 @@ Return number of elements replaced.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
-  (let ((fn-equal (if fn-equal
-                      fn-equal
-                    #'equal))
+  (let ((fn-equal (or fn-equal #'equal))
         (duo list)
         (num 0))
     (while duo
@@ -672,9 +626,7 @@ Return number of elements replaced.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
-  (let ((fn-equal (if fn-equal
-                      fn-equal
-                    #'equal))
+  (let ((fn-equal (or fn-equal #'equal))
         (duo list)
         (num 0))
     (while duo
@@ -693,9 +645,7 @@ Return number of elements replaced.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
-  (let ((fn-equal (if fn-equal
-                      fn-equal
-                    #'equal))
+  (let ((fn-equal (or fn-equal #'equal))
         (duo list)
         (num 0))
     (while duo
@@ -711,9 +661,7 @@ Return number of elements replaced.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
-  (let ((fn-equal (if fn-equal
-                      fn-equal
-                    #'equal))
+  (let ((fn-equal (or fn-equal #'equal))
         (duo list)
         (num 0))
     (while duo
@@ -729,9 +677,7 @@ Return number of elements replaced.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
-  (let ((fn-equal (if fn-equal
-                      fn-equal
-                    #'equal))
+  (let ((fn-equal (or fn-equal #'equal))
         (duo list)
         (num 0))
     (while duo
@@ -747,9 +693,7 @@ Return number of elements replaced.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Destructive."
-  (let ((fn-equal (if fn-equal
-                      fn-equal
-                    #'equal))
+  (let ((fn-equal (or fn-equal #'equal))
         (duo list)
         (num 0))
     (while duo
@@ -812,9 +756,7 @@ Destructive."
   "Truncate LIST to its first NUM elements. Return removed part.
 If NUM is nil, do nothing.
 Destructive."
-  (let* ((num (if num
-                  num
-                nil))
+  (let* ((num (or num nil))
          (last)
          (tail))
     (when num
@@ -945,9 +887,7 @@ FN-EQUAL defaults to `equal'."
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-FILTER defaults to `identity'.
 LIST is not modified."
-  (let ((fn-filter (if fn-filter
-                       fn-filter
-                     #'identity))
+  (let ((fn-filter (or fn-filter #'identity))
         (duo list)
         (new)
         (last)
@@ -968,9 +908,7 @@ LIST is not modified."
 (defun duo-filter-previous (cons list &optional fn-filter)
   "Return cons of previous element of CONS in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
-  (let ((fn-filter (if fn-filter
-                       fn-filter
-                     #'identity))
+  (let ((fn-filter (or fn-filter #'identity))
         (duo list)
         (previous))
     (while (and duo
@@ -983,9 +921,7 @@ FN-FILTER takes one argument and return t if the element passes the filter."
 (defun duo-filter-next (cons &optional fn-filter)
   "Return cons of next element of CONS in list matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
-  (let ((fn-filter (if fn-filter
-                       fn-filter
-                     #'identity))
+  (let ((fn-filter (or fn-filter #'identity))
         (next (cdr cons)))
     (while (and next
                 (not (funcall fn-filter (car next))))
@@ -997,9 +933,7 @@ FN-FILTER takes one argument and return t if the element passes the filter."
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let ((fn-filter (if fn-filter
-                       fn-filter
-                     #'identity))
+  (let ((fn-filter (or fn-filter #'identity))
         (duo (duo-member elem list fn-equal)))
     (duo-filter-previous duo list fn-filter)))
 
@@ -1008,9 +942,7 @@ FN-EQUAL defaults to `equal'."
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let ((fn-filter (if fn-filter
-                       fn-filter
-                     #'identity))
+  (let ((fn-filter (or fn-filter #'identity))
         (duo (duo-member elem list fn-equal)))
     (duo-filter-next duo fn-filter)))
 
@@ -1020,9 +952,7 @@ FN-EQUAL defaults to `equal'."
 (defun duo-circ-filter-previous (cons list &optional fn-filter)
   "Return cons of previous element of CONS in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
-  (let ((fn-filter (if fn-filter
-                       fn-filter
-                     #'identity))
+  (let ((fn-filter (or fn-filter #'identity))
         (duo list)
         (previous))
     (while (and duo
@@ -1041,9 +971,7 @@ FN-FILTER takes one argument and return t if the element passes the filter."
 (defun duo-circ-filter-next (cons list &optional fn-filter)
   "Return cons of next element of CONS in LIST matching FN-FILTER.
 FN-FILTER takes one argument and return t if the element passes the filter."
-  (let ((fn-filter (if fn-filter
-                       fn-filter
-                     #'identity))
+  (let ((fn-filter (or fn-filter #'identity))
         (next (cdr cons)))
     (while (and next
                 (not (funcall fn-filter (car next))))
@@ -1061,9 +989,7 @@ FN-FILTER takes one argument and return t if the element passes the filter."
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let ((fn-filter (if fn-filter
-                       fn-filter
-                     #'identity))
+  (let ((fn-filter (or fn-filter #'identity))
         (duo (duo-member elem list fn-equal)))
     (duo-circ-filter-previous duo list fn-filter)))
 
@@ -1072,9 +998,7 @@ FN-EQUAL defaults to `equal'."
 FN-FILTER takes one argument and return t if the element passes the filter.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
-  (let ((fn-filter (if fn-filter
-                       fn-filter
-                     #'identity))
+  (let ((fn-filter (or fn-filter #'identity))
         (duo (duo-member elem list fn-equal)))
     (duo-circ-filter-next duo list fn-filter)))
 
