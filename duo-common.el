@@ -205,7 +205,10 @@ Return nil if ONE and TWO are distincts or not cons."
 
 (defun duo-at-index (index list)
   "Cons at INDEX in LIST."
-  (nthcdr index list))
+  (let ((position (if (> index 0)
+                      index
+                    (+ (length list) index))))
+    (nthcdr position list)))
 
 (defun duo-index-of-cons (cons list)
   "Return index of CONS in LIST or nil if not present."
