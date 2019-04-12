@@ -218,7 +218,7 @@ NUM defaults to 1 : NUM nil means return cons of last element in LIST."
 
 (defun duo-at-index (index list)
   "Cons at INDEX in LIST."
-  (let ((position (if (> index 0)
+  (let ((position (if (>= index 0)
                       index
                     (+ (length list) index))))
     (nthcdr position list)))
@@ -251,10 +251,10 @@ Cons of INDEX-ONE and INDEX-TWO are included in the range.
 Return first and last cons of range."
   (let* ((length (length list))
          (index-two (or index-two length))
-         (pos-one (if (> index-one 0)
+         (pos-one (if (>= index-one 0)
                       index-one
                     (+ length index-one)))
-         (pos-two (if (> index-two 0)
+         (pos-two (if (>= index-two 0)
                       index-two
                     (+ length index-two)))
          (min (min pos-one pos-two))
