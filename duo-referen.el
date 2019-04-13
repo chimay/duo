@@ -231,7 +231,7 @@ Destructive."
       (duo-ref-push elem reflist))))
 
 (defun duo-ref-add-new (elem reflist &optional last fn-equal)
-  "Add ELEM at the end of car of REFlist referenced by REFLIST.
+  "Add ELEM at the end of the list referenced by REFLIST.
 Do nothing if ELEM is already present.
 Return the new LAST.
 If non nil, LAST is used to speed up the process.

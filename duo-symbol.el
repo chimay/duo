@@ -151,7 +151,7 @@ Destructive."
       (duo-sym-push elem symlist))))
 
 (defun duo-sym-add-new (elem symlist &optional last fn-equal)
-  "Add ELEM at the end of car of REFSYMLIST.
+  "Add ELEM at the end of SYMLIST.
 Do nothing if ELEM is already present.
 Return the new LAST.
 If non nil, LAST is used to speed up the process.
@@ -962,7 +962,7 @@ Destructive."
     (duo-sym-teleport-cons-next landmark moved symlist)))
 
 (defun duo-sym-circ-move-before (elem symlist &optional num fn-equal)
-  "Move ELEM to NUM previous place in LIST. Return MOVED.
+  "Move ELEM to NUM previous place in SYMLIST. Return MOVED.
 Circular : if in beginning of list, go to the end.
 MOVED is the moved value.
 NUM defaults to 1.
@@ -989,7 +989,7 @@ Destructive."
     (duo-sym-teleport-cons-previous landmark moved symlist pre-rem pre-ins)))
 
 (defun duo-sym-circ-move-after (elem symlist &optional num fn-equal)
-  "Move ELEM to NUM next place in LIST. Return MOVED.
+  "Move ELEM to NUM next place in SYMLIST. Return MOVED.
 Circular : if in end of list, go to the beginning.
 MOVED is the moved value.
 NUM defaults to 1.
