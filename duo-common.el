@@ -356,7 +356,7 @@ Return nil if no matching element is found."
 ;;; Position
 ;;; ------------------------------
 
-(defun duo-assoc-index (key list &optional fn-equal)
+(defun duo-assoc-index-of (key list &optional fn-equal)
   "Return index of first element in LIST whose car equals KEY.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
@@ -372,8 +372,8 @@ Return nil if no matching element is found."
           index
         nil)))
 
-(defun duo-reverse-assoc-index (value list &optional fn-equal)
-  "Return (index . cons) of first element in LIST whose cdr equals VALUE.
+(defun duo-reverse-assoc-index-of (value list &optional fn-equal)
+  "Return index of first element in LIST whose cdr equals VALUE.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
 Return nil if no matching element is found."
