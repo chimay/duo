@@ -356,7 +356,39 @@ Return nil if no matching element is found."
 ;;; Position
 ;;; ------------------------------
 
-(defun duo-index-assoc (key list &optional fn-equal)
+(defun duo-assoc-index (key list &optional fn-equal)
+  "Return index of first element in LIST whose car equals KEY.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Return nil if no matching element is found."
+  (let ((duo list)
+        (fn-equal (or fn-equal #'equal))
+        (index 0))
+    (while (and duo
+                (not (funcall fn-equal (car (car duo)) key)))
+      (setq duo (cdr duo))
+      (setq index (1+ index)))
+    (if duo
+          index
+        nil)))
+
+(defun duo-reverse-assoc-index (value list &optional fn-equal)
+  "Return (index . cons) of first element in LIST whose cdr equals VALUE.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'.
+Return nil if no matching element is found."
+  (let ((duo list)
+        (fn-equal (or fn-equal #'equal))
+        (index 0))
+    (while (and duo
+                (not (funcall fn-equal (cdr (car duo)) value)))
+      (setq duo (cdr duo))
+      (setq index (1+ index)))
+    (if duo
+        index
+      nil)))
+
+(defun duo-assoc-index-member (key list &optional fn-equal)
   "Return (index . cons) of first element in LIST whose car equals KEY.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
@@ -372,7 +404,7 @@ Return nil if no matching element is found."
           (cons index duo)
         nil)))
 
-(defun duo-reverse-index-assoc (value list &optional fn-equal)
+(defun duo-reverse-assoc-index-member (value list &optional fn-equal)
   "Return (index . cons) of first element in LIST whose cdr equals VALUE.
 FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'.
