@@ -88,11 +88,23 @@
 ;;; Require
 ;;; ------------------------------------------------------------
 
-(eval-when-compile
-  (require 'duo-common)
-  (require 'duo-symbol)
-  (require 'duo-referen)
-  (require 'duo-return))
+;; (eval-when-compile
+;;   (require 'duo-common)
+;;   (require 'duo-symbol)
+;;   (require 'duo-referen)
+;;   (require 'duo-return))
+
+;;; Init
+;;; ------------------------------------------------------------
+
+(defun duo-init (&rest file-list)
+  "Load files in LIST."
+  (let ((file-list (or file-list (list "duo-common"
+                                       "duo-symbol"
+                                       "duo-referen"
+                                       "duo-return"))))
+    (dolist (file file-list)
+      (load file))))
 
 ;;; End
 ;;; ------------------------------------------------------------
