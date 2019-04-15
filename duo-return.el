@@ -35,6 +35,7 @@
 (eval-when-compile
   (require 'duo-common))
 
+(declare-function duo-< "duo-common")
 (declare-function duo-last "duo-common")
 (declare-function duo-inside "duo-common")
 (declare-function duo-member "duo-common")
