@@ -238,7 +238,7 @@ FN-EQUAL defaults to `equal'."
   (let ((duo list)
         (fn-equal (or fn-equal #'equal)))
     (while (and duo
-                (not (funcall fn-equal (car duo) elem)))
+                (not (funcall fn-equal elem (car duo))))
       (setq duo (cdr duo)))
     duo))
 
@@ -304,7 +304,7 @@ FN-EQUAL defaults to `equal'."
         (fn-equal (or fn-equal #'equal))
         (index 0))
     (while (and duo
-                (not (funcall fn-equal (car duo) elem)))
+                (not (funcall fn-equal elem (car duo))))
       (setq duo (cdr duo))
       (setq index (1+ index)))
     (if duo
@@ -319,7 +319,7 @@ FN-EQUAL defaults to `equal'."
         (fn-equal (or fn-equal #'equal))
         (index 0))
     (while (and duo
-                (not (funcall fn-equal (car duo) elem)))
+                (not (funcall fn-equal elem (car duo))))
       (setq duo (cdr duo))
       (setq index (1+ index)))
     (if duo
@@ -337,7 +337,7 @@ Return nil if no matching element is found."
   (let ((duo list)
         (fn-equal (or fn-equal #'equal)))
     (while (and duo
-                (not (funcall fn-equal (car (car duo)) key)))
+                (not (funcall fn-equal key (car (car duo)))))
       (setq duo (cdr duo)))
     duo))
 
@@ -349,7 +349,7 @@ Return nil if no matching element is found."
   (let ((duo list)
         (fn-equal (or fn-equal #'equal)))
     (while (and duo
-                (not (funcall fn-equal (cdr (car duo)) value)))
+                (not (funcall fn-equal value (cdr (car duo)))))
       (setq duo (cdr duo)))
     duo))
 
@@ -365,7 +365,7 @@ Return nil if no matching element is found."
         (fn-equal (or fn-equal #'equal))
         (index 0))
     (while (and duo
-                (not (funcall fn-equal (car (car duo)) key)))
+                (not (funcall fn-equal key (car (car duo)))))
       (setq duo (cdr duo))
       (setq index (1+ index)))
     (if duo
@@ -381,7 +381,7 @@ Return nil if no matching element is found."
         (fn-equal (or fn-equal #'equal))
         (index 0))
     (while (and duo
-                (not (funcall fn-equal (cdr (car duo)) value)))
+                (not (funcall fn-equal value (cdr (car duo)))))
       (setq duo (cdr duo))
       (setq index (1+ index)))
     (if duo
@@ -397,7 +397,7 @@ Return nil if no matching element is found."
         (fn-equal (or fn-equal #'equal))
         (index 0))
     (while (and duo
-                (not (funcall fn-equal (car (car duo)) key)))
+                (not (funcall fn-equal key (car (car duo)))))
       (setq duo (cdr duo))
       (setq index (1+ index)))
     (if duo
@@ -413,7 +413,7 @@ Return nil if no matching element is found."
         (fn-equal (or fn-equal #'equal))
         (index 0))
     (while (and duo
-                (not (funcall fn-equal (cdr (car duo)) value)))
+                (not (funcall fn-equal value (cdr (car duo)))))
       (setq duo (cdr duo))
       (setq index (1+ index)))
     (if duo
@@ -459,7 +459,7 @@ FN-EQUAL defaults to `equal'."
          (iter 0))
     ;; We want the cons before the _first_ occurrence
     (while (< iter num)
-      (if (funcall fn-equal (car scout) elem)
+      (if (funcall fn-equal elem (car scout))
           (progn
             (setq duo nil)
             (setq scout nil)
@@ -468,12 +468,12 @@ FN-EQUAL defaults to `equal'."
         (setq iter (1+ iter))))
     ;; If it’ok, we go on
     (while (and scout
-                (not (funcall fn-equal (car scout) elem))
-                (not (funcall fn-equal (car duo) elem)))
+                (not (funcall fn-equal elem (car scout)))
+                (not (funcall fn-equal elem (car duo))))
       (setq duo (cdr duo))
       (setq scout (cdr scout)))
     (if (and scout
-             (funcall fn-equal (car scout) elem))
+             (funcall fn-equal elem (car scout)))
         duo
       nil)))
 
@@ -551,7 +551,7 @@ FN-EQUAL defaults to `equal'."
     ;; We want the cons before the _first_ occurrence
     (while (and scout
                 (< iter num))
-      (if (funcall fn-equal (car scout) elem)
+      (if (funcall fn-equal elem (car scout))
           (progn
             (setq duo nil)
             (setq scout nil))
@@ -564,13 +564,13 @@ FN-EQUAL defaults to `equal'."
         (setq num (mod num (length list)))
         (setq scout (nthcdr num duo)))
       (while (and duo
-                  (not (funcall fn-equal (car scout) elem))
-                  (not (funcall fn-equal (car duo) elem)))
+                  (not (funcall fn-equal elem (car scout)))
+                  (not (funcall fn-equal elem (car duo))))
         (setq duo (cdr duo))
         (setq scout (cdr scout))
         (setq iter (1+ iter))))
     (unless (and scout
-                 (funcall fn-equal (car scout) elem))
+                 (funcall fn-equal elem (car scout)))
       (setq duo list)
       (setq scout (nthcdr (- num iter) duo))
       (while (and duo
@@ -615,7 +615,7 @@ Destructive."
   (let ((duo list)
         (fn-equal (or fn-equal #'equal)))
     (while (and duo
-                (not (funcall fn-equal (car (car duo)) old)))
+                (not (funcall fn-equal old (car (car duo)))))
       (setq duo (cdr duo)))
     (when duo
       (setcar (car duo) new))
@@ -629,7 +629,7 @@ Destructive."
   (let ((duo list)
         (fn-equal (or fn-equal #'equal)))
     (while (and duo
-                (not (funcall fn-equal (cdr (car duo)) old)))
+                (not (funcall fn-equal old (cdr (car duo)))))
       (setq duo (cdr duo)))
     (when duo
       (setcdr (car duo) new))
@@ -646,7 +646,7 @@ Destructive."
   (let ((duo list)
         (fn-equal (or fn-equal #'equal)))
     (while (and duo
-                (not (funcall fn-equal (car (car (car duo))) old)))
+                (not (funcall fn-equal old (car (car (car duo))))))
       (setq duo (cdr duo)))
     (when duo
       (setcar (car (car duo)) new))
@@ -660,7 +660,7 @@ Destructive."
   (let ((duo list)
         (fn-equal (or fn-equal #'equal)))
     (while (and duo
-                (not (funcall fn-equal (cdr (car (car duo))) old)))
+                (not (funcall fn-equal old (cdr (car (car duo))))))
       (setq duo (cdr duo)))
     (when duo
       (setcdr (car (car duo)) new))
@@ -674,7 +674,7 @@ Destructive."
   (let ((duo list)
         (fn-equal (or fn-equal #'equal)))
     (while (and duo
-                (not (funcall fn-equal (car (cdr (car duo))) old)))
+                (not (funcall fn-equal old (car (cdr (car duo))))))
       (setq duo (cdr duo)))
     (when duo
       (setcar (cdr (car duo)) new))
@@ -688,7 +688,7 @@ Destructive."
   (let ((duo list)
         (fn-equal (or fn-equal #'equal)))
     (while (and duo
-                (not (funcall fn-equal (cdr (cdr (car duo))) old)))
+                (not (funcall fn-equal old (cdr (cdr (car duo))))))
       (setq duo (cdr duo)))
     (when duo
       (setcdr (cdr (car duo)) new))
@@ -707,7 +707,7 @@ Destructive."
         (duo list)
         (num 0))
     (while duo
-      (when (funcall fn-equal (car duo) old)
+      (when (funcall fn-equal old (car duo))
         (setcar duo new)
         (setq num (1+ num)))
       (setq duo (cdr duo)))
@@ -726,7 +726,7 @@ Destructive."
         (duo list)
         (num 0))
     (while duo
-      (when (funcall fn-equal (car (car duo)) old)
+      (when (funcall fn-equal old (car (car duo)))
         (setcar (car duo) new)
         (setq num (1+ num)))
       (setq duo (cdr duo)))
@@ -742,7 +742,7 @@ Destructive."
         (duo list)
         (num 0))
     (while duo
-      (when (funcall fn-equal (cdr (car duo)) old)
+      (when (funcall fn-equal old (cdr (car duo)))
         (setcdr (car duo) new)
         (setq num (1+ num)))
       (setq duo (cdr duo)))
@@ -761,7 +761,7 @@ Destructive."
         (duo list)
         (num 0))
     (while duo
-      (when (funcall fn-equal (car (car (car duo))) old)
+      (when (funcall fn-equal old (car (car (car duo))))
         (setcar (car (car duo)) new)
         (setq num (1+ num)))
       (setq duo (cdr duo)))
@@ -777,7 +777,7 @@ Destructive."
         (duo list)
         (num 0))
     (while duo
-      (when (funcall fn-equal (cdr (car (car duo))) old)
+      (when (funcall fn-equal old (cdr (car (car duo))))
         (setcdr (car (car duo)) new)
         (setq num (1+ num)))
       (setq duo (cdr duo)))
@@ -793,7 +793,7 @@ Destructive."
         (duo list)
         (num 0))
     (while duo
-      (when (funcall fn-equal (car (cdr (car duo))) old)
+      (when (funcall fn-equal old (car (cdr (car duo))))
         (setcar (cdr (car duo)) new)
         (setq num (1+ num)))
       (setq duo (cdr duo)))
@@ -809,7 +809,7 @@ Destructive."
         (duo list)
         (num 0))
     (while duo
-      (when (funcall fn-equal (cdr (cdr (car duo))) old)
+      (when (funcall fn-equal old (cdr (cdr (car duo))))
         (setcdr (cdr (car duo)) new)
         (setq num (1+ num)))
       (setq duo (cdr duo)))

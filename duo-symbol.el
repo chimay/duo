@@ -537,7 +537,7 @@ Destructive."
          (previous (if previous
                        previous
                      (duo-before elem list 1 fn-equal)))
-         (duo (if (funcall fn-equal (car list) elem)
+         (duo (if (funcall fn-equal elem (car list))
                   list
                 (cdr previous))))
     (duo-sym-insert-cons-previous duo new symlist previous)))
@@ -572,7 +572,7 @@ Destructive."
          (previous (if previous
                        previous
                      (duo-before elem list 1 fn-equal)))
-         (cons-elem (if (funcall fn-equal (car list) elem)
+         (cons-elem (if (funcall fn-equal elem (car list))
                         list
                       (cdr previous)))
          (cons-new (list new)))
@@ -629,7 +629,7 @@ Destructive."
          (previous (if previous
                        previous
                      (duo-before elem list 1 fn-equal)))
-         (duo (if (funcall fn-equal (car list) elem)
+         (duo (if (funcall fn-equal elem (car list))
                   list
                 (cdr previous))))
     (if (and duo list)
@@ -654,7 +654,7 @@ Destructive."
         (next)
         (fn-equal (or fn-equal #'equal)))
     (set sym-removed-list nil)
-    (while (funcall fn-equal (car (symbol-value symlist)) elem)
+    (while (funcall fn-equal elem (car (symbol-value symlist)))
       (setq removed (duo-sym-pop symlist))
       (setq last (duo-sym-add-cons removed sym-removed-list last)))
     (setq list (symbol-value symlist))
@@ -662,7 +662,7 @@ Destructive."
     (setq pre nil)
     (while duo
       (setq next (cdr duo))
-      (if (funcall fn-equal (car duo) elem)
+      (if (funcall fn-equal elem (car duo))
           (progn
             (duo-sym-remove duo symlist pre)
             (setq removed duo)
