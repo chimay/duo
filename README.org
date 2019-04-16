@@ -221,7 +221,7 @@ Some functions accept a function =fn-*= in argument. Among these
 called internally like this :
 
 #+begin_src emacs-lisp
-(funcall fn-* cons-from-loop elem-or-cons-from-argument)
+(funcall fn-* elem-or-cons-from-argument cons-from-loop)
 #+end_src
 
 
