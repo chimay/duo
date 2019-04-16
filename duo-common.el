@@ -880,7 +880,7 @@ Destructive."
         (setcdr last nil)))
     tail))
 
-;;; Group
+;;; In Group
 ;;; ------------------------------------------------------------
 
 ;;; Next / Previous
@@ -990,6 +990,117 @@ FN-EQUAL takes two arguments and return t if they are considered equals.
 FN-EQUAL defaults to `equal'."
   (let ((duo (duo-member elem list fn-equal)))
     (duo-circ-next-in-group duo list fn-group)))
+
+;;; Not In Group
+;;; ------------------------------------------------------------
+
+;;; Next / Previous
+;;; ------------------------------
+
+(defun duo-previous-not-in-group (cons list &optional fn-group)
+  "Return cons of previous element of CONS in LIST not in FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((duo list)
+        (previous))
+    (while (and duo
+                (not (eq duo cons)))
+      (when (not (funcall fn-group (car duo) (car cons)))
+        (setq previous duo))
+      (setq duo (cdr duo)))
+    previous))
+
+(defun duo-next-not-in-group (cons &optional fn-group)
+  "Return cons of next element of CONS in list not in FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((next (cdr cons)))
+    (while (and next
+                (funcall fn-group (car next) (car cons)))
+      (setq next (cdr next)))
+    next))
+
+(defun duo-before-not-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element before ELEM in LIST not in FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-previous-not-in-group duo list fn-group)))
+
+(defun duo-after-not-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element after ELEM in LIST not in FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-next-not-in-group duo fn-group)))
+
+;;; Circular
+;;; ------------------------------
+
+(defun duo-circ-previous-not-in-group (cons list &optional fn-group)
+  "Return cons of previous element of CONS in LIST not in FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((duo list)
+        (previous))
+    (while (and duo
+                (not (eq duo cons)))
+      (when (not (funcall fn-group (car duo) (car cons)))
+        (setq previous duo))
+      (setq duo (cdr duo)))
+    (unless previous
+      (setq duo (cdr duo))
+      (while duo
+        (when (not (funcall fn-group (car duo) (car cons)))
+          (setq previous duo))
+        (setq duo (cdr duo))))
+    previous))
+
+(defun duo-circ-next-not-in-group (cons list &optional fn-group)
+  "Return cons of next element of CONS in LIST not in FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'."
+  (let ((next (cdr cons)))
+    (while (and next
+                (funcall fn-group (car next) (car cons)))
+      (setq next (cdr next)))
+    (unless next
+      (setq next list)
+      (while (and next
+                  (not (eq next cons))
+                  (funcall fn-group (car next) (car cons)))
+        (setq next (cdr next))))
+    next))
+
+(defun duo-circ-before-not-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element before ELEM in LIST not in FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-circ-previous-not-in-group duo list fn-group)))
+
+(defun duo-circ-after-not-in-group (elem list &optional fn-group fn-equal)
+  "Return cons of element after ELEM in LIST not in FN-GROUP.
+The result and CONS are in the same group : (FN-GROUP CONS result) = t.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+FN-EQUAL takes two arguments and return t if they are considered equals.
+FN-EQUAL defaults to `equal'."
+  (let ((duo (duo-member elem list fn-equal)))
+    (duo-circ-next-not-in-group duo list fn-group)))
 
 ;;; Filter
 ;;; ------------------------------------------------------------
