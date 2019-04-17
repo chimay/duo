@@ -71,7 +71,7 @@ That’s all folks."
   "Change the reference of REFLIST to LIST.
 See `duo-deref' for the format of REFLIST.
 LIST must be a cons."
-  (when (consp list)
+  (when (or (consp list) (null list))
     (let ((oldlist (duo-deref reflist)))
       (cond ((eq oldlist (car reflist)) (setcar reflist list))
             ((eq oldlist (cdr reflist)) (setcdr reflist list))))
