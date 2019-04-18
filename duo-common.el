@@ -89,56 +89,56 @@ Return nil if ONE and TWO are distincts or not cons."
 ;;; Level 1
 ;;; ------------------------------
 
-(defun duo-car-match-x-p (one two)
-  "Whether the car of ONE equals TWO."
-  (equal (car one) two))
-
 (defun duo-x-match-car-p (one two)
   "Whether ONE equals the car of TWO."
   (equal one (car two)))
 
-(defun duo-cdr-match-x-p (one two)
-  "Whether the cdr of ONE equals TWO."
-  (equal (cdr one) two))
+(defun duo-car-match-x-p (one two)
+  "Whether the car of ONE equals TWO."
+  (equal (car one) two))
 
 (defun duo-x-match-cdr-p (one two)
   "Whether ONE equals the cdr of TWO."
   (equal one (cdr two)))
 
+(defun duo-cdr-match-x-p (one two)
+  "Whether the cdr of ONE equals TWO."
+  (equal (cdr one) two))
+
 ;;; Level 2
 ;;; ------------------------------
-
-(defun duo-caar-match-x-p (one two)
-  "Whether the caar of ONE equals TWO."
-  (equal (car (car one)) two))
 
 (defun duo-x-match-caar-p (one two)
   "Whether ONE equals the caar of TWO."
   (equal one (car (car two))))
 
-(defun duo-cdar-match-x-p (one two)
-  "Whether the cdar of ONE equals TWO."
-  (equal (cdr (car one)) two))
+(defun duo-caar-match-x-p (one two)
+  "Whether the caar of ONE equals TWO."
+  (equal (car (car one)) two))
 
 (defun duo-x-match-cdar-p (one two)
   "Whether ONE equals the cdar of TWO."
   (equal one (cdr (car two))))
 
-(defun duo-cadr-match-x-p (one two)
-  "Whether the cadr of ONE equals TWO."
-  (equal (car (cdr one)) two))
+(defun duo-cdar-match-x-p (one two)
+  "Whether the cdar of ONE equals TWO."
+  (equal (cdr (car one)) two))
 
 (defun duo-x-match-cadr-p (one two)
   "Whether ONE equals the cadr of TWO."
   (equal one (car (cdr two))))
 
-(defun duo-cddr-match-x-p (one two)
-  "Whether the cddr of ONE equals TWO."
-  (equal (cdr (cdr one)) two))
+(defun duo-cadr-match-x-p (one two)
+  "Whether the cadr of ONE equals TWO."
+  (equal (car (cdr one)) two))
 
 (defun duo-x-match-cddr-p (one two)
   "Whether ONE equals the cddr of TWO."
   (equal one (cdr (cdr two))))
+
+(defun duo-cddr-match-x-p (one two)
+  "Whether the cddr of ONE equals TWO."
+  (equal (cdr (cdr one)) two))
 
 ;;; Order
 ;;; ------------------------------------------------------------
