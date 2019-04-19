@@ -197,21 +197,23 @@ Return nil if ONE and TWO are distincts or not cons."
 
 ;; Keep this in mind
 
-(defun duo-first (list)
-  "Return first cons of LIST, ie the list itself."
-  list)
+;; (defun duo-first (list)
+;;   "Return first cons of LIST, ie the list itself."
+;;   list)
 
 ;; Just for fun
 
-(defun duo-last (list &optional num)
-  "Return cons starting a sublist of NUM elements at the end of LIST.
-If NUM exceeds the length of LIST, return LIST.
-NUM defaults to 1 : NUM nil means return cons of last element in LIST."
-  (let ((num (or num 1))
-        (last list))
-    (while (nthcdr num last)
-      (setq last (cdr last)))
-    last))
+;; (defun duo-last (list &optional num)
+;;   "Return cons starting a sublist of NUM elements at the end of LIST.
+;; If NUM exceeds the length of LIST, return LIST.
+;; NUM defaults to 1 : NUM nil means return cons of last element in LIST."
+;;   (let ((num (or num 1))
+;;         (last list))
+;;     (while (nthcdr num last)
+;;       (setq last (cdr last)))
+;;     last))
+
+(defalias 'duo-last 'last)
 
 ;;; Element & Cons
 ;;; ------------------------------------------------------------
@@ -1117,7 +1119,7 @@ LIST is not modified."
         (filtered))
     (while duo
       (when (funcall fn-filter (car duo))
-        (setq new (cons (car duo) nil))
+        (setq new (cons (purecopy (car duo)) nil))
         (if filtered
             (setcdr last new)
           (setq filtered new))
@@ -1224,6 +1226,81 @@ FN-EQUAL defaults to `equal'."
   (let ((fn-filter (or fn-filter #'identity))
         (duo (duo-member elem list fn-equal)))
     (duo-circ-filter-next duo list fn-filter)))
+
+;;; Partition
+;;; ------------------------------------------------------------
+
+(defun duo-partition (list &optional fn-key)
+  "Partition LIST using FN-KEY.
+The result is an alist whose keys are given by the values of FN-KEY
+applied to the elements of LIST.
+Each element of the alist is of the form :
+\(key elem-1 elem-2 ... elem-N)
+where all the elem-* verify (FN-KEY elem-?) = key.
+FN-KEY defaults to `identity'."
+  (let ((fn-key (or fn-key #'identity))
+        (duo list)
+        (assoc)
+        (key)
+        (value)
+        (new)
+        (assoc-key)
+        (leaves)
+        (key-last)
+        (boundary))
+    (while duo
+      (setq value (purecopy (car duo)))
+      (setq key (funcall fn-key value))
+      (setq new (list value))
+      (setq assoc-key (duo-assoc key assoc))
+      (if assoc-key
+          (progn
+            (setq key-last (car (duo-assoc key leaves)))
+            (setcdr (cdr key-last) new)
+            (setcdr key-last new))
+        (if assoc
+            (progn
+              (setq boundary (duo-last assoc))
+              (setcdr boundary (list (cons key new)))
+              (setq boundary (duo-last leaves))
+              (setcdr boundary (list (cons key new))))
+          (setq assoc (list (cons key new)))
+          (setq leaves (list (cons key new)))))
+      (setq duo (cdr duo)))
+    assoc))
+
+(defun duo-partition-unique (list &optional fn-key)
+  "Partition LIST using FN-KEY. Like `duo-partition' but elements are uniques."
+  (let ((fn-key (or fn-key #'identity))
+        (duo list)
+        (assoc)
+        (key)
+        (value)
+        (new)
+        (assoc-key)
+        (leaves)
+        (key-last)
+        (boundary))
+    (while duo
+      (setq value (purecopy (car duo)))
+      (setq key (funcall fn-key value))
+      (setq new (list value))
+      (setq assoc-key (duo-assoc key assoc))
+      (if assoc-key
+          (unless (duo-member value (cdr (car assoc-key)))
+            (setq key-last (car (duo-assoc key leaves)))
+            (setcdr (cdr key-last) new)
+            (setcdr key-last new))
+        (if assoc
+            (progn
+              (setq boundary (duo-last assoc))
+              (setcdr boundary (list (cons key new)))
+              (setq boundary (duo-last leaves))
+              (setcdr boundary (list (cons key new))))
+          (setq assoc (list (cons key new)))
+          (setq leaves (list (cons key new)))))
+      (setq duo (cdr duo)))
+    assoc))
 
 ;;; Stack & Queue
 ;;; ------------------------------------------------------------

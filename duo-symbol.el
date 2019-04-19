@@ -1141,34 +1141,6 @@ Destructive."
       (setq duo (duo-sym-add new symlist)))
     duo))
 
-;;; Partition
-;;; ------------------------------------------------------------
-
-(defun duo-sym-partition (symlist &optional fn-key)
-  "Partition SYMLIST using FN-KEY to fill the alist SYMASSOC.
-SYMKEY holds the current assoc in the loop.
-The result is an alist whose keys are given by the values of FN-KEY
-applied to the elements of LIST.
-Each element of the alist is of the form :
-\(key elem-1 elem-2 ... elem-N)
-where all the elem-* verify (FN-KEY elem-?) = key.
-FN-KEY defaults to `identity'."
-  (let* ((list (symbol-value symlist))
-         (fn-key (or fn-key #'identity))
-         (sym-assoc-list (make-symbol "assoc-list"))
-         (sym-key-list (make-symbol "key-list"))
-         (duo list)
-         (key))
-    (set sym-assoc-list nil)
-    (while duo
-      (setq key (funcall fn-key (car duo)))
-      (set sym-key-list (car (duo-assoc key (symbol-value sym-assoc-list))))
-      (if (symbol-value sym-key-list)
-          (duo-sym-add (car duo) sym-key-list)
-        (duo-sym-add (list key (car duo)) sym-assoc-list))
-      (setq duo (cdr duo)))
-    (symbol-value sym-assoc-list)))
-
 ;;; End
 ;;; ------------------------------------------------------------
 

@@ -29,8 +29,8 @@ original list when :
     + When an element is removed, a reference to it is often returned
 
 However, when it’s difficult or impossible to reverse the operation, a
-new list is created, with the values of the original one. For
-instance :
+new list is created, with copies of the values using =purecopy=.
+For instance :
 
   - filter
 

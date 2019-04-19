@@ -1488,32 +1488,6 @@ Destructive."
       (setq duo (duo-ref-add new reflist)))
     duo))
 
-;;; Partition
-;;; ------------------------------------------------------------
-
-(defun duo-ref-partition (reflist &optional fn-key)
-  "Partition list referenced in REFLIST using FN-KEY.
-The result is an alist whose keys are given by the values of FN-KEY
-applied to the elements of LIST.
-Each element of the alist is of the form :
-\(key elem-1 elem-2 ... elem-N)
-where all the elem-* verify (FN-KEY elem-?) = key.
-FN-KEY defaults to `identity'."
-  (let* ((list (duo-deref reflist))
-         (fn-key (or fn-key #'identity))
-         (duo list)
-         (assoc-list (list nil))
-         (key)
-         (key-list))
-    (while duo
-      (setq key (funcall fn-key (car duo)))
-      (setq key-list (duo-assoc key (duo-deref assoc-list)))
-      (if key-list
-          (duo-ref-add (car duo) key-list)
-        (duo-ref-add (list key (car duo)) assoc-list))
-      (setq duo (cdr duo)))
-    (duo-deref assoc-list)))
-
 ;;; End
 ;;; ------------------------------------------------------------
 
