@@ -192,6 +192,17 @@ Return nil if ONE and TWO are distincts or not cons."
                              (duo-<= cdr-one cdr-two)))))))
         (t (error "Function duo-<= : wrong type argument"))))
 
+;;; Arguments
+;;; ------------------------------------------------------------
+
+(defun duo-type-of (argument)
+  "Return an assoc of ARGLIST sorted by types."
+  (cond ((integerp argument) "integer")
+        ((stringp argument) "string")
+        ((vectorp argument) "vector")
+        ((consp argument) "cons")
+        ((functionp argument) "function")))
+
 ;;; First & Last
 ;;; ------------------------------------------------------------
 

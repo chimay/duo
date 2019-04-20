@@ -347,7 +347,7 @@ Destructive."
       (set symlist next)))
   (symbol-value symlist))
 
-(defun duo-sym-roll-to-beg (elem symlist &optional previous fn-equal)
+(defun duo-sym-roll-to-beg (elem symlist &rest restargs)
   "Roll SYMLIST to the left until ELEM is at the beginning.
 Return list in SYMLIST.
 ELEM must be present in SYMLIST.
@@ -360,9 +360,11 @@ Common usage :
 \(duo-sym-roll-to-beg elem 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (previous (if previous
-                       previous
-                     (duo-before elem list 1 fn-equal)))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before elem list 1 fn-equal)))
          (duo (if previous
                   (cdr previous)
                 list)))
