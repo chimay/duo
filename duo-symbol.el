@@ -351,9 +351,10 @@ Destructive."
   "Roll SYMLIST to the left until ELEM is at the beginning.
 Return list in SYMLIST.
 ELEM must be present in SYMLIST.
-If non nil, PREVIOUS is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
 Common usage :
@@ -522,23 +523,25 @@ Destructive."
 ;;; Elem Cons
 ;;; ------------------------------
 
-(defun duo-sym-insert-cons-before (elem new symlist &optional previous fn-equal)
+(defun duo-sym-insert-cons-before (elem new symlist &rest restargs)
   "Insert NEW before ELEM in SYMLIST. Return NEW.
 ELEM must be present in list.
 NEW is the cons inserted.
-If non nil, PREVIOUS inserted is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS inserted is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
 Common usage :
 \(duo-sym-insert-cons-before elem new 'list)
 Destructive."
-  (let* ((fn-equal (or fn-equal #'equal))
-         (list (symbol-value symlist))
-         (previous (if previous
-                       previous
-                     (duo-before elem list 1 fn-equal)))
+  (let* ((list (symbol-value symlist))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before elem list 1 fn-equal)))
          (duo (if (funcall fn-equal elem (car list))
                   list
                 (cdr previous))))
@@ -557,23 +560,25 @@ Destructive."
 ;;; Elem Elem
 ;;; ------------------------------
 
-(defun duo-sym-insert-before (elem new symlist &optional previous fn-equal)
+(defun duo-sym-insert-before (elem new symlist &rest restargs)
   "Insert NEW before ELEM in SYMLIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
-If non nil, PREVIOUS inserted is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS inserted is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
 Common usage :
 \(duo-sym-insert-before elem new 'list)
 Destructive."
-  (let* ((fn-equal (or fn-equal #'equal))
-         (list (symbol-value symlist))
-         (previous (if previous
-                       previous
-                     (duo-before elem list 1 fn-equal)))
+  (let* ((list (symbol-value symlist))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before elem list 1 fn-equal)))
          (cons-elem (if (funcall fn-equal elem (car list))
                         list
                       (cdr previous)))
@@ -616,21 +621,23 @@ Destructive."
           (setcdr cons nil))
         cons))))
 
-(defun duo-sym-delete (elem symlist &optional previous fn-equal)
+(defun duo-sym-delete (elem symlist &rest restargs)
   "Delete ELEM from SYMLIST. Return removed cons.
-If non nil, PREVIOUS deleted is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS deleted is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-pop' to know why it
 uses the list symbol as argument.
 Common usage :
 \(duo-sym-delete elem 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (fn-equal (or fn-equal #'equal))
-         (previous (if previous
-                       previous
-                     (duo-before elem list 1 fn-equal)))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before elem list 1 fn-equal)))
          (duo (if (funcall fn-equal elem (car list))
                   list
                 (cdr previous))))
@@ -680,12 +687,12 @@ Destructive."
 ;;; Cons Cons
 ;;; ------------------------------
 
-(defun duo-sym-teleport-cons-previous (cons moved symlist &optional
-                                            previous-removed previous-inserted)
+(defun duo-sym-teleport-cons-previous (cons moved symlist
+                                            &optional pre-removed pre-inserted)
   "Move MOVED before CONS in SYMLIST. Return MOVED.
 CONS must be a cons in SYMLIST.
 MOVED is the cons of the moved element.
-If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+If non nil, PRE-REMOVED and PRE-INSERTED
 are used to speed up the process.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
@@ -693,8 +700,8 @@ Common usage :
 \(duo-sym-teleport-cons-previous cons moved 'list)
 Destructive."
   (unless (eq cons moved)
-    (duo-sym-remove moved symlist previous-removed)
-    (duo-sym-insert-cons-previous cons moved symlist previous-inserted))
+    (duo-sym-remove moved symlist pre-removed)
+    (duo-sym-insert-cons-previous cons moved symlist pre-inserted))
   moved)
 
 (defun duo-sym-teleport-cons-next (cons moved symlist &optional previous)
@@ -715,120 +722,164 @@ Destructive."
 ;;; Cons Elem
 ;;; ------------------------------
 
-(defun duo-sym-teleport-previous (cons moved symlist &optional
-                                       previous-removed previous-inserted
-                                       fn-equal)
+(defun duo-sym-teleport-previous (cons moved symlist &rest restargs)
   "Move MOVED before CONS in SYMLIST. Return MOVED.
 CONS must be a cons in SYMLIST.
 MOVED is the value of the moved element.
-If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
-are used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PRE-REMOVED and PRE-INSERTED (in that order) are used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
 Common usage :
 \(duo-sym-teleport-previous cons moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (duo (duo-member moved list fn-equal)))
-    (duo-sym-teleport-cons-previous cons duo symlist
-                                    previous-removed previous-inserted)))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (pre-removed (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                          (duo-before moved list 1 fn-equal)))
+         (pre-inserted (car (nthcdr 2 (car (duo-assoc "cons" argassoc)))))
+         (duo (if pre-removed
+                  (cdr pre-removed)
+                (duo-member moved list fn-equal))))
+    (duo-sym-teleport-cons-previous cons duo symlist pre-removed pre-inserted)))
 
-(defun duo-sym-teleport-next (cons moved symlist &optional previous fn-equal)
+(defun duo-sym-teleport-next (cons moved symlist &rest restargs)
   "Move MOVED after CONS in SYMLIST. Return MOVED.
 CONS must be a cons in SYMLIST.
 MOVED is the value of the moved element.
-If non nil, PREVIOUS removed is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS removed is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
 Common usage :
 \(duo-sym-teleport-next cons moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (duo (duo-member moved list fn-equal)))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before moved list 1 fn-equal)))
+         (duo (if previous
+                  (cdr previous)
+                (duo-member moved list fn-equal))))
     (duo-sym-teleport-cons-next cons duo symlist previous)))
 
 ;;; Elem Cons
 ;;; ------------------------------
 
-(defun duo-sym-teleport-cons-before (elem moved symlist &optional
-                                          previous-removed previous-inserted
-                                          fn-equal)
+(defun duo-sym-teleport-cons-before (elem moved symlist &rest restargs)
   "Move MOVED before ELEM in SYMLIST. Return MOVED.
 ELEM must be present in list.
 MOVED is the cons of the moved element.
-If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
-are used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PRE-REMOVED and PRE-INSERTED (in that order) are used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
 Common usage :
 \(duo-sym-teleport-cons-before cons moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (duo (duo-member elem list fn-equal)))
-    (duo-sym-teleport-cons-previous duo moved symlist
-                                    previous-removed previous-inserted)))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (pre-removed (car (cdr (car (duo-assoc "cons" argassoc)))))
+         (pre-inserted (or (car (nthcdr 2 (car (duo-assoc "cons" argassoc))))
+                           (duo-before elem list 1 fn-equal)))
+         (duo (if pre-inserted
+                  (cdr pre-inserted)
+                (duo-member elem list fn-equal))))
+    (duo-sym-teleport-cons-previous duo
+                                    moved symlist pre-removed pre-inserted)))
 
-(defun duo-sym-teleport-cons-after (elem moved symlist &optional previous fn-equal)
+(defun duo-sym-teleport-cons-after (elem moved symlist &rest restargs)
   "Move MOVED after ELEM in SYMLIST. Return MOVED.
 ELEM must be present in list.
 MOVED is the cons of the moved element.
-If non nil, PREVIOUS removed is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS removed is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
 Common usage :
 \(duo-sym-teleport-cons-after cons moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (duo (duo-member elem list fn-equal)))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before elem list 1 fn-equal)))
+         (duo (if previous
+                  (cdr previous)
+                (duo-member elem list fn-equal))))
     (duo-sym-teleport-cons-next duo moved symlist previous)))
 
 ;;; Elem Elem
 ;;; ------------------------------
 
-(defun duo-sym-teleport-before (elem moved symlist &optional
-                                     previous-removed previous-inserted
-                                     fn-equal)
+(defun duo-sym-teleport-before (elem moved symlist &rest restargs)
   "Move MOVED before ELEM in SYMLIST. Return MOVED.
 ELEM must be present in list.
 MOVED is the value of the moved element.
-If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
-are used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS ;
+- PRE-REMOVED and PRE-INSERTED (in that order) are used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
 Common usage :
 \(duo-sym-teleport-before cons moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (elem-cons (duo-member elem list fn-equal))
-         (moved-cons (duo-member moved list fn-equal)))
-    (duo-sym-teleport-cons-previous elem-cons moved-cons symlist
-                                    previous-removed previous-inserted)))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (pre-removed (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                          (duo-before moved list 1 fn-equal)))
+         (pre-inserted (or (car (nthcdr 2 (car (duo-assoc "cons" argassoc))))
+                           (duo-before elem list 1 fn-equal)))
+         (elem-cons (if pre-inserted
+                        (cdr pre-inserted)
+                      (duo-member elem list fn-equal)))
+         (moved-cons (if pre-removed
+                         (cdr pre-removed)
+                       (duo-member moved list fn-equal))))
+    (duo-sym-teleport-cons-previous elem-cons
+                                    moved-cons symlist pre-removed pre-inserted)))
 
-(defun duo-sym-teleport-after (elem moved symlist &optional previous fn-equal)
+(defun duo-sym-teleport-after (elem moved symlist &rest restargs)
   "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
-If non nil, PREVIOUS removed is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS removed is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See the docstring of `duo-naive-push' to know why it
 uses the list symbol as argument.
 Common usage :
 \(duo-sym-teleport-after elem moved 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before moved list 1 fn-equal)))
          (elem-cons (duo-member elem list fn-equal))
-         (moved-cons (duo-member moved list fn-equal)))
+         (moved-cons (if previous
+                         (cdr previous)
+                       (duo-member moved list fn-equal))))
     (duo-sym-teleport-cons-next elem-cons moved-cons symlist previous)))
 
 ;;; Move
