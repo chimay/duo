@@ -752,13 +752,14 @@ Destructive."
 ;;; Elem Elem
 ;;; ------------------------------
 
-(defun duo-ref-insert-before (elem new reflist &optional previous fn-equal)
+(defun duo-ref-insert-before (elem new reflist &rest restargs)
   "Insert NEW before ELEM in list referenced by REFLIST. Return cons of NEW.
 ELEM must be present in list.
 NEW is the value of the element inserted.
-If non nil, PREVIOUS inserted is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS inserted is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
@@ -770,11 +771,12 @@ Common usage :
 ;; Update list
 \(setq mylist (duo-deref reflist))
 Destructive."
-  (let* ((fn-equal (or fn-equal #'equal))
-         (list (duo-deref reflist))
-         (previous (if previous
-                       previous
-                     (duo-before elem list 1 fn-equal)))
+  (let* ((list (duo-deref reflist))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before elem list 1 fn-equal)))
          (cons-elem (if (funcall fn-equal elem (car list))
                         list
                       (cdr previous)))
