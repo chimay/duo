@@ -817,8 +817,7 @@ Destructive."
          (argassoc (duo-partition restargs #'duo-type-of))
          (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
                        #'equal))
-         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
-                       (duo-before elem list 1 fn-equal)))
+         (previous (car (cdr (car (duo-assoc "cons" argassoc)))))
          (duo (duo-member elem list fn-equal)))
     (duo-sym-teleport-cons-next duo moved symlist previous)))
 
