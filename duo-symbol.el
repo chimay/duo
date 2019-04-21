@@ -819,9 +819,7 @@ Destructive."
                        #'equal))
          (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
                        (duo-before elem list 1 fn-equal)))
-         (duo (if previous
-                  (cdr previous)
-                (duo-member elem list fn-equal))))
+         (duo (duo-member elem list fn-equal)))
     (duo-sym-teleport-cons-next duo moved symlist previous)))
 
 ;;; Elem Elem
