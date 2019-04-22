@@ -307,20 +307,23 @@ Destructive."
           next)
       list)))
 
-(defun duo-return-roll-to-beg (elem list &optional previous fn-equal)
+(defun duo-return-roll-to-beg (elem list &rest restargs)
   "Roll LIST to the left until ELEM is at the beginning. Return LIST.
 ELEM must be present in LIST.
-If non nil, PREVIOUS is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned list.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-roll-to-beg elem list))
 Destructive."
-  (let* ((previous (if previous
-                       previous
-                     (duo-before elem list 1 fn-equal)))
+  (let* ((argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before elem list 1 fn-equal)))
          (duo (if previous
                   (cdr previous)
                 list)))
