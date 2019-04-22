@@ -733,13 +733,14 @@ Destructive."
     (duo-return-teleport-cons-previous cons duo list
                                        pre-removed pre-inserted)))
 
-(defun duo-return-teleport-next (cons moved list &optional previous fn-equal)
+(defun duo-return-teleport-next (cons moved list &rest restargs)
   "Move MOVED after CONS in LIST. Return (cons of MOVED . LIST).
 CONS must be a cons in LIST.
 MOVED is the value of the moved element.
-If non nil, PREVIOUS removed is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS removed is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -747,7 +748,14 @@ Common usage :
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let ((duo (duo-member moved list fn-equal)))
+  (let* ((argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before moved list 1 fn-equal)))
+         (duo (if previous
+                  (cdr previous)
+                (duo-member moved list fn-equal))))
     (duo-return-teleport-cons-next cons duo list previous)))
 
 ;;; Elem Cons
