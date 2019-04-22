@@ -825,11 +825,12 @@ Destructive."
           (setcdr cons nil))
         cons))))
 
-(defun duo-ref-delete (elem reflist &optional previous fn-equal)
+(defun duo-ref-delete (elem reflist &rest restargs)
   "Delete ELEM from list referenced by REFLIST. Return removed cons.
-If non nil, PREVIOUS deleted is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS deleted is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-pop' to know why it doesn’t
 use the list itself in argument.
@@ -842,15 +843,15 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (fn-equal (or fn-equal #'equal))
-         (previous (if previous
-                       previous
-                     (duo-before elem list 1 fn-equal)))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before elem list 1 fn-equal)))
          (duo (if (funcall fn-equal elem (car list))
                   list
                 (cdr previous))))
-    (if (and duo
-             list)
+    (if (and duo list)
         (duo-ref-remove duo reflist previous)
       nil)))
 
