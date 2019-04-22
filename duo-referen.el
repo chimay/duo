@@ -1076,16 +1076,14 @@ Destructive."
 ;;; Elem Elem
 ;;; ------------------------------
 
-(defun duo-ref-teleport-before (elem moved reflist &optional
-                                     previous-removed previous-inserted
-                                     fn-equal)
+(defun duo-ref-teleport-before (elem moved reflist &rest restargs)
   "Move MOVED before ELEM in list referenced by REFLIST. Return MOVED.
 ELEM must be present in list.
 MOVED is the value of the moved element.
-If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
-are used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PRE-REMOVED and PRE-INSERTED are used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
@@ -1098,18 +1096,30 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (elem-cons (duo-member elem list fn-equal))
-         (moved-cons (duo-member moved list fn-equal)))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (pre-removed (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                          (duo-before moved list 1 fn-equal)))
+         (pre-inserted (or (car (nthcdr 2 (car (duo-assoc "cons" argassoc))))
+                           (duo-before elem list 1 fn-equal)))
+         (elem-cons (if pre-inserted
+                        (cdr pre-inserted)
+                      (duo-member elem list fn-equal)))
+         (moved-cons (if pre-removed
+                         (cdr pre-removed)
+                       (duo-member moved list fn-equal))))
     (duo-ref-teleport-cons-previous elem-cons moved-cons reflist
-                                    previous-removed previous-inserted)))
+                                    pre-removed pre-inserted)))
 
-(defun duo-ref-teleport-after (elem moved reflist &optional previous fn-equal)
+(defun duo-ref-teleport-after (elem moved reflist &rest restargs)
   "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
-If non nil, PREVIOUS removed is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS removed is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
 use the list itself in argument.
@@ -1122,8 +1132,15 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
+         (argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before moved list 1 fn-equal)))
          (elem-cons (duo-member elem list fn-equal))
-         (moved-cons (duo-member moved list fn-equal)))
+         (moved-cons (if previous
+                         (cdr previous)
+                       (duo-member moved list fn-equal))))
     (duo-ref-teleport-cons-next elem-cons moved-cons reflist previous)))
 
 ;;; Move
