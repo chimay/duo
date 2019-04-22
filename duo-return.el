@@ -518,13 +518,14 @@ Destructive."
 ;;; Elem Elem
 ;;; ------------------------------
 
-(defun duo-return-insert-before (elem new list &optional previous fn-equal)
+(defun duo-return-insert-before (elem new list &rest restargs)
   "Insert NEW before ELEM in LIST. Return cons of NEW.
 ELEM must be present in LIST.
 NEW is the value of the element inserted.
-If non nil, PREVIOUS inserted is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS inserted is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 If the new cons is inserted at the beginning of the list,
 the actual new list must be recovered using new LIST = NEW.
 See the docstring of `duo-naive-push' to know why.
@@ -533,10 +534,11 @@ Common usage :
 \(when (eq (cdr return) list)
   (setq list return))
 Destructive."
-  (let* ((fn-equal (or fn-equal #'equal))
-         (previous (if previous
-                       previous
-                     (duo-before elem list 1 fn-equal)))
+  (let* ((argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before elem list 1 fn-equal)))
          (cons-elem (if (funcall fn-equal elem (car list))
                         list
                       (cdr previous)))
