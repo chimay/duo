@@ -761,16 +761,14 @@ Destructive."
 ;;; Elem Cons
 ;;; ------------------------------
 
-(defun duo-return-teleport-cons-before (elem moved list &optional
-                                   previous-removed previous-inserted
-                                   fn-equal)
+(defun duo-return-teleport-cons-before (elem moved list &rest restargs)
   "Move MOVED before ELEM in LIST. Return (MOVED . LIST).
 ELEM must be present in list.
 MOVED is the cons of the moved element.
-If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
-are used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PRE-REMOVED and PRE-INSERTED are used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -778,17 +776,26 @@ Common usage :
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let ((duo (duo-member elem list fn-equal)))
+  (let* ((argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (pre-removed (car (cdr (car (duo-assoc "cons" argassoc)))))
+         (pre-inserted (or (car (nthcdr 2 (car (duo-assoc "cons" argassoc))))
+                           (duo-before elem list 1 fn-equal)))
+         (duo (if pre-inserted
+                  (cdr pre-inserted)
+                (duo-member elem list fn-equal))))
     (duo-return-teleport-cons-previous duo moved list
-                                previous-removed previous-inserted)))
+                                       pre-removed pre-inserted)))
 
-(defun duo-return-teleport-cons-after (elem moved list &optional previous fn-equal)
+(defun duo-return-teleport-cons-after (elem moved list &rest restargs)
   "Move MOVED after ELEM in LIST. Return (MOVED . LIST).
 ELEM must be present in list.
 MOVED is the cons of the moved element.
-If non nil, PREVIOUS removed is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PREVIOUS removed is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -796,22 +803,24 @@ Common usage :
 \(setq moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let ((duo (duo-member elem list fn-equal)))
+  (let* ((argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (car (cdr (car (duo-assoc "cons" argassoc)))))
+         (duo (duo-member elem list fn-equal)))
     (duo-return-teleport-cons-next duo moved list previous)))
 
 ;;; Elem Elem
 ;;; ------------------------------
 
-(defun duo-return-teleport-before (elem moved list &optional
-                                 previous-removed previous-inserted
-                                 fn-equal)
+(defun duo-return-teleport-before (elem moved list &rest restargs)
   "Move MOVED before ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
-If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
-are used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil in RESTARGS :
+- PRE-REMOVED and PRE-INSERTED are used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
 Common usage :
@@ -819,18 +828,30 @@ Common usage :
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let ((elem-cons (duo-member elem list fn-equal))
-        (moved-cons (duo-member moved list fn-equal)))
+  (let* ((argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (pre-removed (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                          (duo-before moved list 1 fn-equal)))
+         (pre-inserted (or (car (nthcdr 2 (car (duo-assoc "cons" argassoc))))
+                           (duo-before elem list 1 fn-equal)))
+         (elem-cons (if pre-inserted
+                        (cdr pre-inserted)
+                      (duo-member elem list fn-equal)))
+         (moved-cons (if pre-removed
+                         (cdr pre-removed)
+                       (duo-member moved list fn-equal))))
     (duo-return-teleport-cons-previous elem-cons moved-cons list
-                                previous-removed previous-inserted)))
+                                       pre-removed pre-inserted)))
 
-(defun duo-return-teleport-after (elem moved list &optional previous fn-equal)
+(defun duo-return-teleport-after (elem moved list &rest restargs)
   "Move MOVED after ELEM in LIST. Return (cons of MOVED . LIST).
 ELEM must be present in list.
 MOVED is the value of the moved element.
-If non nil, PREVIOUS removed is used to speed up the process.
-FN-EQUAL takes two arguments and return t if they are considered equals.
-FN-EQUAL defaults to `equal'.
+If non nil RESTARGS :
+- PREVIOUS removed is used to speed up the process.
+- FN-EQUAL takes two arguments and return t if they are considered equals.
+- FN-EQUAL defaults to `equal'.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-pop' to know why.
 Common usage :
@@ -838,8 +859,15 @@ Common usage :
 \(setq cons-moved (car pair))
 \(setq list (cdr pair))
 Destructive."
-  (let ((elem-cons (duo-member elem list fn-equal))
-        (moved-cons (duo-member moved list fn-equal)))
+  (let* ((argassoc (duo-partition restargs #'duo-type-of))
+         (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
+                       #'equal))
+         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
+                       (duo-before moved list 1 fn-equal)))
+         (elem-cons (duo-member elem list fn-equal))
+         (moved-cons (if previous
+                         (cdr previous)
+                       (duo-member moved list fn-equal))))
     (duo-return-teleport-cons-next elem-cons moved-cons list previous)))
 
 ;;; Move
