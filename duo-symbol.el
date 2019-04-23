@@ -620,6 +620,7 @@ Destructive."
     (if (eq cons list)
         (duo-sym-pop symlist)
       (let ((previous (if (and previous
+                               (eq cons (cdr previous))
                                (not (eq previous cons)))
                           previous
                         (duo-previous cons list))))

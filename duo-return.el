@@ -580,6 +580,7 @@ Destructive."
   (if (eq cons list)
       (duo-return-pop list)
     (let ((previous (if (and previous
+                             (eq cons (cdr previous))
                              (not (eq previous cons)))
                         previous
                       (duo-previous cons list))))
