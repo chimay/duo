@@ -657,7 +657,9 @@ Destructive."
   (let ((list (duo-deref reflist)))
     (if (eq cons list)
         (duo-ref-push-cons new reflist)
-      (let ((previous (if (and previous (not (eq previous new)))
+      (let ((previous (if (and previous
+                               (eq cons (cdr previous))
+                               (not (eq previous new)))
                           previous
                         (duo-previous cons list))))
         (if previous

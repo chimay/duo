@@ -477,6 +477,7 @@ Destructive."
     (if (eq cons list)
         (duo-sym-push-cons new symlist)
       (let ((previous (if (and previous
+                               (eq cons (cdr previous))
                                (not (eq previous new)))
                           previous
                         (duo-previous cons list))))

@@ -430,6 +430,7 @@ Destructive."
   (if (eq cons list)
       (duo-return-push-cons new list)
     (let ((previous (if (and previous
+                             (eq cons (cdr previous))
                              (not (eq previous new)))
                         previous
                       (duo-previous cons list))))
