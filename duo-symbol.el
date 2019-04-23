@@ -313,7 +313,7 @@ Common usage :
 \(duo-sym-roll-cons-to-beg cons 'list)
 Destructive."
   (let* ((list (symbol-value symlist))
-         (previous (if previous
+         (previous (if (and previous (eq cons (cdr previous)))
                        previous
                      (duo-previous cons list)))
          (last previous))

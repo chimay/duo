@@ -453,7 +453,7 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (let* ((list (duo-deref reflist))
-         (previous (if previous
+         (previous (if (and previous (eq cons (cdr previous)))
                        previous
                      (duo-previous cons list)))
          (last previous))

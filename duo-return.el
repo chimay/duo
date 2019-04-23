@@ -273,7 +273,7 @@ See the docstring of `duo-naive-push' to know why.
 Common usage :
 \(setq list (duo-return-roll-cons-to-beg cons list))
 Destructive."
-  (let* ((previous (if previous
+  (let* ((previous (if (and previous (eq cons (cdr previous)))
                        previous
                      (duo-previous cons list)))
          (last previous))
