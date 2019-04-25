@@ -277,8 +277,7 @@ Destructive."
                        previous
                      (duo-previous cons list)))
          (last previous))
-    (if (and (cdr list)
-             previous)
+    (if (and cons previous (cdr list))
         (progn
           (while (cdr last)
             (setq last (cdr last)))
@@ -297,8 +296,7 @@ Common usage :
 Destructive."
   (let* ((next (cdr cons))
          (last next))
-    (if (and (cdr list)
-             next)
+    (if (and cons next (cdr list))
         (progn
           (while (cdr last)
             (setq last (cdr last)))
@@ -670,11 +668,11 @@ Destructive."
 ;;; ------------------------------
 
 (defun duo-return-teleport-cons-previous (cons moved list &optional
-                                        previous-removed previous-inserted)
+                                        pre-removed pre-inserted)
   "Move MOVED before CONS in LIST. Return (MOVED . LIST).
 CONS must be a cons in LIST.
 MOVED is the cons of the moved element.
-If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+If non nil, PRE-REMOVED and PRE-INSERTED
 are used to speed up the process.
 The actual new list must be recovered using the returned structure.
 See the docstring of `duo-naive-push' to know why.
@@ -686,9 +684,9 @@ Destructive."
   (let ((newlist list)
         (return))
     (unless (eq cons moved)
-      (setq newlist (cdr (duo-return-remove moved list previous-removed)))
+      (setq newlist (cdr (duo-return-remove moved list pre-removed)))
       (setq return (duo-return-insert-cons-previous cons moved newlist
-                                             previous-inserted))
+                                             pre-inserted))
       (when (eq (cdr return) newlist)
         (setq newlist return)))
     (cons moved newlist)))

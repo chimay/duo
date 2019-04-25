@@ -457,8 +457,7 @@ Destructive."
                        previous
                      (duo-previous cons list)))
          (last previous))
-    (when (and (cdr list)
-               previous)
+    (when (and cons previous (cdr list))
       (while (cdr last)
         (setq last (cdr last)))
       (setcdr previous nil)
@@ -484,8 +483,7 @@ Destructive."
   (let* ((list (duo-deref reflist))
          (next (cdr cons))
          (last next))
-    (when (and (cdr list)
-               next)
+    (when (and cons next (cdr list))
       (while (cdr last)
         (setq last (cdr last)))
       (setcdr cons nil)
@@ -912,12 +910,12 @@ Destructive."
 ;;; Cons Cons
 ;;; ------------------------------
 
-(defun duo-ref-teleport-cons-previous (cons moved reflist &optional
-                                            previous-removed previous-inserted)
+(defun duo-ref-teleport-cons-previous (cons moved reflist
+                                            &optional pre-removed pre-inserted)
   "Move MOVED before CONS in list referenced by REFLIST. Return MOVED.
 CONS must be a cons in list referenced by REFLIST.
 MOVED is the cons of the moved element.
-If non nil, PREVIOUS-REMOVED and PREVIOUS-INSERTED
+If non nil, PRE-REMOVED and PRE-INSERTED
 are used to speed up the process.
 See `duo-deref' for the format of REFLIST.
 See the docstring of `duo-naive-push' to know why it doesn’t
@@ -931,8 +929,8 @@ Common usage :
 \(setq mylist (duo-deref reflist))
 Destructive."
   (unless (eq cons moved)
-    (duo-ref-remove moved reflist previous-removed)
-    (duo-ref-insert-cons-previous cons moved reflist previous-inserted))
+    (duo-ref-remove moved reflist pre-removed)
+    (duo-ref-insert-cons-previous cons moved reflist pre-inserted))
   moved)
 
 (defun duo-ref-teleport-cons-next (cons moved reflist &optional previous)

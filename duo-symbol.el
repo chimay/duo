@@ -317,8 +317,7 @@ Destructive."
                        previous
                      (duo-previous cons list)))
          (last previous))
-    (when (and (cdr list)
-               previous)
+    (when (and cons previous (cdr list))
       (while (cdr last)
         (setq last (cdr last)))
       (setcdr previous nil)
@@ -338,8 +337,7 @@ Destructive."
   (let* ((list (symbol-value symlist))
          (next (cdr cons))
          (last next))
-    (when (and (cdr list)
-               next)
+    (when (and cons next (cdr list))
       (while (cdr last)
         (setq last (cdr last)))
       (setcdr cons nil)
@@ -364,11 +362,14 @@ Destructive."
          (argassoc (duo-partition restargs #'duo-type-of))
          (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
                        #'equal))
-         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
-                       (duo-before elem list 1 fn-equal)))
-         (duo (if previous
-                  (cdr previous)
-                list)))
+         (arg-pre (car (cdr (car (duo-assoc "cons" argassoc)))))
+         (previous (if (and arg-pre
+                            (funcall fn-equal elem (car (cdr arg-pre))))
+                       arg-pre
+                     (duo-before elem list 1 fn-equal)))
+         (duo (if (funcall fn-equal elem (car list))
+                  list
+                (cdr previous))))
     (duo-sym-roll-cons-to-beg duo symlist previous)))
 
 (defun duo-sym-roll-to-end (elem symlist &optional fn-equal)
