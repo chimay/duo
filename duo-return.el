@@ -36,6 +36,7 @@
   (require 'duo-common))
 
 (declare-function duo-< "duo-common")
+(declare-function duo-type-of "duo-common")
 (declare-function duo-last "duo-common")
 (declare-function duo-inside "duo-common")
 (declare-function duo-member "duo-common")
@@ -46,6 +47,7 @@
 (declare-function duo-circ-next "duo-common")
 (declare-function duo-circ-before "duo-common")
 (declare-function duo-assoc "duo-common")
+(declare-function duo-partition "duo-common")
 
 ;;; Stack & Queue
 ;;; ------------------------------------------------------------
