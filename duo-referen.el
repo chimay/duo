@@ -1019,8 +1019,12 @@ Destructive."
          (argassoc (duo-partition restargs #'duo-type-of))
          (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
                        #'equal))
-         (previous (or (car (cdr (car (duo-assoc "cons" argassoc))))
-                       (duo-before moved list 1 fn-equal)))
+         (arg-pre (car (cdr (car (duo-assoc "cons" argassoc)))))
+         (previous (if (and
+                        arg-pre
+                        (funcall fn-equal moved (car (cdr arg-pre))))
+                       arg-pre
+                     (duo-before moved list 1 fn-equal)))
          (duo (if previous
                   (cdr previous)
                 (duo-member moved list fn-equal))))
