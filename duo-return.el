@@ -434,21 +434,20 @@ Destructive."
                              (not (eq previous new)))
                         previous
                       (duo-previous cons list))))
-      (if previous
-          (progn
-            (setcdr new (cdr previous))
-            (setcdr previous new)
-            new)
-        nil))))
+      (when (and cons new previous)
+        (setcdr new (cdr previous))
+        (setcdr previous new))
+      new)))
 
 (defun duo-return-insert-cons-next (cons new)
   "Insert NEW after CONS in list. Return NEW.
 CONS must be a cons in LIST.
 NEW is the cons inserted.
 Destructive."
+  (when (and cons new)
     (setcdr new (cdr cons))
-    (setcdr cons new)
-    new)
+    (setcdr cons new))
+  new)
 
 ;;; Cons Elem
 ;;; ------------------------------
@@ -735,8 +734,12 @@ Destructive."
   (let* ((argassoc (duo-partition restargs #'duo-type-of))
          (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
                        #'equal))
-         (pre-removed (or (car (cdr (car (duo-assoc "cons" argassoc))))
-                          (duo-before moved list 1 fn-equal)))
+         (arg-pre-removed (car (cdr (car (duo-assoc "cons" argassoc)))))
+         (pre-removed (if (and
+                           arg-pre-removed
+                           (funcall fn-equal moved (car (cdr arg-pre-removed))))
+                          arg-pre-removed
+                        (duo-before moved list 1 fn-equal)))
          (pre-inserted (car (nthcdr 2 (car (duo-assoc "cons" argassoc)))))
          (duo (if pre-removed
                   (cdr pre-removed)
