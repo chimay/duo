@@ -687,7 +687,7 @@ Common usage :
 Destructive."
   (let ((newlist list)
         (return))
-    (unless (eq cons moved)
+    (when (and cons moved (not (eq cons moved)))
       (setq newlist (cdr (duo-return-remove moved list pre-removed)))
       (setq return (duo-return-insert-cons-previous cons moved newlist
                                              pre-inserted))
@@ -708,7 +708,7 @@ Common usage :
 \(setq list (cdr pair))
 Destructive."
   (let ((newlist list))
-    (unless (eq cons moved)
+    (when (and cons moved (not (eq cons moved)))
       (setq newlist (cdr (duo-return-remove moved list previous)))
       (duo-return-insert-cons-next cons moved))
     (cons moved newlist)))

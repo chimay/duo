@@ -932,7 +932,7 @@ Common usage :
 ;; Update list
 \(setq mylist (duo-deref reflist))
 Destructive."
-  (unless (eq cons moved)
+  (when (and cons moved (not (eq cons moved)))
     (duo-ref-remove moved reflist pre-removed)
     (duo-ref-insert-cons-previous cons moved reflist pre-inserted))
   moved)
@@ -953,7 +953,7 @@ Common usage :
 ;; Update list
 \(setq mylist (duo-deref reflist))
 Destructive."
-  (unless (eq cons moved)
+  (when (and cons moved (not (eq cons moved)))
     (duo-ref-remove moved reflist previous)
     (duo-ref-insert-cons-next cons moved))
   moved)

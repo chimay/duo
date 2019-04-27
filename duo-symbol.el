@@ -712,7 +712,7 @@ uses the list symbol as argument.
 Common usage :
 \(duo-sym-teleport-cons-previous cons moved 'list)
 Destructive."
-  (unless (eq cons moved)
+  (when (and cons moved (not (eq cons moved)))
     (duo-sym-remove moved symlist pre-removed)
     (duo-sym-insert-cons-previous cons moved symlist pre-inserted))
   moved)
@@ -727,7 +727,7 @@ uses the list symbol as argument.
 Common usage :
 \(duo-sym-teleport-cons-next cons moved 'list)
 Destructive."
-  (unless (eq cons moved)
+  (when (and cons moved (not (eq cons moved)))
     (duo-sym-remove moved symlist previous)
     (duo-sym-insert-cons-next cons moved))
   moved)
