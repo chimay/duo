@@ -753,6 +753,11 @@ Destructive."
          (argassoc (duo-partition restargs #'duo-type-of))
          (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
                        #'equal))
+         (arg-pre-removed (car (cdr (car (duo-assoc "cons" argassoc)))))
+         (pre-removed (if (and arg-pre-removed
+                            (funcall fn-equal elem (car (cdr arg-pre))))
+                       arg-pre-removed
+                     (duo-previous cons list)))
          (pre-removed (or (car (cdr (car (duo-assoc "cons" argassoc))))
                           (duo-before moved list 1 fn-equal)))
          (pre-inserted (car (nthcdr 2 (car (duo-assoc "cons" argassoc)))))

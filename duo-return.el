@@ -584,7 +584,7 @@ Destructive."
                              (not (eq previous cons)))
                         previous
                       (duo-previous cons list))))
-      (when previous
+      (when (and cons previous)
         (setcdr previous (cdr cons))
         (setcdr cons nil))
       (cons cons list))))
