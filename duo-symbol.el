@@ -736,7 +736,7 @@ Destructive."
 ;;; ------------------------------
 
 (defun duo-sym-teleport-previous (cons moved symlist &rest restargs)
-  "Move MOVED before CONS in SYMLIST. Return MOVED.
+  "Move MOVED before CONS in SYMLIST. Return cons of MOVED.
 CONS must be a cons in SYMLIST.
 MOVED is the value of the moved element.
 If non nil in RESTARGS :
@@ -765,7 +765,7 @@ Destructive."
     (duo-sym-teleport-cons-previous cons duo symlist pre-removed pre-inserted)))
 
 (defun duo-sym-teleport-next (cons moved symlist &rest restargs)
-  "Move MOVED after CONS in SYMLIST. Return MOVED.
+  "Move MOVED after CONS in SYMLIST. Return cons of MOVED.
 CONS must be a cons in SYMLIST.
 MOVED is the value of the moved element.
 If non nil in RESTARGS :
@@ -813,8 +813,12 @@ Destructive."
          (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
                        #'equal))
          (pre-removed (car (cdr (car (duo-assoc "cons" argassoc)))))
-         (pre-inserted (or (car (nthcdr 2 (car (duo-assoc "cons" argassoc))))
-                           (duo-before elem list 1 fn-equal)))
+         (arg-pre-inserted (car (nthcdr 2 (car (duo-assoc "cons" argassoc)))))
+         (pre-inserted (if (and
+                           arg-pre-inserted
+                           (funcall fn-equal elem (car (cdr arg-pre-inserted))))
+                          arg-pre-inserted
+                        (duo-before elem list 1 fn-equal)))
          (duo (if pre-inserted
                   (cdr pre-inserted)
                 (duo-member elem list fn-equal))))
