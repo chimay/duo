@@ -828,8 +828,15 @@ Destructive."
   (let* ((argassoc (duo-partition restargs #'duo-type-of))
          (fn-equal (or (car (cdr (car (duo-assoc "function" argassoc))))
                        #'equal))
-         (previous (car (cdr (car (duo-assoc "cons" argassoc)))))
-         (duo (duo-member elem list fn-equal)))
+         (arg-pre (car (cdr (car (duo-assoc "cons" argassoc)))))
+         (previous (if (and
+                        arg-pre
+                        (funcall fn-equal elem (car (cdr arg-pre))))
+                       arg-pre
+                     (duo-before elem list 1 fn-equal)))
+         (duo (if previous
+                  (cdr previous)
+                (duo-member elem list fn-equal))))
     (duo-return-teleport-cons-next duo moved list previous)))
 
 ;;; Elem Elem
