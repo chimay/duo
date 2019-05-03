@@ -840,7 +840,7 @@ Destructive."
       (setq duo (cdr duo))))
   list)
 
-;;; Assoc
+;;; Assoc map
 ;;; ------------------------------
 
 (defun duo-assoc-map (list fn-map)
@@ -893,8 +893,28 @@ Destructive."
         (setcdr last nil)))
     tail))
 
-;;; In Group
+;;; Group
 ;;; ------------------------------------------------------------
+
+(defun duo-in-group (elem list &optional fn-group)
+  "Return list of elements in LIST in same group as ELEM.
+FN-GROUP takes two arguments and returns t if they belongs to the same group.
+FN-GROUP defaults to `equal'.
+LIST is not modified."
+  (let ((fn-group (or fn-group #'equal))
+        (duo list)
+        (new)
+        (last)
+        (grouped))
+    (while duo
+      (when (funcall fn-group elem (car duo))
+        (setq new (cons (copy-tree (car duo)) nil))
+        (if grouped
+            (setcdr last new)
+          (setq grouped new))
+        (setq last new))
+      (setq duo (cdr duo)))
+    grouped))
 
 ;;; Next / Previous
 ;;; ------------------------------
@@ -1130,7 +1150,7 @@ LIST is not modified."
         (filtered))
     (while duo
       (when (funcall fn-filter (car duo))
-        (setq new (cons (purecopy (car duo)) nil))
+        (setq new (cons (copy-tree (car duo)) nil))
         (if filtered
             (setcdr last new)
           (setq filtered new))
@@ -1260,7 +1280,7 @@ FN-KEY defaults to `identity'."
         (key-last)
         (boundary))
     (while duo
-      (setq value (purecopy (car duo)))
+      (setq value (copy-tree (car duo)))
       (setq key (funcall fn-key value))
       (setq new (list value))
       (setq assoc-key (duo-assoc key assoc))
@@ -1293,7 +1313,7 @@ FN-KEY defaults to `identity'."
         (key-last)
         (boundary))
     (while duo
-      (setq value (purecopy (car duo)))
+      (setq value (copy-tree (car duo)))
       (setq key (funcall fn-key value))
       (setq new (list value))
       (setq assoc-key (duo-assoc key assoc))
