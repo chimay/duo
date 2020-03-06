@@ -98,7 +98,7 @@
 ;;; ------------------------------------------------------------
 
 (defun duo-init (&rest file-list)
-  "Load files in LIST."
+  "Load files in FILE-LIST."
   (let ((file-list (or file-list (list "duo-common"
                                        "duo-symbol"
                                        "duo-referen"

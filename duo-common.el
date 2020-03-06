@@ -196,7 +196,7 @@ Return nil if ONE and TWO are distincts or not cons."
 ;;; ------------------------------------------------------------
 
 (defun duo-type-of (argument)
-  "Return an assoc of ARGLIST sorted by types."
+  "Return an assoc of ARGUMENT sorted by types."
   (cond ((integerp argument) "integer")
         ((stringp argument) "string")
         ((vectorp argument) "vector")
