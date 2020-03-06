@@ -1,0 +1,2 @@
+(duo :repo "chimay/duo"
+     :fetcher github)
