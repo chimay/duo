@@ -1,0 +1,33 @@
+<h1 id="duo-elisp-list-operations-wo-copy">Duo : Elisp list operations w/o copy</h1>
+<p>Duo is a toolbox that allows you to manipulate lists in place, without the cost of creating a copy of it. Its functions will modify the list you pass as argument, whenever possible or reasonable.</p>
+<p>More information <a href="https://github.com/chimay/duo">here</a></p>
+<h1 id="available-operations">Available operations</h1>
+<ul>
+<li>Finding cons in list</li>
+<li>Finding previous / next cons</li>
+<li>Replace element</li>
+<li>Map</li>
+<li>Join</li>
+<li>Truncate</li>
+<li>Next / Previous in group</li>
+<li>Next / Previous matching filter</li>
+<li>Push, Add</li>
+<li>Pop, Drop</li>
+<li>Rotate &lt;- or -&gt;</li>
+<li>Roll until a cons is first or last</li>
+<li>Reverse</li>
+<li>Insert</li>
+<li>Remove, Delete</li>
+<li>Teleport : move after or before another cons or element</li>
+<li>Move previous or next</li>
+<li>Exchange cons or elements</li>
+<li>Insert in sorted list</li>
+<li>Insert at group beginning or end</li>
+<li>Partition with a key function to form an alist</li>
+</ul>
+<h1 id="circular-list">Circular list</h1>
+<p>Some functions simulate virtual circular lists by :</p>
+<ul>
+<li>Continuing at the beginning once arrived at the end</li>
+<li>Continuing at the end once arrived at the beginning</li>
+</ul>
