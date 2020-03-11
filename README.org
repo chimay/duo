@@ -238,9 +238,6 @@ the Alist.
 
 #+begin_src emacs-lisp
   (require 'duo-common)
-  (require 'duo-symbol)
-  (require 'duo-referen)
-  (require 'duo-return)
 
   (setq mylist '(1 2 3 4 5 6 7))
   (print (duo-slice mylist 3 -1))
@@ -248,6 +245,8 @@ the Alist.
   (setq mylist '(1 2 3 4 5 6 7 1 1))
   (duo-replace-all 1 2 mylist)
   (print mylist)
+
+  (require 'duo-symbol)
 
   (setq mylist '(1 2 3 4 5 6 7))
   (duo-sym-rotate-left 'mylist)
@@ -267,10 +266,14 @@ the Alist.
   (duo-sym-reverse 'mylist)
   (print mylist)
 
+  (require 'duo-referen)
+
   (setq ref (list '(1 2 3 4 5 6 7)))
   (duo-ref-reverse ref)
   (print ref)
   (print (duo-deref ref))
+
+  (require 'duo-return)
 
   (setq mylist '(1 2 3 4 5 6 7))
   (setq ret (duo-return-reverse mylist))
