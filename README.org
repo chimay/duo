@@ -237,24 +237,44 @@ the Alist.
 * Examples
 
 #+begin_src emacs-lisp
-  (setq l '(1 2 3 4 5 6 7))
-  (duo-slice l 3 -1)
+  (require 'duo-common)
+  (require 'duo-symbol)
+  (require 'duo-referen)
+  (require 'duo-return)
 
-  (setq l '(1 2 3 4 5 6 7 1 1))
-  (duo-replace-all 1 2 l)
+  (setq mylist '(1 2 3 4 5 6 7))
+  (print (duo-slice mylist 3 -1))
 
-  (setq l '(1 2 3 4 5 6 7))
-  (duo-sym-rotate-left 'l)
-  (duo-sym-rotate-right 'l)
+  (setq mylist '(1 2 3 4 5 6 7 1 1))
+  (duo-replace-all 1 2 mylist)
+  (print mylist)
 
-  (setq l '(1 2 3 4 5 6 7))
-  (duo-sym-roll-to-end 3 'l)
+  (setq mylist '(1 2 3 4 5 6 7))
+  (duo-sym-rotate-left 'mylist)
+  (print mylist)
+  (duo-sym-rotate-right 'mylist)
+  (print mylist)
 
-  (setq l '((1 . 2) (2 . 4) (3 . 6) (4 . 2) (5 . 3)))
-  (duo-sym-roll-to-beg 3 'l 'duo-x-match-car-p)
+  (setq mylist '(1 2 3 4 5 6 7))
+  (duo-sym-roll-to-end 3 'mylist)
+  (print mylist)
 
-  (setq l '(1 2 3 4 5 6 7))
-  (duo-sym-reverse 'l)
+  (setq mylist '((1 . 2) (2 . 4) (3 . 6) (4 . 2) (5 . 3)))
+  (duo-sym-roll-to-beg 3 'mylist 'duo-x-match-car-p)
+  (print mylist)
+
+  (setq mylist '(1 2 3 4 5 6 7))
+  (duo-sym-reverse 'mylist)
+  (print mylist)
+
+  (setq ref (list '(1 2 3 4 5 6 7)))
+  (duo-ref-reverse ref)
+  (print ref)
+  (print (duo-deref ref))
+
+  (setq mylist '(1 2 3 4 5 6 7))
+  (setq ret (duo-return-reverse mylist))
+  (print ret)
 #+end_src
 
 * Warning
